@@ -93,7 +93,7 @@ void Graphics::SetResolution(const unsigned int & width, const unsigned int & he
 	assert(SUCCEEDED(hr));
 
 	CreateRenderTargetView();
-	CreateDepthStencilView(width, height);
+	CreateDepthStencilView(width, height, m_depthStencilView.GetAddressOf());
 	SetViewport(width, height);
 }
 
@@ -169,39 +169,40 @@ void Graphics::CreateRenderTargetView()
 	assert(SUCCEEDED(hr));
 }
 
-void Graphics::CreateDepthStencilView(const unsigned int& width, const unsigned int& height)
+void Graphics::CreateRenderTargetView(const UINT & width, const UINT & height, ID3D11RenderTargetView ** rtv, ID3D11ShaderResourceView ** srv, const DXGI_FORMAT & format)
+{
+}
+
+void Graphics::CreateDepthStencilView(const UINT & width, const UINT & height, ID3D11DepthStencilView ** view, const DXGI_FORMAT & format)
 {
 	//Set up the description of the depth buffer.
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-	depthBufferDesc.Width = width;
-	depthBufferDesc.Height = height;
-	depthBufferDesc.MipLevels = 1;
-	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
-	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthBufferDesc.CPUAccessFlags = 0;
-	depthBufferDesc.MiscFlags = 0;
+	D3D11_TEXTURE2D_DESC bufferdesc;
+	ZeroMemory(&bufferdesc, sizeof(bufferdesc));
+	bufferdesc.Width = width;
+	bufferdesc.Height = height;
+	bufferdesc.MipLevels = 1;
+	bufferdesc.ArraySize = 1;
+	bufferdesc.Format = format;
+	bufferdesc.SampleDesc.Count = 1;
+	bufferdesc.SampleDesc.Quality = 0;
+	bufferdesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferdesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	bufferdesc.CPUAccessFlags = 0;
+	bufferdesc.MiscFlags = 0;
 
 	//Create the texture for the depth buffer using the filled out description.
-	ComPtr<ID3D11Texture2D> m_DepthStencilBuffer;
-	HRESULT hr = m_device->CreateTexture2D(&depthBufferDesc, NULL, m_DepthStencilBuffer.GetAddressOf());
+	ComPtr<ID3D11Texture2D> buffer;
+	HRESULT hr = m_device->CreateTexture2D(&bufferdesc, NULL, buffer.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	//Set up the depth stencil view description.
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	D3D11_DEPTH_STENCIL_VIEW_DESC viewdesc;
+	ZeroMemory(&viewdesc, sizeof(viewdesc));
+	viewdesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	viewdesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	viewdesc.Texture2D.MipSlice = 0;
 
 	//Create the depth stencil view.
-	hr = m_device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), &depthStencilViewDesc, m_depthStencilView.GetAddressOf());
+	hr = m_device->CreateDepthStencilView(buffer.Get(), &viewdesc, view);
 	assert(SUCCEEDED(hr));
-
-	//Bind the render target view and depth stencil buffer to the output render pipeline.
-	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
 }

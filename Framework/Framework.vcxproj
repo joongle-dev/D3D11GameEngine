@@ -30,6 +30,7 @@
     <ClInclude Include="D3D11\DepthStencilState.h" />
     <ClInclude Include="D3D11\InputLayout.h" />
     <ClInclude Include="D3D11\RasterizerState.h" />
+    <ClInclude Include="D3D11\RenderTarget.h" />
     <ClInclude Include="D3D11\Shader.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Resource\Mesh.h" />
@@ -62,6 +63,7 @@
     <ClCompile Include="D3D11\DepthStencilState.cpp" />
     <ClCompile Include="D3D11\InputLayout.cpp" />
     <ClCompile Include="D3D11\RasterizerState.cpp" />
+    <ClCompile Include="D3D11\RenderTarget.cpp" />
     <ClCompile Include="D3D11\Shader.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Resource\Mesh.cpp" />

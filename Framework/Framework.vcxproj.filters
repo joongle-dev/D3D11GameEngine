@@ -33,6 +33,7 @@
     <ClInclude Include="Utility\Handle.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Framework.h" />
+    <ClInclude Include="D3D11\RenderTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -58,5 +59,6 @@
     <ClCompile Include="System\Window.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Framework.cpp" />
+    <ClCompile Include="D3D11\RenderTarget.cpp" />
   </ItemGroup>
 </Project>

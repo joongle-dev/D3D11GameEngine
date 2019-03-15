@@ -21,7 +21,19 @@ public:
 private:
 	void CreateSwapChain(HWND hWnd);
 	void CreateRenderTargetView();
-	void CreateDepthStencilView(const unsigned int& width, const unsigned int& height);
+	void CreateRenderTargetView(
+		const UINT& width,
+		const UINT& height,
+		ID3D11RenderTargetView** rtv,
+		ID3D11ShaderResourceView** srv = nullptr,
+		const DXGI_FORMAT& format = DXGI_FORMAT_R8G8B8A8_UNORM
+	);
+	void CreateDepthStencilView(
+		const UINT& width, 
+		const UINT& height, 
+		ID3D11DepthStencilView** dsv, 
+		const DXGI_FORMAT& format = DXGI_FORMAT_D24_UNORM_S8_UINT
+	);
 	void SetViewport(const unsigned int& width, const unsigned int& height);
 
 private:
