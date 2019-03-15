@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Editor.h"
 
 int APIENTRY WinMain(
 	_In_ HINSTANCE hInstance,
@@ -9,9 +10,9 @@ int APIENTRY WinMain(
 	//FbxLoader loader;
 	//loader.Load("Boxing.fbx");
 
-	Engine engine;
+	Editor editor;
 
-	Context* context = engine.GetContext();
+	Context* context = editor.GetContext();
 
 	context->GetSubsystem<Graphics>()->SetClearColor(0, 0, 0, 1);
 	context->GetSubsystem<Time>()->LockFramerate(144);
@@ -27,7 +28,7 @@ int APIENTRY WinMain(
 	MeshRenderer* meshRenderer = object->AddComponent<MeshRenderer>();
 	meshRenderer->SetMesh(resources->Get<Mesh>("Boy01_Body_Geo"));
 
-	engine.Run();
+	editor.Run();
 
 	return 0;
 }

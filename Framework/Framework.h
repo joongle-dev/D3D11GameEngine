@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <wincodec.h>
 
+#include <functional>
 #include <string>
 #include <memory>
 #include <vector>
@@ -34,7 +35,6 @@ using Matrix	 = DirectX::SimpleMath::Matrix;
 using Color		 = DirectX::SimpleMath::Color;
 
 #include "./System/Context.h"
-#include "./Engine.h"
 
 //Utilities
 #include "./Utility/FamilyTypeID.h"

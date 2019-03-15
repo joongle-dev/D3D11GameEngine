@@ -32,7 +32,6 @@
     <ClInclude Include="Utility\Geometry.h" />
     <ClInclude Include="Utility\Handle.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="Framework.h" />
   </ItemGroup>
   <ItemGroup>
@@ -58,7 +57,6 @@
     <ClCompile Include="System\Time.cpp" />
     <ClCompile Include="System\Window.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="Framework.cpp" />
   </ItemGroup>
 </Project>

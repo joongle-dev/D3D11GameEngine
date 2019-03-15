@@ -11,12 +11,12 @@ public:
 	void Open(const std::string& path)
 	{
 		stream.open(path, std::ios::in | std::ios::binary);
-		assert(!stream.fail());
+		assert(!stream.fail(), "Failed to open file");
 	}
 	void Open(const std::wstring& path)
 	{
 		stream.open(path, std::ios::in | std::ios::binary);
-		assert(!stream.fail());
+		assert(!stream.fail(), "Failed to open file");
 	}
 	void Close()
 	{
@@ -63,12 +63,12 @@ public:
 	void Open(const std::string& path)
 	{
 		stream.open(path, std::ios::out | std::ios::binary);
-		assert(!stream.fail());
+		assert(!stream.fail(), "Failed to create file");
 	}
 	void Open(const std::wstring& path)
 	{
 		stream.open(path, std::ios::out | std::ios::binary);
-		assert(!stream.fail());
+		assert(!stream.fail(), "Failed to create file");
 	}
 	void Close()
 	{

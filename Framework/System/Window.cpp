@@ -58,6 +58,9 @@ void Window::Update()
 	}
 	if (msg.message == WM_QUIT) 
 		m_context->SetActive(false);
+
+	for (auto& func : m_subscribers)
+		func(msg.hwnd, msg.message, msg.wParam, msg.lParam);
 }
 
 void Window::Show()

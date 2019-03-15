@@ -1,17 +1,15 @@
 #pragma once
 
-class Engine final
+class Engine
 {
 public:
 	Engine();
 	~Engine() = default;
 
-	void Run();
+	void Update();
 
 	class Context* GetContext() const { return m_context.get(); }
 
-private:
+protected:
 	std::unique_ptr<class Context> m_context;
-	class Graphics* graphics;
-	class Window* window;
 };

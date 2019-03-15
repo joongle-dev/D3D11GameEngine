@@ -32,7 +32,6 @@
     <ClInclude Include="D3D11\RasterizerState.h" />
     <ClInclude Include="D3D11\Shader.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="Resource\Mesh.h" />
     <ClInclude Include="Resource\Resource.h" />
     <ClInclude Include="Resource\Texture.h" />
@@ -65,7 +64,6 @@
     <ClCompile Include="D3D11\RasterizerState.cpp" />
     <ClCompile Include="D3D11\Shader.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="Resource\Mesh.cpp" />
     <ClCompile Include="Resource\Texture.cpp" />
     <ClCompile Include="Framework.cpp">

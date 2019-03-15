@@ -3,6 +3,8 @@
 
 class Window final : public Subsystem<Window>
 {
+	using WndProcHandler = std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>;
+
 public:
 	Window(class Context* context, const std::wstring& name, const unsigned int& width, const unsigned int& height, const DWORD& style = WS_OVERLAPPEDWINDOW);
 	~Window();
@@ -14,6 +16,10 @@ public:
 
 	void Show();
 
+	inline void WndProcSubscribe(WndProcHandler func)
+	{
+		m_subscribers.push_back(func);
+	}
 	inline const HWND& GetHandle() const
 	{ 
 		return m_handle;
@@ -39,6 +45,8 @@ private:
 	HWND m_handle;
 	HINSTANCE m_instance;
 	std::wstring m_name;
+
+	std::vector<WndProcHandler> m_subscribers;
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };
