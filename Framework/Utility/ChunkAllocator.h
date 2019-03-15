@@ -24,7 +24,7 @@ class ChunkAllocator : public IChunkAllocator
 
 	public:
 		size_t numAllocated;
-		T*	   handles[CHUNKSIZE];
+		T*     handles[CHUNKSIZE];
 		__int8 memory[CHUNKSIZE * sizeof(T)];
 	};
 

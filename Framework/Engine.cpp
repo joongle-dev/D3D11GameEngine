@@ -38,7 +38,7 @@ void Engine::Run()
 		if (elapsed < min) min = elapsed;
 		if (elapsed > max) max = elapsed;
 		if (total >= 1000.0f) {
-			printf("Frame time:  avg.%6.2fms  min.%6.2fms  max.%6.2fms\n", total / (float)count, min, max);
+			printf("Frame time:  avg.%6.2fms  min.%6.2fms  max.%6.2fms\n", (double)total / (double)count, min, max);
 			total -= 1000.0f;
 			min = 1000.0f;
 			max = 0.0f;
