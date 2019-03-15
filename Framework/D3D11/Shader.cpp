@@ -53,7 +53,7 @@ void Shader::Create(std::string path, std::string vs, std::string ps)
 	assert(SUCCEEDED(hr));
 }
 
-void Shader::BindPipeline()
+void Shader::Bind()
 {
 	m_graphics->GetDeviceContext()->VSSetShader(m_vertex.Get(), nullptr, 0);
 	m_graphics->GetDeviceContext()->PSSetShader(m_pixel.Get(), nullptr, 0);

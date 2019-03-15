@@ -112,7 +112,7 @@ void InputLayout::Create(LPD3D10BLOB bytecode)
 	assert(SUCCEEDED(hr));
 }
 
-void InputLayout::BindPipeline()
+void InputLayout::Bind()
 {
 	m_graphics->GetDeviceContext()->IASetInputLayout(m_layout.Get());
 }

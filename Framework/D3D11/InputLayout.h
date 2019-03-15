@@ -12,7 +12,7 @@ public:
 	void Create(LPD3D10BLOB bytecode, D3D11_INPUT_ELEMENT_DESC* elements, const unsigned int count);
 	void Create(LPD3D10BLOB bytecode);
 
-	void BindPipeline();
+	void Bind();
 
 private:
 	class Graphics* m_graphics;

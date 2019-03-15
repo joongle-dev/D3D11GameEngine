@@ -23,7 +23,7 @@ void BlendState::Create()
 	assert(SUCCEEDED(hr));
 }
 
-void BlendState::BindPipeline()
+void BlendState::Bind()
 {
 	m_graphics->GetDeviceContext()->OMSetBlendState(m_state.Get(), 0, 0xffffffff);
 }

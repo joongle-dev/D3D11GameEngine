@@ -7,20 +7,18 @@ public:
 	Graphics(class Context* context);
 	~Graphics() = default;
 
-	void SetClearColor(const float& r, const float& g, const float& b, const float& a);
-	void SetResolution(const unsigned int& width, const unsigned int& height);
-
 	void Begin();
 	void End();
 
-	ID3D11Device* GetDevice() { return m_device.Get(); }
-	ID3D11DeviceContext* GetDeviceContext() { return m_deviceContext.Get(); }
+	ID3D11Device* GetDevice() const { return m_device.Get(); }
+	ID3D11DeviceContext* GetDeviceContext() const { return m_devicecontext.Get(); }
 
-	const float GetAspectRatio() const { return (float)m_width / (float)m_height; }
+	void SetClearColor(const Color& color) { m_color = color; }
+	void SetResolution(const UINT& width, const UINT& height);
 
-private:
-	void CreateSwapChain(HWND hWnd);
-	void CreateRenderTargetView();
+	const float GetAspectRatio() const { return m_viewport.Width / m_viewport.Height; }
+
+public:
 	void CreateRenderTargetView(
 		const UINT& width,
 		const UINT& height,
@@ -29,24 +27,27 @@ private:
 		const DXGI_FORMAT& format = DXGI_FORMAT_R8G8B8A8_UNORM
 	);
 	void CreateDepthStencilView(
-		const UINT& width, 
-		const UINT& height, 
-		ID3D11DepthStencilView** dsv, 
+		const UINT& width,
+		const UINT& height,
+		ID3D11DepthStencilView** dsv,
 		const DXGI_FORMAT& format = DXGI_FORMAT_D24_UNORM_S8_UINT
 	);
-	void SetViewport(const unsigned int& width, const unsigned int& height);
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
+	void CreateSwapChain(HWND hWnd);
+	void CreateRenderTargetView();
+	void SetViewport(const UINT& width, const UINT& height);
+
+private:
+	Microsoft::WRL::ComPtr<ID3D11Device>        m_device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_devicecontext;
+
+	Microsoft::WRL::ComPtr<IDXGISwapChain>         m_swapchain;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_rendertargetview;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthstencilview;
 
 	D3D11_VIEWPORT m_viewport;
-	unsigned int m_width;
-	unsigned int m_height;
-	float m_color[4];
+	Color m_color;
 
 	bool m_fullscreen;
 	bool m_vsync;

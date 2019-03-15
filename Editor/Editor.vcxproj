@@ -33,6 +33,9 @@
     <ClInclude Include="ImGui\Source\imstb_truetype.h" />
     <ClInclude Include="ImGui\TextEditor.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Widget\IWidget.h" />
+    <ClInclude Include="Widget\Widget_Hierarchy.h" />
+    <ClInclude Include="Widget\Widget_Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Editor.cpp" />
@@ -68,6 +71,8 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Widget\Widget_Hierarchy.cpp" />
+    <ClCompile Include="Widget\Widget_Scene.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -5,6 +5,9 @@
 #include "./ImGui/imgui_impl_win32.h"
 #include "./ImGui/imgui_impl_dx11.h"
 
+#include "./Widget/Widget_Scene.h"
+#include "./Widget/Widget_Hierarchy.h"
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
 Editor::Editor()
@@ -23,10 +26,16 @@ Editor::Editor()
 	ImGui::StyleColorsDark();
 
 	window->WndProcSubscribe(ImGui_ImplWin32_WndProcHandler);
+
+	m_widgets.emplace_back(new Widget_Scene(m_context));
+	m_widgets.emplace_back(new Widget_Hierarchy(m_context));
 }
 
 Editor::~Editor()
 {
+	for (auto& widget : m_widgets)
+		if (widget) delete widget;
+
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 }
@@ -41,8 +50,7 @@ void Editor::Run()
 
 void Editor::Update()
 {
-	//m_engine->Update();
-	m_context->GetSubsystem<Window>()->Update();
+	m_engine->Update();
 }
 
 void Editor::Render()
@@ -58,6 +66,12 @@ void Editor::Render()
 	ImGui::Begin("Test Window");
 	ImGui::Text("Frame time: %5.2fms", 1000.0f / ImGui::GetIO().Framerate);
 	ImGui::End();
+	for (auto& widget : m_widgets)
+	{
+		widget->Begin();
+		widget->Render();
+		widget->End();
+	}
 
 	//Assemble and render draw data
 	ImGui::Render();

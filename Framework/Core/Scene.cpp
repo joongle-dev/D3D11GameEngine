@@ -2,9 +2,16 @@
 #include "Scene.h"
 
 Scene::Scene(Context* context) :
-	m_context(context)
+	m_context(context), m_name("Test Scene")
 {
 	m_root = new Transform(context, nullptr);
+
+	RenderTarget* temp = new RenderTarget(context);
+	temp->Create(800, 400);
+
+	GameObject* object = Instantiate();
+	object->AddComponent<Camera>()->SetRenderTarget(temp);
+	object->SetName("Main Camera");
 }
 
 Scene::~Scene() {}

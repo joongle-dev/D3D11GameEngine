@@ -4,7 +4,7 @@
 SceneManager::SceneManager(Context * context) :
 	Subsystem<SceneManager>(context)
 {
-	m_currentScene = new Scene(context);
+	m_current = new Scene(context);
 }
 
 SceneManager::~SceneManager()
@@ -13,5 +13,5 @@ SceneManager::~SceneManager()
 
 void SceneManager::Update()
 {
-	m_currentScene->Update();
+	m_current->Update();
 }

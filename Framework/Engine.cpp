@@ -17,5 +17,5 @@ Engine::Engine()
 
 void Engine::Update()
 {
-	//m_context->Update();
+	m_context->Update();
 }

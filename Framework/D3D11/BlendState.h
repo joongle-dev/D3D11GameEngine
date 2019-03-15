@@ -7,10 +7,11 @@ public:
 	~BlendState() = default;
 
 	void Create();
-	void BindPipeline();
+	void Bind();
 
 private:
 	class Graphics* m_graphics;
+
 	D3D11_BLEND_DESC m_desc;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_state;
 };

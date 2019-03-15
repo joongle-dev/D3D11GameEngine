@@ -7,7 +7,7 @@ public:
 	~DepthStencilState() = default;
 
 	void Create();
-	void BindPipeline();
+	void Bind();
 
 private:
 	class Graphics* m_graphics;

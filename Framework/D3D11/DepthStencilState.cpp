@@ -29,7 +29,7 @@ void DepthStencilState::Create()
 	assert(SUCCEEDED(hr));
 }
 
-void DepthStencilState::BindPipeline()
+void DepthStencilState::Bind()
 {
 	m_graphics->GetDeviceContext()->OMSetDepthStencilState(m_state.Get(), 0);
 }

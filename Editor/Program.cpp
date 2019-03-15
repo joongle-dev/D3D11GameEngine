@@ -14,19 +14,20 @@ int APIENTRY WinMain(
 
 	Context* context = editor.GetContext();
 
-	context->GetSubsystem<Graphics>()->SetClearColor(0, 0, 0, 1);
+	context->GetSubsystem<Graphics>()->SetClearColor(Color(0, 0, 0, 1));
 	context->GetSubsystem<Time>()->LockFramerate(144);
 
 	ResourceManager* resources = context->GetSubsystem<ResourceManager>();
 	resources->Load<Mesh>("Boy01_Body_Geo.mesh");
 
-	Scene* scene = context->GetSubsystem<SceneManager>()->m_currentScene;
-	GameObject* object = scene->Instantiate();
-	object->AddComponent<Camera>();
+	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
-	object = scene->Instantiate();
-	MeshRenderer* meshRenderer = object->AddComponent<MeshRenderer>();
-	meshRenderer->SetMesh(resources->Get<Mesh>("Boy01_Body_Geo"));
+	GameObject* object = scene->Instantiate();
+	object->SetName("T Pose");
+	object->AddComponent<MeshRenderer>()->SetMesh(resources->Get<Mesh>("Boy01_Body_Geo"));
+
+	GameObject* object1 = scene->Instantiate();
+	object1->GetComponent<Transform>()->SetParent(object->GetComponent<Transform>());
 
 	editor.Run();
 

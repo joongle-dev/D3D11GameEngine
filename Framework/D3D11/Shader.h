@@ -7,7 +7,7 @@ public:
 	~Shader() = default;
 
 	void Create(std::string path, std::string vs = "VS", std::string ps = "PS");
-	void BindPipeline();
+	void Bind();
 
 	const bool ShaderErrorHandler(HRESULT hr, LPD3D10BLOB error);
 

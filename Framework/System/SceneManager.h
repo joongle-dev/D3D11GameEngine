@@ -1,7 +1,6 @@
 #pragma once
 #include "Subsystem.h"
 
-class Scene;
 class SceneManager final : public Subsystem<SceneManager>
 {
 public:
@@ -13,6 +12,8 @@ public:
 
 	void Update();
 
-public:
-	Scene* m_currentScene;
+	class Scene* GetCurrentScene() const { return m_current; }
+
+private:
+	class Scene* m_current;
 };

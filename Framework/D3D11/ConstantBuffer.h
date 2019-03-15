@@ -59,7 +59,7 @@ public:
 		m_graphics->GetDeviceContext()->Unmap(m_buffer.Get(), 0);
 	}
 
-	void BindPipeline(const ShaderType type, const unsigned int slot)
+	void Bind(const ShaderType type, const unsigned int slot)
 	{
 		switch (type)
 		{

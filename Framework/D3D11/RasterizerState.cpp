@@ -25,7 +25,7 @@ void RasterizerState::Create()
 	assert(SUCCEEDED(hr));
 }
 
-void RasterizerState::BindPipeline()
+void RasterizerState::Bind()
 {
 	m_graphics->GetDeviceContext()->RSSetState(m_state.Get());
 }

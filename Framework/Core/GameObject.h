@@ -20,7 +20,7 @@ public:
 	void RemoveComponent();
 
 	__declspec(property(get = GetName, put = SetName)) std::string name;
-	std::string GetName() const { return m_name; }
+	const std::string& GetName() const { return m_name; }
 	void SetName(std::string name) { m_name = name; }
 
 private:

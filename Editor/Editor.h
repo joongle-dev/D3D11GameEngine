@@ -17,5 +17,7 @@ private:
 	class Engine* m_engine;
 	class Context* m_context;
 	class Graphics* m_graphics;
+
+	std::vector<class IWidget*> m_widgets;
 };
 

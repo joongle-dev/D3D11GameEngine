@@ -50,6 +50,7 @@ using Color		 = DirectX::SimpleMath::Color;
 #include "D3D11/BlendState.h"
 #include "D3D11/Shader.h"
 #include "D3D11/InputLayout.h"
+#include "D3D11/RenderTarget.h"
 
 //System
 #include "./System/Time.h"
