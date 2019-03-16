@@ -10,5 +10,8 @@ public:
 	void Render() override;
 
 	void AddScene(class Scene* scene);
-	void AddObject(class Transform* parent);
+	void AddObject(class Scene* scene, class Transform* transform);
+
+	void ContextMenu(class Scene* scene, class Transform* parent);
+	void CreateObject(class Scene* scene, class Transform* parent, std::string name = "Empty Object");
 };

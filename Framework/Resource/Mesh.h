@@ -16,6 +16,8 @@ public:
 	Mesh(class Context* context);
 	~Mesh() = default;
 
+	void Create(Geometry& geometry);
+
 	void LoadFromFile(std::string& path) override;
 
 	const unsigned int GetIndexCount() const { return m_numIndices; }

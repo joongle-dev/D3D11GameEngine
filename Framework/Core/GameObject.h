@@ -19,9 +19,10 @@ public:
 	template <class T>
 	void RemoveComponent();
 
-	__declspec(property(get = GetName, put = SetName)) std::string name;
 	const std::string& GetName() const { return m_name; }
 	void SetName(std::string name) { m_name = name; }
+	
+	const UINT& GetInstanceID() const { return m_instanceid; }
 
 private:
 	class Context* m_context;

@@ -60,6 +60,7 @@ void Renderer::Update()
 			m_worldBuffer->Unmap();
 			m_worldBuffer->Bind(ShaderType::VS, 1);
 
+			Transform* trans = renderable->GetTransform();
 			Mesh* mesh = renderable->GetMesh();
 
 			UINT stride = sizeof(Vector3);

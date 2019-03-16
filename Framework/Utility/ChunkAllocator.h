@@ -35,11 +35,16 @@ public:
 	class iterator
 	{
 	public:
-		iterator(typename Chunks::iterator chunk) :
-			m_chunk(chunk), m_index(0) {}
+		iterator(typename Chunks::iterator begin, typename Chunks::iterator end) :
+			m_chunk(begin), m_index(0) 
+		{
+			if ((begin != end) && (m_index >= (*m_chunk)->numAllocated))
+				m_chunk++;
+		}
 		~iterator() = default;
 
-		inline iterator& operator++(int) {
+		inline iterator& operator++(int) 
+		{
 			//Increment handle index
 			m_index++;
 			//If handle index reached end of chunk, go to the start of next chunk
@@ -58,8 +63,8 @@ public:
 		typename size_t m_index;
 		typename Chunks::iterator m_chunk;
 	};
-	iterator begin() { return iterator(m_chunks.begin()); }
-	iterator end() { return iterator(m_chunks.end()); }
+	iterator begin() { return iterator(m_chunks.begin(), m_chunks.end()); }
+	iterator end() { return iterator(m_chunks.end(), m_chunks.end()); }
 
 public:
 	//Chunk allocator=====================================================

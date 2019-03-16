@@ -67,6 +67,11 @@ void Scene::Destroy(GameObject * gameObject)
 	m_objects.ReleaseHandle(handle);
 }
 
+GameObject * Scene::GetByID(uint32_t id)
+{
+	return m_objects[m_objects[id]];
+}
+
 void Scene::Update(Transform * transform)
 {
 	transform->owner->Update();

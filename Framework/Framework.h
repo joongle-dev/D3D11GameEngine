@@ -34,6 +34,8 @@ using Quaternion = DirectX::SimpleMath::Quaternion;
 using Matrix	 = DirectX::SimpleMath::Matrix;
 using Color		 = DirectX::SimpleMath::Color;
 
+#define PI DirectX::XM_PI
+
 #include "./System/Context.h"
 
 //Utilities
