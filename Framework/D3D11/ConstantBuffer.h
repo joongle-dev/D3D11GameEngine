@@ -13,29 +13,13 @@ public:
 	ConstantBuffer(class Context* context, const D3D11_USAGE& usage = D3D11_USAGE_DYNAMIC)
 	{
 		m_graphics = context->GetSubsystem<class Graphics>();
-		D3D11_BUFFER_DESC desc;
-		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
-		switch (usage)
-		{
-			case D3D11_USAGE_DEFAULT:
-				desc.CPUAccessFlags = 0;
-				break;
-			case D3D11_USAGE_DYNAMIC:
-				desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-				break;
-		}
-		desc.Usage = usage;
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.ByteWidth = sizeof(T);
-
-		auto hr = m_graphics->GetDevice()->CreateBuffer
-		(
-			&desc,
+		m_graphics->CreateBuffer(
+			m_buffer.ReleaseAndGetAddressOf(),
+			D3D11_BIND_CONSTANT_BUFFER,
+			sizeof(T),
 			nullptr,
-			m_buffer.ReleaseAndGetAddressOf()
-		);
-		assert(SUCCEEDED(hr));
+			usage);
 	}
 	~ConstantBuffer() = default;
 

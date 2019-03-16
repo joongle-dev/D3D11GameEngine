@@ -6,36 +6,47 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 	Subsystem<Window>(context), 
 	m_name(name)
 {
+	//Get instance handle
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
+	//Adjust window size
 	RECT rect = { 0, 0, width, height };
 	AdjustWindowRect(&rect, style, FALSE);
 
+	//Register window class
 	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
-	wcex.lpszMenuName = name.c_str();
-	wcex.lpszClassName = name.c_str();
-	wcex.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
+	wcex.cbSize = sizeof(WNDCLASSEX);						 //Size of this structure
+	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;		 //Window style
+	wcex.lpfnWndProc = StaticWindowProc;					 //Window procedure
+	wcex.cbClsExtra = 0;									 //
+	wcex.cbWndExtra = sizeof(this);							 //Reserve space to store this instance
+	wcex.hInstance = hInstance;								 //
+	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);		 //Icon
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);			 //Cursor
+	wcex.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH); //Background color
+	wcex.lpszMenuName = name.c_str();						 //Resource name
+	wcex.lpszClassName = name.c_str();						 //Class name
+	wcex.hIconSm = NULL;									 //
 	RegisterClassEx(&wcex);
 
+	//Create window
 	m_handle = CreateWindowEx(
 		WS_EX_APPWINDOW,
-		name.c_str(), name.c_str(),
+		name.c_str(), 
+		name.c_str(),
 		style,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		rect.right - rect.left,
 		rect.bottom - rect.top,
-		nullptr, nullptr,
-		hInstance, this);
+		nullptr, 
+		nullptr,
+		hInstance, 
+		this);
+
+	//Store this instance pointer to window class instance
+	SetWindowLongPtr(m_handle, 0, reinterpret_cast<LONG_PTR>(this));
+
 	assert(m_handle, "Window initialization failed");
 
 	Show();
@@ -56,11 +67,6 @@ void Window::Update()
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	if (msg.message == WM_QUIT) 
-		m_context->SetActive(false);
-
-	for (auto& func : m_subscribers)
-		func(msg.hwnd, msg.message, msg.wParam, msg.lParam);
 }
 
 void Window::Show()
@@ -71,15 +77,45 @@ void Window::Show()
 	UpdateWindow(m_handle);
 }
 
-LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT Window::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
+		case WM_SIZE:
+		{
+			//Call resize message handler if available
+			if (m_resize)
+				m_resize(LOWORD(lParam), HIWORD(lParam));
+			break;
+		}
 		case WM_QUIT: case WM_CLOSE:
 		{
+			m_context->SetActive(false);
 			PostQuitMessage(0);
-		}	return 0;
+			break;
+		}
 		default:
-			return DefWindowProc(hWnd, msg, wParam, lParam);
+		{
+			//Call additional message handler if available
+			if (m_message)
+				m_message(hWnd, msg, wParam, lParam);
+			break;
+		}
 	}
+
+	//Call default message handler
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+LRESULT Window::StaticWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	//Receive instance pointer
+	Window* instance = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, 0));
+
+	//If instance is available, call its message handler
+	if (instance)
+		return instance->WindowProc(hWnd, msg, wParam, lParam);
+
+	//Call default message handler otherwise
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }

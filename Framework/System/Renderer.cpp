@@ -39,7 +39,11 @@ void Renderer::Update()
 
 	for (auto camera = componentmanager->begin<Camera>(); camera != componentmanager->end<Camera>(); camera++)
 	{
-		auto rendertarget = camera->GetRenderTarget();
+		RenderTarget* rendertarget = camera->GetRenderTarget();
+
+		if (!rendertarget) 
+			continue;
+
 		rendertarget->Clear(Color(0, 0, 0, 1));
 		rendertarget->Bind();
 

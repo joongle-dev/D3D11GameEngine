@@ -60,10 +60,19 @@
     <ClInclude Include="Widget\IWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Widget\Widget_Scene.h">
+    <ClInclude Include="Widget\SceneWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Widget\Widget_Hierarchy.h">
+    <ClInclude Include="Widget\HierarchyWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widget\InspectorWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widget\AssetWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widget\LogWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,10 +116,19 @@
     <ClCompile Include="Fbxsdk\FbxLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Widget\Widget_Scene.cpp">
+    <ClCompile Include="Widget\SceneWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Widget\Widget_Hierarchy.cpp">
+    <ClCompile Include="Widget\HierarchyWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widget\InspectorWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widget\AssetWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widget\LogWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

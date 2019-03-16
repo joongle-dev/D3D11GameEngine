@@ -6,11 +6,8 @@ Scene::Scene(Context* context) :
 {
 	m_root = new Transform(context, nullptr);
 
-	RenderTarget* temp = new RenderTarget(context);
-	temp->Create(800, 400);
-
 	GameObject* object = Instantiate();
-	object->AddComponent<Camera>()->SetRenderTarget(temp);
+	object->AddComponent<Camera>();
 	object->SetName("Main Camera");
 }
 
@@ -65,11 +62,6 @@ void Scene::Destroy(GameObject * gameObject)
 {
 	Util::Handle handle = m_objects[gameObject->m_instanceid];
 	m_objects.ReleaseHandle(handle);
-}
-
-GameObject * Scene::GetByID(uint32_t id)
-{
-	return m_objects[m_objects[id]];
 }
 
 void Scene::Update(Transform * transform)

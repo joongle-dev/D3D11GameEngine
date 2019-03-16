@@ -16,8 +16,6 @@ public:
 	class GameObject* Instantiate(class GameObject* original, class Transform* parent);
 	void Destroy(GameObject* gameobject);
 
-	class GameObject* GetByID(uint32_t id);
-
 	const std::string& GetName() const { return m_name; }
 	class Transform* GetRoot() const { return m_root; }
 

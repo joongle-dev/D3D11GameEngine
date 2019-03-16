@@ -64,6 +64,8 @@ Graphics::Graphics(Context* context) :
 	//Create swap chain, render target view, and depth stencil view
 	CreateSwapChain(window->GetHandle());
 	SetResolution(width, height);
+
+	window->AttachResizeProc([this](const UINT& width, const UINT& height){ SetResolution(width, height); });
 }
 
 void Graphics::SetViewport(const UINT& width, const UINT& height)
@@ -78,11 +80,15 @@ void Graphics::SetViewport(const UINT& width, const UINT& height)
 
 void Graphics::SetResolution(const UINT & width, const UINT & height)
 {
-	HRESULT hr = m_swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, NULL);
+
+	m_depthstencilview.ReleaseAndGetAddressOf();
+	m_rendertargetview.ReleaseAndGetAddressOf();
+
+	auto hr = m_swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, NULL);
 	assert(SUCCEEDED(hr));
 
 	CreateRenderTargetView();
-	CreateDepthStencilView(width, height, m_depthstencilview.GetAddressOf());
+	CreateDepthStencilView(width, height, m_depthstencilview.ReleaseAndGetAddressOf());
 	SetViewport(width, height);
 }
 
@@ -160,79 +166,110 @@ void Graphics::CreateRenderTargetView()
 
 void Graphics::CreateRenderTargetView(const UINT & width, const UINT & height, ID3D11RenderTargetView ** rtv, ID3D11ShaderResourceView ** srv, const DXGI_FORMAT & format)
 {
-	HRESULT hr;
 	ComPtr<ID3D11Texture2D> texture;
 
 	//Create 2D texture
-	D3D11_TEXTURE2D_DESC texDesc;
-	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
-	texDesc.Format = format;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.MiscFlags = 0;
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
+		desc.Width = width;
+		desc.Height = height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = format;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
 
-	hr = m_device->CreateTexture2D(&texDesc, nullptr, texture.GetAddressOf());
-	assert(SUCCEEDED(hr));
+		auto hr = m_device->CreateTexture2D(&desc, nullptr, texture.GetAddressOf());
+		assert(SUCCEEDED(hr));
+	}
 
 	//Create render target view
-	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-	ZeroMemory(&rtvDesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
-	rtvDesc.Format = format;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	rtvDesc.Texture2D.MipSlice = 0;
+	{
+		D3D11_RENDER_TARGET_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
+		desc.Format = format;
+		desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipSlice = 0;
 
-	hr = m_device->CreateRenderTargetView(texture.Get(), &rtvDesc, rtv);
-	assert(SUCCEEDED(hr));
+		auto hr = m_device->CreateRenderTargetView(texture.Get(), &desc, rtv);
+		assert(SUCCEEDED(hr));
+	}
 
 	//Create shader resource view
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	srvDesc.Format = format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		desc.Format = format;
+		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipLevels = 1;
+		desc.Texture2D.MostDetailedMip = 0;
 
-	hr = m_device->CreateShaderResourceView(texture.Get(), &srvDesc, srv);
-	assert(SUCCEEDED(hr));
+		auto hr = m_device->CreateShaderResourceView(texture.Get(), &desc, srv);
+		assert(SUCCEEDED(hr));
+	}
 }
 
 void Graphics::CreateDepthStencilView(const UINT & width, const UINT & height, ID3D11DepthStencilView ** view, const DXGI_FORMAT & format)
 {
-	//Set up the description of the depth buffer.
-	D3D11_TEXTURE2D_DESC bufferdesc;
-	ZeroMemory(&bufferdesc, sizeof(bufferdesc));
-	bufferdesc.Width = width;
-	bufferdesc.Height = height;
-	bufferdesc.MipLevels = 1;
-	bufferdesc.ArraySize = 1;
-	bufferdesc.Format = format;
-	bufferdesc.SampleDesc.Count = 1;
-	bufferdesc.SampleDesc.Quality = 0;
-	bufferdesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferdesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	bufferdesc.CPUAccessFlags = 0;
-	bufferdesc.MiscFlags = 0;
-
-	//Create the texture for the depth buffer using the filled out description.
 	ComPtr<ID3D11Texture2D> buffer;
-	HRESULT hr = m_device->CreateTexture2D(&bufferdesc, NULL, buffer.GetAddressOf());
-	assert(SUCCEEDED(hr));
 
-	//Set up the depth stencil view description.
-	D3D11_DEPTH_STENCIL_VIEW_DESC viewdesc;
-	ZeroMemory(&viewdesc, sizeof(viewdesc));
-	viewdesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	viewdesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	viewdesc.Texture2D.MipSlice = 0;
+	//Create 2D texture
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Width = width;
+		desc.Height = height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = format;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
 
-	//Create the depth stencil view.
-	hr = m_device->CreateDepthStencilView(buffer.Get(), &viewdesc, view);
-	assert(SUCCEEDED(hr));
+		auto hr = m_device->CreateTexture2D(&desc, NULL, buffer.GetAddressOf());
+		assert(SUCCEEDED(hr));
+	}
+
+	//Create depth stencil view
+	{
+		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipSlice = 0;
+
+		auto hr = m_device->CreateDepthStencilView(buffer.Get(), &desc, view);
+		assert(SUCCEEDED(hr));
+	}
+}
+
+void Graphics::CreateBuffer(ID3D11Buffer ** buffer, const D3D11_BIND_FLAG & bindflag, const UINT & bytewidth, const void * initialdata, const D3D11_USAGE & usage)
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = bindflag;
+	desc.ByteWidth = bytewidth;
+	desc.Usage = usage;
+	desc.CPUAccessFlags = usage == D3D11_USAGE_DYNAMIC ? D3D11_CPU_ACCESS_WRITE : 0;
+
+	if (initialdata) 
+	{
+		D3D11_SUBRESOURCE_DATA subresource;
+		ZeroMemory(&subresource, sizeof(D3D11_SUBRESOURCE_DATA));
+		subresource.pSysMem = initialdata;
+
+		m_device->CreateBuffer(&desc, &subresource, buffer);
+	}
+	else 
+	{
+		m_device->CreateBuffer(&desc, nullptr, buffer);
+	}
 }

@@ -32,6 +32,13 @@ public:
 		ID3D11DepthStencilView** dsv,
 		const DXGI_FORMAT& format = DXGI_FORMAT_D24_UNORM_S8_UINT
 	);
+	void CreateBuffer(
+		ID3D11Buffer** buffer,
+		const D3D11_BIND_FLAG& bindflag,
+		const UINT& bytewidth,
+		const void* initialdata = nullptr,
+		const D3D11_USAGE& usage = D3D11_USAGE_DEFAULT
+	);
 
 private:
 	void CreateSwapChain(HWND hWnd);

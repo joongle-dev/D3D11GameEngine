@@ -33,9 +33,12 @@
     <ClInclude Include="ImGui\Source\imstb_truetype.h" />
     <ClInclude Include="ImGui\TextEditor.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Widget\AssetWidget.h" />
+    <ClInclude Include="Widget\InspectorWidget.h" />
     <ClInclude Include="Widget\IWidget.h" />
-    <ClInclude Include="Widget\Widget_Hierarchy.h" />
-    <ClInclude Include="Widget\Widget_Scene.h" />
+    <ClInclude Include="Widget\HierarchyWidget.h" />
+    <ClInclude Include="Widget\LogWidget.h" />
+    <ClInclude Include="Widget\SceneWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Editor.cpp" />
@@ -71,8 +74,11 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Widget\Widget_Hierarchy.cpp" />
-    <ClCompile Include="Widget\Widget_Scene.cpp" />
+    <ClCompile Include="Widget\AssetWidget.cpp" />
+    <ClCompile Include="Widget\HierarchyWidget.cpp" />
+    <ClCompile Include="Widget\InspectorWidget.cpp" />
+    <ClCompile Include="Widget\LogWidget.cpp" />
+    <ClCompile Include="Widget\SceneWidget.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

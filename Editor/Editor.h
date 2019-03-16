@@ -11,6 +11,11 @@ public:
 	void Update();
 	void Render();
 
+	void BeginDockspace();
+	void EndDockspace();
+
+	void Resize(const UINT& width, const UINT& height);
+
 	class Context* GetContext() const { return m_context; }
 
 private:
@@ -19,5 +24,6 @@ private:
 	class Graphics* m_graphics;
 
 	std::vector<class IWidget*> m_widgets;
+	bool m_dockspace;
 };
 

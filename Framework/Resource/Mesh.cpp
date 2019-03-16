@@ -19,50 +19,46 @@ void Mesh::Create(Geometry & geometry)
 	m_attribute  |= geometry.normals.size() == m_numVertices ? VertexAttribute::NORMAL : 0;
 	m_attribute  |= geometry.uvs.size()     == m_numVertices ? VertexAttribute::UV : 0;
 
-	//Initialize D3D buffer properties
-	HRESULT hr;
-	ID3D11Device* device = m_graphics->GetDevice();
-	D3D11_BUFFER_DESC bufferDesc;
-	D3D11_SUBRESOURCE_DATA bufferData;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT; //GPU access only
-	bufferDesc.CPUAccessFlags = 0;
-	bufferDesc.MiscFlags = 0;
-	bufferDesc.StructureByteStride = 0;
-	bufferData.SysMemPitch = 0;
-	bufferData.SysMemSlicePitch = 0;
-
 	//Create index buffer.
-	bufferData.pSysMem = geometry.indices.data();
-	bufferDesc.ByteWidth = m_numIndices * sizeof(uint32_t);
-	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	hr = device->CreateBuffer(&bufferDesc, &bufferData, m_indices.ReleaseAndGetAddressOf());
-	assert(SUCCEEDED(hr));
+	{
+		m_graphics->CreateBuffer(
+			m_indices.ReleaseAndGetAddressOf(),
+			D3D11_BIND_INDEX_BUFFER,
+			m_numIndices * sizeof(uint32_t),
+			geometry.indices.data());
+	}
 
 	//Create position attribute buffer
-	bufferData.pSysMem = geometry.positions.data();
-	bufferDesc.ByteWidth = m_numVertices * sizeof(Vector3);
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	hr = device->CreateBuffer(&bufferDesc, &bufferData, m_positions.ReleaseAndGetAddressOf());
-	assert(SUCCEEDED(hr));
+	{
+		m_graphics->CreateBuffer(
+			m_positions.ReleaseAndGetAddressOf(),
+			D3D11_BIND_VERTEX_BUFFER,
+			m_numVertices * sizeof(Vector3),
+			geometry.positions.data());
+	}
 
 	//Create normal attribute buffer
-	if (m_attribute & VertexAttribute::NORMAL) {
-		bufferData.pSysMem = geometry.normals.data();
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector3);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_normals.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+	if (m_attribute & VertexAttribute::NORMAL)
+	{
+		m_graphics->CreateBuffer(
+			m_normals.ReleaseAndGetAddressOf(),
+			D3D11_BIND_VERTEX_BUFFER,
+			m_numVertices * sizeof(Vector3),
+			geometry.normals .data());
 	}
 
 	//Create UV attribute buffer
-	if (m_attribute & VertexAttribute::UV) {
-		bufferData.pSysMem = geometry.uvs.data();
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector2);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_uvs.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+	if (m_attribute & VertexAttribute::UV)
+	{
+		m_graphics->CreateBuffer(
+			m_uvs.ReleaseAndGetAddressOf(),
+			D3D11_BIND_VERTEX_BUFFER,
+			m_numVertices * sizeof(Vector2),
+			geometry.uvs.data());
 	}
 }
 
-void Mesh::LoadFromFile(std::string& path)
+void Mesh::LoadFromFile(std::string & path)
 {
 	//Open file
 	FileStreamRead file;
@@ -78,90 +74,104 @@ void Mesh::LoadFromFile(std::string& path)
 	size_t bufferSize = max(m_numIndices * sizeof(uint32_t), m_numVertices * sizeof(XMFLOAT4));
 	void* buffer = new byte[bufferSize];
 
-	//Initialize D3D buffer properties
-	HRESULT hr;
-	ID3D11Device* device = m_graphics->GetDevice();
-	D3D11_BUFFER_DESC bufferDesc;
-	D3D11_SUBRESOURCE_DATA bufferData;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT; //GPU access only
-	bufferDesc.CPUAccessFlags = 0;
-	bufferDesc.MiscFlags = 0;
-	bufferDesc.StructureByteStride = 0;
-	bufferData.SysMemPitch = 0;
-	bufferData.SysMemSlicePitch = 0;
-	bufferData.pSysMem = buffer;
-
 	//Create index buffer.
-	file.Read(buffer, m_numIndices * sizeof(uint32_t));
-	bufferDesc.ByteWidth = m_numIndices * sizeof(uint32_t);
-	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	hr = device->CreateBuffer(&bufferDesc, &bufferData, m_indices.ReleaseAndGetAddressOf());
-	assert(SUCCEEDED(hr));
+	{
+		file.Read(buffer, m_numIndices * sizeof(uint32_t));
+		m_graphics->CreateBuffer(
+			m_indices.ReleaseAndGetAddressOf(),
+			D3D11_BIND_INDEX_BUFFER,
+			m_numIndices * sizeof(uint32_t),
+			buffer);
+	}
 
 	//Create position attribute buffer
-	file.Read(buffer, m_numVertices * sizeof(Vector3));
-	bufferDesc.ByteWidth = m_numVertices * sizeof(Vector3);
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	hr = device->CreateBuffer(&bufferDesc, &bufferData, m_positions.ReleaseAndGetAddressOf());
-	assert(SUCCEEDED(hr));
+	{
+		file.Read(buffer, m_numVertices * sizeof(Vector3));
+		m_graphics->CreateBuffer(
+			m_positions.ReleaseAndGetAddressOf(),
+			D3D11_BIND_VERTEX_BUFFER,
+			m_numVertices * sizeof(Vector3),
+			buffer);
+	}
 
 	//Create normal attribute buffer
-	if (m_attribute & VertexAttribute::NORMAL) {
+	if (m_attribute & VertexAttribute::NORMAL) 
+	{
 		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector3);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_normals.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_normals.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector3), 
+			buffer);
 	}
 
 	//Create tangent attribute buffer
-	if (m_attribute & VertexAttribute::TANGENT) {
+	if (m_attribute & VertexAttribute::TANGENT) 
+	{
 		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector3);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_binormals.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_binormals.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector3), 
+			buffer);
+
 		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector3);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_tangents.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_tangents.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector3), 
+			buffer);
 	}
 
 	//Create UV attribute buffer
-	if (m_attribute & VertexAttribute::UV) {
+	if (m_attribute & VertexAttribute::UV) 
+	{
 		file.Read(buffer, m_numVertices * sizeof(Vector2));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector2);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_uvs.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_uvs.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector2), 
+			buffer);
 	}
 
 	//Create color attribute buffer
-	if (m_attribute & VertexAttribute::COLOR) {
+	if (m_attribute & VertexAttribute::COLOR) 
+	{
 		file.Read(buffer, m_numVertices * sizeof(Vector4));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector4);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_colors.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_colors.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector4), 
+			buffer);
 	}
 
 	//Create skin blending attribute buffer
-	if (m_attribute & VertexAttribute::SKIN) {
+	if (m_attribute & VertexAttribute::SKIN) 
+	{
 		file.Read(buffer, m_numVertices * sizeof(Vector4));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector4);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_blendIndices.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_blendIndices.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector4), 
+			buffer);
+
 		file.Read(buffer, m_numVertices * sizeof(Vector4));
-		bufferDesc.ByteWidth = m_numVertices * sizeof(Vector4);
-		hr = device->CreateBuffer(&bufferDesc, &bufferData, m_blendWeights.ReleaseAndGetAddressOf());
-		assert(SUCCEEDED(hr));
+		m_graphics->CreateBuffer(
+			m_blendWeights.ReleaseAndGetAddressOf(), 
+			D3D11_BIND_VERTEX_BUFFER, 
+			m_numVertices * sizeof(Vector4), 
+			buffer);
 	}
 
 	file.Close();
 }
 
-void Mesh::BindIndex(UINT offset)
+void Mesh::BindIndex(const UINT & offset)
 {
 	m_graphics->GetDeviceContext()->IASetIndexBuffer(m_indices.Get(), DXGI_FORMAT_R32_UINT, offset);
 }
 
-void Mesh::BindPosition(UINT slot, UINT offset, UINT stride)
+void Mesh::BindPosition(const UINT & slot, const UINT & offset, const UINT & stride)
 {
 	m_graphics->GetDeviceContext()->IASetVertexBuffers(slot, 1, m_positions.GetAddressOf(), &stride, &offset);
 }
