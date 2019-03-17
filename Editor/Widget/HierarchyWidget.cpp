@@ -38,10 +38,10 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 {
 	GameObject* object = transform->GetOwner();
 	std::string label = object->GetName() + "##" + std::to_string(object->GetInstanceID());
-
+	
 	//Node flags
-	ImGuiTreeNodeFlags flags = m_selected == object ? 
-		ImGuiTreeNodeFlags_Selected : 0 |
+	ImGuiTreeNodeFlags flags = (m_selected == object ? 
+		ImGuiTreeNodeFlags_Selected : 0) |
 		ImGuiTreeNodeFlags_DefaultOpen |
 		ImGuiTreeNodeFlags_OpenOnDoubleClick |
 		ImGuiTreeNodeFlags_OpenOnArrow;
@@ -53,8 +53,7 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	DragSource(transform);
 	DropTarget(transform);
 	ContextMenu(scene, transform);
-
-	if (ImGui::IsItemClicked(0)) 
+	if (ImGui::IsItemClicked(0))
 		m_selected = object;
 
 	//If node was open, display its child nodes (this transform's children)
@@ -117,7 +116,7 @@ void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std:
 	//Create Cube
 	if (name == "Cube")
 	{
-		Geometry::CreateCube(geometry);
+		Geometry::CreateCube(geometry, 10.0f);
 		Mesh* mesh = new Mesh(m_context);
 		mesh->Create(geometry);
 		object->AddComponent<MeshRenderer>()->SetMesh(mesh);
@@ -125,7 +124,7 @@ void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std:
 	//Create Sphere
 	else if (name == "Sphere")
 	{
-		Geometry::CreateSphere(geometry);
+		Geometry::CreateSphere(geometry, 5.0f);
 		Mesh* mesh = new Mesh(m_context);
 		mesh->Create(geometry);
 		object->AddComponent<MeshRenderer>()->SetMesh(mesh);

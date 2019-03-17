@@ -41,8 +41,8 @@ Editor::Editor()
 
 	//Add widgets
 	m_widgets.emplace_back(new SceneWidget(m_context));
-	m_widgets.emplace_back(new HierarchyWidget(m_context));
 	m_widgets.emplace_back(new InspectorWidget(m_context));
+	m_widgets.emplace_back(new HierarchyWidget(m_context));
 	m_widgets.emplace_back(new LogWidget(m_context));
 	m_widgets.emplace_back(new AssetWidget(m_context));
 
@@ -137,7 +137,7 @@ void Editor::BeginDockspace()
 		ImGui::DockBuilderAddNode(id, ImGui::GetMainViewport()->Size);
 		ImGuiID main  = id;
 		ImGuiID right = ImGui::DockBuilderSplitNode(main, ImGuiDir_Right, 0.25f, nullptr, &main);
-		ImGuiID down  = ImGui::DockBuilderSplitNode(main, ImGuiDir_Down, 0.25f, nullptr, &main);
+		ImGuiID down  = ImGui::DockBuilderSplitNode(main, ImGuiDir_Down, 0.3f, nullptr, &main);
 		ImGui::DockBuilderDockWindow("Scene", main);
 		ImGui::DockBuilderDockWindow("Inspector", right);
 		ImGui::DockBuilderDockWindow("Hierarchy", right);

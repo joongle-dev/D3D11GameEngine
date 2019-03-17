@@ -1,8 +1,9 @@
 #include "Framework.h"
 #include "GameObject.h"
 
-GameObject::GameObject(Context* context) :
+GameObject::GameObject(Context* context, Scene* scene) :
 	m_context(context),
+	m_scene(scene),
 	m_name("Empty Object")
 {
 	//Resize component vector to match number of component classes
@@ -16,7 +17,7 @@ GameObject::~GameObject()
 {
 	//Destroy all components
 	for (IComponent* component : m_components)
-		if (component) delete component;
+		m_scene->DestroyComponent(component);
 }
 
 void GameObject::Update()

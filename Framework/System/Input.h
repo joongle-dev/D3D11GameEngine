@@ -30,14 +30,14 @@ public:
 	const bool KeyPress(const UINT& key) const { return m_newKeyState[key] && !m_oldKeyState[key]; }
 	const bool KeyRelease(const UINT& key) const { return !m_newKeyState[key] && m_oldKeyState[key]; }
 
-	const DirectX::XMFLOAT2& GetMousePosition() const { return m_newMousePosition; }
-	const DirectX::XMFLOAT2& GetMouseMove() const { return m_delMousePosition; }
+	const Vector2& GetMousePosition() const { return m_newMousePosition; }
+	const Vector2& GetMouseMove() const { return m_delMousePosition; }
 
 private:
 	byte m_oldKeyState[MAX_INPUT];
 	byte m_newKeyState[MAX_INPUT];
 
-	DirectX::XMFLOAT2 m_oldMousePosition;
-	DirectX::XMFLOAT2 m_newMousePosition;
-	DirectX::XMFLOAT2 m_delMousePosition;
+	Vector2 m_oldMousePosition;
+	Vector2 m_newMousePosition;
+	Vector2 m_delMousePosition;
 };

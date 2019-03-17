@@ -6,6 +6,8 @@ class IChunkAllocator
 public:
 	IChunkAllocator() = default;
 	virtual ~IChunkAllocator() = default;
+
+	virtual void Deallocate(void* object) = 0;
 };
 
 template <class T, size_t CHUNKSIZE = 128>
@@ -107,6 +109,11 @@ public:
 						std::swap(chunk->handles[i], chunk->handles[--chunk->numAllocated]);
 						return;
 					}
+	}
+
+	void Deallocate(void* object) override
+	{
+		Deallocate(object);
 	}
 
 private:

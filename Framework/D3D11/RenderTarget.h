@@ -17,6 +17,9 @@ public:
 
 	ID3D11ShaderResourceView* GetShaderResource() const { return m_shaderresource.Get(); }
 
+	const UINT& GetWidth() const { return static_cast<UINT>(m_viewport.Width); }
+	const UINT& GetHeight() const { return static_cast<UINT>(m_viewport.Height); }
+
 private:
 	class Graphics* m_graphics;
 

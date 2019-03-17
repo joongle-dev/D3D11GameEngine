@@ -60,7 +60,6 @@ using Color		 = DirectX::SimpleMath::Color;
 #include "./System/Input.h"
 #include "./System/Graphics.h"
 #include "./System/ResourceManager.h"
-#include "./System/ComponentManager.h"
 #include "./System/SceneManager.h"
 #include "./System/Renderer.h"
 

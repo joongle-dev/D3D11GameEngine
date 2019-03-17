@@ -32,12 +32,12 @@ Renderer::Renderer(Context * context) :
 
 void Renderer::Update()
 {
-	auto componentmanager = m_context->GetSubsystem<ComponentManager>();
+	auto scene = m_context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
 	m_layout->Bind();
 	m_shader->Bind();
 
-	for (auto camera = componentmanager->begin<Camera>(); camera != componentmanager->end<Camera>(); camera++)
+	for (auto camera = scene->ComponentBegin<Camera>(); camera != scene->ComponentEnd<Camera>(); camera++)
 	{
 		RenderTarget* rendertarget = camera->GetRenderTarget();
 
@@ -55,7 +55,7 @@ void Renderer::Update()
 		m_cameraBuffer->Unmap();
 		m_cameraBuffer->Bind(ShaderType::VS, 0);
 		
-		for (auto renderable = componentmanager->begin<MeshRenderer>(); renderable != componentmanager->end<MeshRenderer>(); renderable++)
+		for (auto renderable = scene->ComponentBegin<MeshRenderer>(); renderable != scene->ComponentEnd<MeshRenderer>(); renderable++)
 		{
 			auto worldData = m_worldBuffer->Map();
 			{

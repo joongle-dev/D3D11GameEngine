@@ -16,7 +16,6 @@
     <ClInclude Include="Resource\Mesh.h" />
     <ClInclude Include="Resource\Resource.h" />
     <ClInclude Include="Resource\Texture.h" />
-    <ClInclude Include="System\ComponentManager.h" />
     <ClInclude Include="System\Context.h" />
     <ClInclude Include="System\Graphics.h" />
     <ClInclude Include="System\Input.h" />
@@ -48,7 +47,6 @@
     <ClCompile Include="D3D11\Shader.cpp" />
     <ClCompile Include="Resource\Mesh.cpp" />
     <ClCompile Include="Resource\Texture.cpp" />
-    <ClCompile Include="System\ComponentManager.cpp" />
     <ClCompile Include="System\Context.cpp" />
     <ClCompile Include="System\Graphics.cpp" />
     <ClCompile Include="System\Input.cpp" />

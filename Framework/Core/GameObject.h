@@ -4,7 +4,7 @@ class GameObject final
 {
 	friend class Scene;
 public:
-	GameObject(class Context* context);
+	GameObject(class Context* context, class Scene* scene);
 	~GameObject();
 	
 	GameObject(const GameObject& rhs) = delete;
@@ -39,7 +39,7 @@ inline T* GameObject::AddComponent()
 {
 	assert(m_components[T::ComponentID] == nullptr, "Component already exists");
 
-	m_components[T::ComponentID] = m_context->GetSubsystem<ComponentManager>()->CreateComponent<T>(this);
+	m_components[T::ComponentID] = m_scene->CreateComponent<T>(this);
 	return static_cast<T*>(m_components[T::ComponentID]);
 }
 
@@ -53,7 +53,7 @@ template<class T>
 inline void GameObject::RemoveComponent()
 {
 	if (m_components[T::ComponentID]) {
-		m_context->GetSubsystem<ComponentManager>()->RemoveComponent<T>(m_components[T::ComponentID]);
+		m_scene->RemoveComponent<T>(m_components[T::ComponentID]);
 		m_components[T::ComponentID] = nullptr;
 	}
 }

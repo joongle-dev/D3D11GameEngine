@@ -4,43 +4,45 @@
 class Geometry
 {
 public:
-	static void CreateCube(Geometry& geometry)
+	static void CreateCube(Geometry& geometry, float length = 1.0f)
 	{
-		//front
-		geometry.AddVertex({ -0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 1.0f });
-		geometry.AddVertex({ -0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 0.0f });
-		geometry.AddVertex({ +0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 1.0f });
-		geometry.AddVertex({ +0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 0.0f });
-		
-		//bottom
-		geometry.AddVertex({ -0.5f, -0.5f, +0.5f }, { +0.0f, -0.1f, +0.0f }, { 0.0f, 1.0f });
-		geometry.AddVertex({ -0.5f, -0.5f, -0.5f }, { +0.0f, -0.1f, +0.0f }, { 0.0f, 0.0f });
-		geometry.AddVertex({ +0.5f, -0.5f, +0.5f }, { +0.0f, -0.1f, +0.0f }, { 1.0f, 1.0f });
-		geometry.AddVertex({ +0.5f, -0.5f, -0.5f }, { +0.0f, -0.1f, +0.0f }, { 1.0f, 0.0f });
-		
-		//back
-		geometry.AddVertex({ -0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, -0.1f }, { 1.0f, 1.0f });
-		geometry.AddVertex({ -0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, -0.1f }, { 1.0f, 0.0f });
-		geometry.AddVertex({ +0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, -0.1f }, { 0.0f, 1.0f });
-		geometry.AddVertex({ +0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, -0.1f }, { 0.0f, 0.0f });
-		
-		//top
-		geometry.AddVertex({ -0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 0.0f });
-		geometry.AddVertex({ -0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 1.0f });
-		geometry.AddVertex({ +0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 0.0f });
-		geometry.AddVertex({ +0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 1.0f });
+		length *= 0.5f;
 
-		//left
-		geometry.AddVertex({ -0.5f, -0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f });
-		geometry.AddVertex({ -0.5f, +0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 0.0f });
-		geometry.AddVertex({ -0.5f, -0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 1.0f });
-		geometry.AddVertex({ -0.5f, +0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f });
-		
-		//right
-		geometry.AddVertex({ +0.5f, -0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 1.0f });
-		geometry.AddVertex({ +0.5f, +0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f });
-		geometry.AddVertex({ +0.5f, -0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f });
-		geometry.AddVertex({ +0.5f, +0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 0.0f });
+		//front
+		geometry.AddVertex({ -length, -length, -length }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 1.0f });
+		geometry.AddVertex({ -length, +length, -length }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 0.0f });
+		geometry.AddVertex({ +length, -length, -length }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 1.0f });
+		geometry.AddVertex({ +length, +length, -length }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 0.0f });
+				
+		//bottom
+		geometry.AddVertex({ -length, -length, +length }, { +0.0f, -0.1f, +0.0f }, { 0.0f, 1.0f });
+		geometry.AddVertex({ -length, -length, -length }, { +0.0f, -0.1f, +0.0f }, { 0.0f, 0.0f });
+		geometry.AddVertex({ +length, -length, +length }, { +0.0f, -0.1f, +0.0f }, { 1.0f, 1.0f });
+		geometry.AddVertex({ +length, -length, -length }, { +0.0f, -0.1f, +0.0f }, { 1.0f, 0.0f });
+					
+		//back		
+		geometry.AddVertex({ -length, -length, +length }, { +0.0f, +0.0f, -0.1f }, { 1.0f, 1.0f });
+		geometry.AddVertex({ -length, +length, +length }, { +0.0f, +0.0f, -0.1f }, { 1.0f, 0.0f });
+		geometry.AddVertex({ +length, -length, +length }, { +0.0f, +0.0f, -0.1f }, { 0.0f, 1.0f });
+		geometry.AddVertex({ +length, +length, +length }, { +0.0f, +0.0f, -0.1f }, { 0.0f, 0.0f });
+					
+		//top		
+		geometry.AddVertex({ -length, +length, +length }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 0.0f });
+		geometry.AddVertex({ -length, +length, -length }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 1.0f });
+		geometry.AddVertex({ +length, +length, +length }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 0.0f });
+		geometry.AddVertex({ +length, +length, -length }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 1.0f });
+						
+		//left			
+		geometry.AddVertex({ -length, -length, +length }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f });
+		geometry.AddVertex({ -length, +length, +length }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 0.0f });
+		geometry.AddVertex({ -length, -length, -length }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 1.0f });
+		geometry.AddVertex({ -length, +length, -length }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f });
+					
+		//right		
+		geometry.AddVertex({ +length, -length, +length }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 1.0f });
+		geometry.AddVertex({ +length, +length, +length }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f });
+		geometry.AddVertex({ +length, -length, -length }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f });
+		geometry.AddVertex({ +length, +length, -length }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 0.0f });
 
 		//front
 		geometry.AddIndex(0); geometry.AddIndex(1); geometry.AddIndex(2);

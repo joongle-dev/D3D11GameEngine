@@ -14,4 +14,6 @@ public:
 private:
 	std::unique_ptr<class RenderTarget> m_rendertarget;
 	std::unique_ptr<class GameObject>   m_camera;
+
+	Vector2 m_angles;
 };
