@@ -8,6 +8,8 @@ public:
 	{
 		length *= 0.5f;
 
+		geometry.Clear();
+
 		//front
 		geometry.AddVertex({ -length, -length, -length }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 1.0f });
 		geometry.AddVertex({ -length, +length, -length }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 0.0f });
@@ -67,17 +69,25 @@ public:
 		//right
 		geometry.AddIndex(22); geometry.AddIndex(21); geometry.AddIndex(20);
 		geometry.AddIndex(23); geometry.AddIndex(21); geometry.AddIndex(22);
+
+		geometry.Optimize();
 	}
 	static void CreateSphere(Geometry& geometry, float radius = 0.5f, unsigned int lattitude = 10, unsigned int longitude = 20)
 	{
 		geometry.Clear();
 
-		for (unsigned int y = 0; y <= lattitude; y++)
-			for (unsigned int x = 0; x <= longitude; x++) {
-				DirectX::XMMATRIX rot = DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(360.0f * x / longitude), DirectX::XMConvertToRadians(180.0f * y / lattitude), 0.0f);
-				DirectX::XMVECTOR vec = DirectX::XMVectorSet(0, radius, 0, 1);
-				Vector3 temp = DirectX::XMVector3TransformCoord(vec, rot);
-				geometry.AddVertex(temp, temp, { static_cast<float>(x) / longitude, static_cast<float>(y) / lattitude });
+		for (float y = 0; y <= lattitude; y++)
+			for (float x = 0; x <= longitude; x++) {
+				DirectX::XMVECTOR vector = DirectX::XMVector3Rotate(
+					DirectX::XMVectorSet(0, radius, 0, 1), 
+					DirectX::XMQuaternionRotationRollPitchYaw(
+						DirectX::XM_PI * x / longitude,
+						DirectX::XM_2PI * y / lattitude, 
+						0.0f));
+				geometry.AddVertex(
+					vector, 
+					DirectX::XMVector3Normalize(vector), 
+					Vector2(x / longitude, y / lattitude));
 			}
 
 		for (unsigned int y = 0; y < lattitude; y++)
