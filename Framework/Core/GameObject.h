@@ -53,7 +53,7 @@ template<class T>
 inline void GameObject::RemoveComponent()
 {
 	if (m_components[T::ComponentID]) {
-		m_scene->RemoveComponent<T>(m_components[T::ComponentID]);
+		m_scene->DestroyComponent(m_components[T::ComponentID]);
 		m_components[T::ComponentID] = nullptr;
 	}
 }

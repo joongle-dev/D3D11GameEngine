@@ -14,8 +14,9 @@ namespace Util
 	template <class T, size_t limit = 4096, size_t growth = 512>
 	class HandleTable
 	{
+		using TableEntry =  std::pair<uint32_t, T*>;
+
 	private:
-		typedef std::pair<uint32_t, T*> TableEntry;
 		std::vector<TableEntry> m_Table;
 
 	public:
@@ -24,9 +25,7 @@ namespace Util
 			ExpandTable();
 		}
 
-		~HandleTable()
-		{
-		}
+		~HandleTable() = default;
 
 		//Expand instance array
 		void ExpandTable()
@@ -61,8 +60,6 @@ namespace Util
 		{
 			while (index >= m_Table.size())
 				ExpandTable();
-			if (m_Table[index].second)
-				delete m_Table[index].second;
 			m_Table[index] = TableEntry(m_Table[index].first + 1, object);
 			return Handle(index, m_Table[index].first);
 		}
@@ -72,11 +69,7 @@ namespace Util
 		{
 			assert(handle.index < m_Table.size(), "Invalid handle");
 			if (m_Table[handle.index].first == handle.version)
-			{
-				if (m_Table[handle.index].second)
-					delete m_Table[handle.index].second;
 				m_Table[handle.index].second = nullptr;
-			}
 		}
 
 		//Check if given handle is expired

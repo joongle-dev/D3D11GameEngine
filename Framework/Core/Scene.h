@@ -95,18 +95,9 @@ public:
 	T* CreateComponent(GameObject* owner)
 	{
 		//Return newly allocated and constructed component
-		return new(GetComponentContainer<T>()->Allocate()) T(m_context, owner);
+		return GetComponentContainer<T>()->Allocate(m_context, owner);
 	}
 
-	template <class T>
-	void DestroyComponent(T* component)
-	{
-		if (!component) return;
-
-		//Call destructor and deallocate component
-		delete component;
-		GetComponentContainer<T>()->Deallocate(component);
-	}
-	//Destroy component of unknown type
+	//Destroy component
 	void DestroyComponent(IComponent* component);
 };

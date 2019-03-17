@@ -36,7 +36,7 @@ void Scene::Update(Transform * transform)
 GameObject * Scene::Instantiate()
 {
 	//Allocate new GameObject and add to handle table
-	GameObject* object = new(m_objects->Allocate()) GameObject(m_context, this);
+	GameObject* object = m_objects->Allocate(m_context, this);
 	Util::Handle handle = m_handles.AllocateHandle(object);
 
 	//Initialize GameObject
@@ -58,18 +58,22 @@ GameObject * Scene::Instantiate(GameObject * original, Transform * parent)
 	return object;
 }
 
-void Scene::Destroy(GameObject * gameObject)
+void Scene::Destroy(GameObject * object)
 {
-	Util::Handle handle = m_handles[gameObject->m_instanceid];
+	//Release handle to GameObject
+	Util::Handle handle = m_handles[object->m_instanceid];
 	m_handles.ReleaseHandle(handle);
+
+	//Call destructor and deallocate GameObject
+	object->~GameObject();
+	m_objects->Deallocate(object);
 }
 
 void Scene::DestroyComponent(IComponent * component)
 {
 	if (!component) return;
 
-	//Call destructor and deallocate component
-	delete component;
+	//Deallocate component
 	if (m_components[component->GetComponentID()])
 		m_components[component->GetComponentID()]->Deallocate(component);
 }

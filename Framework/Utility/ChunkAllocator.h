@@ -82,22 +82,25 @@ public:
 			delete chunk;
 	}
 
-	T* Allocate()
+	template <typename... Args>
+	T* Allocate(Args&&... arg)
 	{
 		//If chunk with available space is found, allocate and return object
 		for (auto chunk : m_chunks)
 		{
 			if (chunk->numAllocated >= CHUNKSIZE) continue;
-			return chunk->handles[chunk->numAllocated++];
+			return new(chunk->handles[chunk->numAllocated++]) T(arg...);
 		}
 		
 		//If no avaiable chunk is found, add new chunk, allocate and return object
 		auto chunk = m_chunks.emplace_back(new Chunk);
-		return chunk->handles[chunk->numAllocated++];
+		return new(chunk->handles[chunk->numAllocated++]) T(arg...);
 	}
 
 	void Deallocate(T* object)
 	{
+		//Call destructor
+		object->~T();
 		//Iterate chunks until chunk that holds the object is found
 		for (auto chunk : m_chunks)
 			if (object >= chunk->begin() && object <= chunk->begin() + CHUNKSIZE)
@@ -113,7 +116,7 @@ public:
 
 	void Deallocate(void* object) override
 	{
-		Deallocate(object);
+		Deallocate(reinterpret_cast<T*>(object));
 	}
 
 private:
