@@ -93,14 +93,19 @@ void HierarchyWidget::DropTarget(Transform * dst)
 	}
 }
 
-void HierarchyWidget::ContextMenu(Scene * scene, Transform * parent)
+void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 {
-	if (ImGui::BeginPopupContextItem("Create Object"))
+	if (ImGui::BeginPopupContextItem("Object Node"))
 	{
-		if (ImGui::MenuItem("Empty Object")) CreateObject(scene, parent);
-		if (ImGui::MenuItem("Cube"))         CreateObject(scene, parent, "Cube");
-		if (ImGui::MenuItem("Sphere"))       CreateObject(scene, parent, "Sphere");
-
+		if (ImGui::MenuItem("Delete"))       DestroyObject(scene, transform);
+		ImGui::Separator();
+		if (ImGui::MenuItem("Create Empty")) CreateObject(scene, transform);
+		if (ImGui::BeginMenu("Create 3D"))
+		{
+			if (ImGui::MenuItem("Cube"))     CreateObject(scene, transform, "Cube");
+			if (ImGui::MenuItem("Sphere"))   CreateObject(scene, transform, "Sphere");
+			ImGui::EndMenu();
+		}
 		ImGui::EndPopup();
 	}
 }
@@ -129,4 +134,9 @@ void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std:
 		mesh->Create(geometry);
 		object->AddComponent<MeshRenderer>()->SetMesh(mesh);
 	}
+}
+
+void HierarchyWidget::DestroyObject(Scene * scene, Transform * transform)
+{
+	scene->Destroy(transform->GetOwner());
 }
