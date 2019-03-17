@@ -72,7 +72,7 @@ void HierarchyWidget::DragSource(Transform * src)
 	if (ImGui::BeginDragDropSource(flags))
 	{
 		//Set drag drop payload
-		ImGui::SetDragDropPayload("HierarchyDrag", &src, sizeof(Transform*));
+		ImGui::SetDragDropPayload("HierarchyPayload", &src, sizeof(Transform*));
 
 		ImGui::EndDragDropSource();
 	}
@@ -85,7 +85,7 @@ void HierarchyWidget::DropTarget(Transform * dst)
 	if (ImGui::BeginDragDropTarget())
 	{
 		//Receive drag drop payload
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HierarchyDrag", flags))
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HierarchyPayload", flags))
 			//Add received transfrom to children
 			dst->AddChild(*static_cast<Transform**>(payload->Data));
 
@@ -95,7 +95,7 @@ void HierarchyWidget::DropTarget(Transform * dst)
 
 void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 {
-	if (ImGui::BeginPopupContextItem("Object Node"))
+	if (ImGui::BeginPopupContextItem("HierarchyMenu"))
 	{
 		if (ImGui::MenuItem("Delete"))       DestroyObject(scene, transform);
 		ImGui::Separator();

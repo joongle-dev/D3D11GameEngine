@@ -26,3 +26,8 @@ void GameObject::Update()
 	for (IComponent* component : m_components)
 		if (component) component->Update();
 }
+
+void GameObject::Destroy()
+{
+	m_scene->Destroy(this);
+}

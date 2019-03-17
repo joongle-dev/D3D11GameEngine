@@ -17,6 +17,10 @@ Transform::~Transform()
 	//Remove self from parent's children
 	if (m_parent)
 		m_parent->RemoveChild(this);
+
+	//Destroy all transforms' GameObjects
+	for (auto child : m_children)
+		child->GetOwner()->Destroy();
 }
 
 Transform::Transform(const Transform & rhs) :

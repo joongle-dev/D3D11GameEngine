@@ -19,6 +19,8 @@ public:
 	template <class T>
 	void RemoveComponent();
 
+	void Destroy();
+
 	const std::string& GetName() const { return m_name; }
 	void SetName(std::string name) { m_name = name; }
 	
