@@ -9,7 +9,7 @@ class Scene
 {
 public:
 	Scene(class Context* context);
-	~Scene();
+	~Scene() = default;
 
 	Scene(const Scene&) = delete;
 	Scene& operator=(const Scene&) = delete;
@@ -49,6 +49,7 @@ public:
 	GameObjectIterator SceneEnd() { return m_objects->end(); }
 
 public:
+	//GameObject instantiators and destroyers
 	GameObject* Instantiate();
 
 	GameObject* Instantiate(GameObject* original, Transform* parent = nullptr);
@@ -69,13 +70,13 @@ private:
 	ComponentContainer<T>* GetComponentContainer()
 	{
 		//If the component container does not exist, create one
-		if (m_components[T::ComponentID] == nullptr)
-			m_components[T::ComponentID] = new ComponentContainer<T>;
+		if (!m_components[T::ComponentID])
+			m_components[T::ComponentID] = std::make_unique<ComponentContainer<T>>();
 
-		return static_cast<ComponentContainer<T>*>(m_components[T::ComponentID]);
+		return static_cast<ComponentContainer<T>*>(m_components[T::ComponentID].get());
 	}
 
-	std::vector<IComponentContainer*> m_components;
+	std::vector<std::unique_ptr<IComponentContainer>> m_components;
 
 public:
 	//Component iterator
@@ -89,6 +90,7 @@ public:
 	ComponentIterator<T> ComponentEnd() { return GetComponentContainer<T>()->end(); }
 
 public:
+	//Component instantiators and destroyers
 	template <class T>
 	T* CreateComponent(GameObject* owner)
 	{
