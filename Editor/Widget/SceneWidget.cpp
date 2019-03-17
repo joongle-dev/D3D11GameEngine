@@ -20,7 +20,7 @@ void SceneWidget::Render()
 	ImVec2 origin = ImGui::GetCursorScreenPos();
 
 	//Adjust image size, cursor position and draw scene
-	float scale = max(ImGui::GetWindowSize().x / m_rendertarget->GetWidth(), ImGui::GetWindowSize().y / m_rendertarget->GetHeight());
+	float scale = std::max(ImGui::GetWindowSize().x / m_rendertarget->GetWidth(), ImGui::GetWindowSize().y / m_rendertarget->GetHeight());
 	ImVec2 imageSize = ImVec2(m_rendertarget->GetWidth() * scale, m_rendertarget->GetHeight() * scale);
 	ImVec2 cursorPos = ImVec2((ImGui::GetWindowSize().x - imageSize.x) * 0.5f, (ImGui::GetWindowSize().y - imageSize.y) * 0.5f);
 	ImGui::SetCursorPos(cursorPos);

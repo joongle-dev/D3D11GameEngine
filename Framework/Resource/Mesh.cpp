@@ -71,7 +71,7 @@ void Mesh::LoadFromFile(std::string & path)
 	file.Read(m_attribute);
 
 	//Create byte buffer to load data into
-	size_t bufferSize = max(m_numIndices * sizeof(uint32_t), m_numVertices * sizeof(XMFLOAT4));
+	size_t bufferSize = std::max(m_numIndices * sizeof(uint32_t), m_numVertices * sizeof(XMFLOAT4));
 	void* buffer = new byte[bufferSize];
 
 	//Create index buffer.

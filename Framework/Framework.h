@@ -4,6 +4,7 @@
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
 #endif
 
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <wincodec.h>
@@ -15,6 +16,7 @@
 #include <map>
 #include <unordered_map>
 #include <fstream>
+#include <algorithm>
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")

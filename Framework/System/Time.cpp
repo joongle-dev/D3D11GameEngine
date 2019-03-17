@@ -19,7 +19,7 @@ void Time::Update()
 
 	//Limit framerate
 	float worktime = (current - m_previous) / (float)m_frequency;
-	float sleeptime = max(m_frametime - worktime, 0);
+	float sleeptime = std::max(m_frametime - worktime, 0.0f);
 	Sleep(sleeptime * 1000.0f);
 
 	m_elapsed = worktime + sleeptime;

@@ -33,7 +33,7 @@ namespace Util
 		{
 			size_t oldSize = m_Table.size();
 			assert(oldSize <= limit, "Instance limit reached.");
-			size_t newSize = max(oldSize + growth, limit);
+			size_t newSize = oldSize + growth > limit ? oldSize + growth : limit;
 			m_Table.resize(newSize);
 			ZeroMemory(&m_Table[oldSize], sizeof(TableEntry) * growth);
 		}

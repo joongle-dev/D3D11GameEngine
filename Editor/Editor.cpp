@@ -11,8 +11,6 @@
 #include "./Widget/LogWidget.h"
 #include "./Widget/AssetWidget.h"
 
-#define DOCKING_ENABLED ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable
-
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
 Editor::Editor()
@@ -29,7 +27,10 @@ Editor::Editor()
 
 	//Initialize ImGui configuration flags
 	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= 
+		ImGuiConfigFlags_DockingEnable |
+		ImGuiConfigFlags_ViewportsEnable |
+		ImGuiConfigFlags_ViewportsNoTaskBarIcon;
 	io.ConfigResizeWindowsFromEdges = true;
 
 	//Initialize ImGui Win32/DX11 implementation
@@ -99,6 +100,9 @@ void Editor::Render()
 		//Assemble and render draw data
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
 	}
 	m_graphics->End();
 }
