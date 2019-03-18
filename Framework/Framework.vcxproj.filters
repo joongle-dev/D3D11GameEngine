@@ -34,6 +34,7 @@
     <ClInclude Include="Framework.h" />
     <ClInclude Include="D3D11\RenderTarget.h" />
     <ClInclude Include="Utility\Serializable.h" />
+    <ClInclude Include="Utility\Math.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />

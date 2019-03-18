@@ -29,12 +29,14 @@
 
 #include "SimpleMath.h"
 
+using json		 = nlohmann::json;
 using Vector2	 = DirectX::SimpleMath::Vector2;
 using Vector3	 = DirectX::SimpleMath::Vector3;
 using Vector4	 = DirectX::SimpleMath::Vector4;
 using Quaternion = DirectX::SimpleMath::Quaternion;
 using Matrix	 = DirectX::SimpleMath::Matrix;
 using Color		 = DirectX::SimpleMath::Color;
+
 
 #define PI DirectX::XM_PI
 
@@ -46,6 +48,7 @@ using Color		 = DirectX::SimpleMath::Color;
 #include "./Utility/FileStream.h"
 #include "./Utility/Geometry.h"
 #include "./Utility/ChunkAllocator.h"
+#include "./Utility/Serializable.h"
 
 //Graphics
 #include "D3D11/ConstantBuffer.h"

@@ -47,6 +47,7 @@
     <ClInclude Include="System\Time.h" />
     <ClInclude Include="System\Window.h" />
     <ClInclude Include="Utility\ChunkAllocator.h" />
+    <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Utility\FamilyTypeID.h" />
     <ClInclude Include="Utility\FileStream.h" />
     <ClInclude Include="Utility\Geometry.h" />

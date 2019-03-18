@@ -54,9 +54,18 @@ public:
 	void AddChild(Transform* child) { child->SetParent(this); }
 	Transform* GetChild(size_t index) const { return index < m_children.size() ? m_children[index] : nullptr;}
 
+	const int GetTest() { return 0; }
+	void SetTest(const int a) { return; }
+
 private:
 	void RemoveChild(Transform* child);
 	void SetUpdateFlag();
+
+private:
+	void RegisterSerializeFields() override
+	{
+		RegisterSerializeField("Position", &Transform::GetTest, &Transform::SetTest);
+	}
 
 private:
 	Vector3		m_localScale;

@@ -19,8 +19,8 @@ protected:
 	class Context* m_context;
 };
 
-template <class T>
-class Component : public IComponent
+template <class Class>
+class Component : public Serializable<Class>, public IComponent
 {
 protected:
 	Component(class Context* context = nullptr, class GameObject* owner = nullptr) :
@@ -28,7 +28,7 @@ protected:
 	virtual ~Component() = default;
 
 public:
-	static inline const Util::TypeID ComponentID = Util::FamilyTypeID<IComponent>::GetID<T>();
+	static inline const Util::TypeID ComponentID = Util::FamilyTypeID<IComponent>::GetID<Class>();
 
 	virtual void Update() {}
 
