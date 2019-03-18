@@ -7,8 +7,11 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <wincodec.h>
 
+#include <wincodec.h>
+#include <wrl.h>
+
+//STL
 #include <functional>
 #include <string>
 #include <memory>
@@ -18,31 +21,22 @@
 #include <fstream>
 #include <algorithm>
 
+//DirectX
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-
-#include <wrl.h>
 #include <dxgi.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
-#include "SimpleMath.h"
+#include "json.hpp"
 
-using json		 = nlohmann::json;
-using Vector2	 = DirectX::SimpleMath::Vector2;
-using Vector3	 = DirectX::SimpleMath::Vector3;
-using Vector4	 = DirectX::SimpleMath::Vector4;
-using Quaternion = DirectX::SimpleMath::Quaternion;
-using Matrix	 = DirectX::SimpleMath::Matrix;
-using Color		 = DirectX::SimpleMath::Color;
-
-
-#define PI DirectX::XM_PI
-
+//Mainframe
 #include "./System/Context.h"
+#include "./Engine.h"
 
 //Utilities
+#include "./Utility/Math.h"
 #include "./Utility/FamilyTypeID.h"
 #include "./Utility/Handle.h"
 #include "./Utility/FileStream.h"

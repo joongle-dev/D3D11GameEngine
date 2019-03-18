@@ -26,6 +26,8 @@ public:
 	
 	const UINT& GetInstanceID() const { return m_instanceid; }
 
+	class IComponent* operator[](size_t index) { return m_components[index]; }
+
 private:
 	class Context* m_context;
 	class Scene* m_scene;

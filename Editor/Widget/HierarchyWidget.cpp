@@ -40,7 +40,7 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	std::string label = object->GetName() + "##" + std::to_string(object->GetInstanceID());
 	
 	//Node flags
-	ImGuiTreeNodeFlags flags = (m_selected == object ? 
+	ImGuiTreeNodeFlags flags = (EditorHelper::selected == object ? 
 		ImGuiTreeNodeFlags_Selected : 0) |
 		ImGuiTreeNodeFlags_DefaultOpen |
 		ImGuiTreeNodeFlags_OpenOnDoubleClick |
@@ -54,7 +54,7 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	DropTarget(transform);
 	ContextMenu(scene, transform);
 	if (ImGui::IsItemClicked(0))
-		m_selected = object;
+		EditorHelper::selected = object;
 
 	//If node was open, display its child nodes (this transform's children)
 	if (open)

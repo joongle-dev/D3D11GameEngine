@@ -8,4 +8,7 @@ public:
 	~InspectorWidget() = delete;
 
 	void Render() override;
+
+private:
+	void ParseData(nlohmann::json& j);
 };

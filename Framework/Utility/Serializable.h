@@ -90,18 +90,40 @@ class Serializable
 		}
 	};
 
-	using SerializeField = std::pair<std::string, std::unique_ptr<IField>>;
+	using SerializeField = std::pair<std::string, IField*>;
 	using SerializeFields = std::vector<SerializeField>;
 
 public:
-	template <typename T>
-	static void RegisterSerializeField(const char* name, const_val_getter_ptr_t<T> getter, const_val_setter_ptr_t<T> setter)
+	Serializable()
 	{
-		s_serializefields.emplace_back(name, std::make_unique<Field<T>>(getter, setter));
+		static bool registered = false;
+		if (!registered)
+			static_cast<Class*>(this)->RegisterSerializeFields();
+	}
+
+	template <typename T>
+	static void RegisterSerializeField(std::string name, const_val_getter_ptr_t<T> getter, const_val_setter_ptr_t<T> setter)
+	{
+		s_serializefields.emplace_back(name, new Field<T>(getter, setter));
 	}
 
 	virtual void RegisterSerializeFields() {}
 
+	static json StaticSerialize(Class& object)
+	{
+		json serialized;
+		for (auto field : s_serializefields)
+			serialized[field.first] = field.second->toJson(object);
+		return serialized;
+	}
+
+	static void StaticDeserialize(Class& object, json& j)
+	{
+		for (auto iter : s_serializefields)
+		{
+			iter.second->fromJson(object, j[iter.first]);
+		}
+	}
 private:
 	static SerializeFields s_serializefields;
 };

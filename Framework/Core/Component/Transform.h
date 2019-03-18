@@ -61,10 +61,12 @@ private:
 	void RemoveChild(Transform* child);
 	void SetUpdateFlag();
 
-private:
+public:
 	void RegisterSerializeFields() override
 	{
-		RegisterSerializeField("Position", &Transform::GetTest, &Transform::SetTest);
+		RegisterSerializeField("Scale", &Transform::GetScale, &Transform::SetScale);
+		RegisterSerializeField("Rotation", &Transform::GetRotation, &Transform::SetRotation);
+		RegisterSerializeField("Position", &Transform::GetPosition, &Transform::SetPosition);
 	}
 
 private:

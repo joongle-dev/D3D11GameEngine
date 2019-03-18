@@ -19,7 +19,4 @@ private:
 	void ContextMenu(class Scene* scene, class Transform* parent);
 	void CreateObject(class Scene* scene, class Transform* parent, const std::string& name = "Empty Object");
 	void DestroyObject(class Scene* scene, class Transform* transform);
-
-private:
-	class GameObject* m_selected;
 };
