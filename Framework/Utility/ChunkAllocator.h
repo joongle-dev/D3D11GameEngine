@@ -83,18 +83,18 @@ public:
 	}
 
 	template <typename... Args>
-	T* Allocate(Args&&... arg)
+	T* Allocate(Args&&... args)
 	{
 		//If chunk with available space is found, allocate and return object
 		for (auto chunk : m_chunks)
 		{
 			if (chunk->numAllocated >= CHUNKSIZE) continue;
-			return new(chunk->handles[chunk->numAllocated++]) T(arg...);
+			return new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
 		}
 		
 		//If no avaiable chunk is found, add new chunk, allocate and return object
 		auto chunk = m_chunks.emplace_back(new Chunk);
-		return new(chunk->handles[chunk->numAllocated++]) T(arg...);
+		return new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
 	}
 
 	void Deallocate(T* object)
