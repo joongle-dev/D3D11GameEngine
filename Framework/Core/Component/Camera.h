@@ -18,9 +18,9 @@ public:
 	const Matrix GetViewMatrix();
 	const Matrix GetProjectionMatrix();
 	
-	const float GetNearPlane() const { return m_near; }
-	const float GetFarPlane() const { return m_far; }
-	const float GetFOV() const { return m_fov; }
+	const float GetNearPlane() { return m_near; }
+	const float GetFarPlane() { return m_far; }
+	const float GetFOV() { return m_fov; }
 	void SetNearPlane(const float np) { m_near = np; }
 	void SetFarPlane(const float fp) { m_far = fp; }
 	void SetFOV(const float fov) { m_fov = fov; }
@@ -29,6 +29,14 @@ public:
 
 	class RenderTarget* GetRenderTarget() const { return m_rendertarget; }
 	void SetRenderTarget(class RenderTarget* target) { m_rendertarget = target; }
+
+public:
+	void InitializeSerializable() override
+	{
+		RegisterSerializeField("Fov", &Camera::GetFOV, &Camera::SetFOV);
+		RegisterSerializeField("Near", &Camera::GetNearPlane, &Camera::SetNearPlane);
+		RegisterSerializeField("Far", &Camera::GetFarPlane, &Camera::SetFarPlane);
+	}
 
 private:
 	class Transform* m_transform;

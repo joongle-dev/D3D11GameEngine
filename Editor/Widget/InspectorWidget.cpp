@@ -35,7 +35,8 @@ void InspectorWidget::JsonEditor(std::string label, Json & j)
 {
 	for (auto& [key, value] : j.items())
 	{
-		if (key.length())
+		bool hasKey;
+		if (hasKey = key.length())
 			ImGui::Text(key.c_str());
 		std::string newLabel = label + key;
 		switch (value.type()) {
@@ -48,22 +49,25 @@ void InspectorWidget::JsonEditor(std::string label, Json & j)
 			} break;
 			case Json::value_t::number_float: {
 				float temp = value.get<float>();
-				ImGui::InputFloat(newLabel.c_str(), &temp);
-				j = temp;
+				ImGui::InputFloat(newLabel.c_str(), &temp, 1.0f, 1.0f, 3);
+				if (hasKey) j[key] = temp;
+				else j = temp;
 			} break;
 			case Json::value_t::number_integer: {
 				int temp = value.get<int>();
 				ImGui::InputInt(newLabel.c_str(), &temp);
-				j = temp;
+				if (hasKey) j[key] = temp;
+				else j = temp;
 			} break;
 			case Json::value_t::string: {
 				char temp[128];
 				strcpy(temp, value.get<std::string>().data());
 				ImGui::InputText(newLabel.c_str(), temp, 256);
-				j[key] = temp;
+				if (hasKey) j[key] = temp;
+				else j = temp;
 			} break;
 		}
-		if (key.length())
+		if (hasKey) 
 			ImGui::Separator();
 	}
 }
