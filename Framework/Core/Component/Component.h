@@ -27,8 +27,11 @@ protected:
 	Component(class Context* context = nullptr, class GameObject* owner = nullptr) :
 		IComponent(context, owner) {
 		static bool temp = false;
-		if (!temp)
+		if (!temp) {
+			
 			static_cast<Class*>(this)->InitializeSerializable();
+			temp = true;
+		}
 	}
 	virtual ~Component() = default;
 

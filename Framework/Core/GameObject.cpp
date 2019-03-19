@@ -14,7 +14,10 @@ GameObject::GameObject(Context* context, Scene* scene) :
 
 	//TO BE REMOVED
 	static bool temp = false;
-	if (!temp) Serializable<GameObject>::RegisterSerializeField("Name", &GameObject::GetName, &GameObject::SetName);
+	if (!temp) {
+		Serializable<GameObject>::RegisterSerializeField("Name", &GameObject::GetName, &GameObject::SetName);
+		temp = true;
+	}
 }
 
 GameObject::~GameObject()
