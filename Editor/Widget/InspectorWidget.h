@@ -10,5 +10,6 @@ public:
 	void Render() override;
 
 private:
-	void ParseData(nlohmann::json& j);
+	void JsonRecursive(std::string label, Json& j);
+	void JsonEditor(std::string label, Json& j);
 };

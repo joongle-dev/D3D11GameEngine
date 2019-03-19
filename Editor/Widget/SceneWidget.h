@@ -10,10 +10,15 @@ public:
 	void Render() override;
 
 	void CameraControl();
+	void ShowFrame();
+	void ShowGizmo();
 
 private:
 	std::unique_ptr<class RenderTarget> m_rendertarget;
 	std::unique_ptr<class GameObject>   m_camera;
+
+	ImVec2 frameSize;
+	ImVec2 framePos;
 
 	Vector2 m_angles;
 };

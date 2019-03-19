@@ -14,13 +14,14 @@ Transform::Transform(Context* context, GameObject* owner) :
 
 Transform::~Transform()
 {
-	//Remove self from parent's children
-	if (m_parent)
-		m_parent->RemoveChild(this);
-
+	auto owner = GetOwner();
 	//Destroy all transforms' GameObjects
 	for (auto child : m_children)
 		child->GetOwner()->Destroy();
+
+	//Remove self from parent's children
+	if (m_parent)
+		m_parent->RemoveChild(this);
 }
 
 Transform::Transform(const Transform & rhs) :
@@ -103,6 +104,33 @@ const Vector3 Transform::GetPosition()
 	return GetWorldTransform().Translation();
 }
 
+const Vector3 Transform::GetEulerRotation()
+{
+	Quaternion q = GetRotation();
+
+	float check = 2.0f * (-q.y * q.z + q.w * q.x);
+
+	if (check < -0.995f)
+		return Vector3(
+			-90.0f,
+			0.0f,
+			-atan2f(2.0f * (q.x * q.z - q.w * q.y), 1.0f - 2.0f * (q.y * q.y + q.z * q.z)) * TO_DEG
+		);
+
+	if (check > 0.995f)
+		return Vector3(
+			90.0f,
+			0.0f,
+			atan2f(2.0f * (q.x * q.z - q.w * q.y), 1.0f - 2.0f * (q.y * q.y + q.z * q.z)) * TO_DEG
+		);
+
+	return Vector3(
+		asinf(check) * TO_DEG,
+		atan2f(2.0f * (q.x * q.z + q.w * q.y), 1.0f - 2.0f * (q.x * q.x + q.y * q.y)) * TO_DEG,
+		atan2f(2.0f * (q.x * q.y + q.w * q.z), 1.0f - 2.0f * (q.x * q.x + q.z * q.z)) * TO_DEG
+	);
+}
+
 void Transform::RotateAxis(Vector3 axis, float angle)
 {
 	Quaternion quat = XMQuaternionMultiply(GetRotation(), XMQuaternionRotationAxis(axis, angle));
@@ -111,12 +139,14 @@ void Transform::RotateAxis(Vector3 axis, float angle)
 
 void Transform::RotateEuler(Vector3 angles)
 {
+	angles *= TO_RAD;
 	Quaternion quat = XMQuaternionMultiply(GetRotation(), XMQuaternionRotationRollPitchYaw(angles.x, angles.y, angles.z));
 	SetRotation(quat);
 }
 
-void Transform::SetRotationEuler(Vector3 angles)
+void Transform::SetEulerRotation(Vector3 angles)
 {
+	angles *= TO_RAD;
 	Quaternion quat = XMQuaternionRotationRollPitchYaw(angles.x, angles.y, angles.z);
 	SetRotation(quat);
 }
@@ -144,7 +174,9 @@ void Transform::RemoveChild(Transform * child)
 {
 	//Search and remove child
 	for (auto iter = m_children.begin(); iter != m_children.end(); iter++)
-		if (*iter == child) { m_children.erase(iter); return; }
+		if (*iter == child) { 
+			m_children.erase(iter); 
+			return; }
 }
 
 void Transform::SetUpdateFlag()

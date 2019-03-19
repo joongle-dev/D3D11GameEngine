@@ -89,17 +89,17 @@ public:
 		for (auto chunk : m_chunks)
 		{
 			if (chunk->numAllocated >= CHUNKSIZE) continue;
-			return new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
+			T* temp = new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
+			return temp;
 		}
 		
 		//If no avaiable chunk is found, add new chunk, allocate and return object
 		auto chunk = m_chunks.emplace_back(new Chunk);
-		return new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
+		return chunk->handles[chunk->numAllocated++];
 	}
 
 	void Deallocate(T* object)
 	{
-		//Call destructor
 		object->~T();
 		//Iterate chunks until chunk that holds the object is found
 		for (auto chunk : m_chunks)
@@ -116,7 +116,7 @@ public:
 
 	void Deallocate(void* object) override
 	{
-		Deallocate(reinterpret_cast<T*>(object));
+		Deallocate(static_cast<T*>(object));
 	}
 
 private:

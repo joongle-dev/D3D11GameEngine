@@ -64,7 +64,14 @@ class Serializable
 
 	public:
 		Field(const_val_getter_ptr_t<T> getter, const_val_setter_ptr_t<T> setter) :
-			valGetter(getter), valSetter(setter), fieldType(FieldType::const_value) {}
+			valGetter(getter), valSetter(setter), fieldType(FieldType::const_value) 
+		{
+		}
+
+		Field(const_ref_getter_ptr_t<T> getter, const_ref_setter_ptr_t<T> setter) :
+			refGetter(getter), refSetter(setter), fieldType(FieldType::const_reference) 
+		{
+		}
 
 		json toJson(Class& object) override
 		{
@@ -74,6 +81,8 @@ class Serializable
 					return json(object.*memPtr);
 				case FieldType::const_value:
 					return json((object.*valGetter)());
+				case FieldType::const_reference:
+					return json((object.*refGetter)());
 			}
 			return json();
 		}
@@ -84,8 +93,13 @@ class Serializable
 			{
 				case FieldType::member:
 					object.*memPtr = j;
+					return;
 				case FieldType::const_value:
 					(object.*valSetter)(j);
+					return;
+				case FieldType::const_reference:
+					(object.*refSetter)(j);
+					return;
 			};
 		}
 	};
@@ -98,7 +112,12 @@ public:
 	{
 		static bool registered = false;
 		if (!registered)
-			static_cast<Class*>(this)->RegisterSerializeFields();
+			static_cast<Class*>(this)->InitializeSerializable();
+	}
+
+	virtual void InitializeSerializable() 
+	{
+		//Override and register Serialize Fields in this function
 	}
 
 	template <typename T>
@@ -107,7 +126,11 @@ public:
 		s_serializefields.emplace_back(name, new Field<T>(getter, setter));
 	}
 
-	virtual void RegisterSerializeFields() {}
+	template <typename T>
+	static void RegisterSerializeField(std::string name, const_ref_getter_ptr_t<T> getter, const_ref_setter_ptr_t<T> setter)
+	{
+		s_serializefields.emplace_back(name, new Field<T>(getter, setter));
+	}
 
 	static json StaticSerialize(Class& object)
 	{

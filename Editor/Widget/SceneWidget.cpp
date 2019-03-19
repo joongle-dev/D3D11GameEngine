@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SceneWidget.h"
+#include "../ImGui/ImGuizmo.h"
 
 SceneWidget::SceneWidget(Context * context) :
 	IWidget(context)
@@ -17,20 +18,8 @@ SceneWidget::SceneWidget(Context * context) :
 void SceneWidget::Render()
 {
 	CameraControl();
-	ImVec2 origin = ImGui::GetCursorScreenPos();
-
-	//Adjust image size, cursor position and draw scene
-	float scale = std::max(ImGui::GetWindowSize().x / m_rendertarget->GetWidth(), ImGui::GetWindowSize().y / m_rendertarget->GetHeight());
-	ImVec2 imageSize = ImVec2(m_rendertarget->GetWidth() * scale, m_rendertarget->GetHeight() * scale);
-	ImVec2 cursorPos = ImVec2((ImGui::GetWindowSize().x - imageSize.x) * 0.5f, (ImGui::GetWindowSize().y - imageSize.y) * 0.5f);
-	ImGui::SetCursorPos(cursorPos);
-	ImGui::Image(m_rendertarget->GetShaderResource(), imageSize, ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1), ImColor(255, 127, 166, 155));
-
-	//Scene overlay
-	ImGui::SetNextWindowPos(origin);
-	ImGui::BeginChild("Overlay", ImVec2(200, 200));
-	ImGui::TextColored(ImVec4(0, 1, 0, 1), "FPS: %.0f", ImGui::GetIO().Framerate);
-	ImGui::EndChild();
+	ShowFrame();
+	ShowGizmo();
 }
 
 void SceneWidget::CameraControl()
@@ -59,12 +48,64 @@ void SceneWidget::CameraControl()
 		//Mouse
 		ImGui::GetIO().KeyRepeatDelay = 0.00f;
 		if (ImGui::IsMouseClicked(2, true)) {
-			float sensitivity = 1.0f * elapsed;
+			float sensitivity = 60.0f * elapsed;
 			Vector2 mouse = input->GetMouseMove();
 			m_angles.y += mouse.x * sensitivity;
 			m_angles.x += mouse.y * sensitivity;
-			transform->SetRotationEuler(Vector3(m_angles.x, m_angles.y, 0));
+			transform->SetEulerRotation(Vector3(m_angles.x, m_angles.y, 0));
 		}
 		ImGui::GetIO().KeyRepeatDelay = 0.25f;
 	}
+}
+
+void SceneWidget::ShowFrame()
+{
+	ImVec2 origin = ImGui::GetCursorScreenPos();
+
+	//Adjust image size, cursor position and draw scene
+	float scale = std::max(ImGui::GetWindowSize().x / m_rendertarget->GetWidth(), ImGui::GetWindowSize().y / m_rendertarget->GetHeight());
+	frameSize = ImVec2(m_rendertarget->GetWidth() * scale, m_rendertarget->GetHeight() * scale);
+	framePos = ImVec2((ImGui::GetWindowSize().x - frameSize.x) * 0.5f, (ImGui::GetWindowSize().y - frameSize.y) * 0.5f);
+	ImGui::SetCursorPos(framePos);
+	ImGui::Image(m_rendertarget->GetShaderResource(), frameSize, ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1), ImColor(255, 127, 166, 155));
+
+	//Scene overlay
+	ImGui::SetNextWindowPos(origin);
+	ImGui::BeginChild("Overlay", ImVec2(200, 200));
+	ImGui::TextColored(ImVec4(0, 1, 0, 1), "FPS: %.0f", ImGui::GetIO().Framerate);
+	ImGui::EndChild();
+}
+
+void SceneWidget::ShowGizmo()
+{
+	if (!EditorHelper::selected)
+		return;
+
+	auto camera = m_camera->GetComponent<Camera>();
+	auto transform = EditorHelper::selected->GetComponent<Transform>();
+
+	static ImGuizmo::OPERATION operation(ImGuizmo::TRANSLATE);
+	static ImGuizmo::MODE mode(ImGuizmo::WORLD);
+
+	if (ImGui::IsKeyPressed(87))
+		operation = ImGuizmo::TRANSLATE;
+	if (ImGui::IsKeyPressed(69))
+		operation = ImGuizmo::ROTATE;
+	if (ImGui::IsKeyPressed(82))
+		operation = ImGuizmo::SCALE;
+
+	Matrix world = transform->GetWorldTransform();
+	Matrix view = camera->GetViewMatrix();
+	Matrix proj = camera->GetProjectionMatrix();
+
+	ImGuizmo::SetDrawlist();
+	ImGuizmo::SetRect(framePos.x, framePos.y, frameSize.x, frameSize.y);
+	ImGuizmo::Manipulate(&view._11, &proj._11, operation, mode, &world._11);
+
+	DirectX::XMVECTOR s, r, t;
+	DirectX::XMMatrixDecompose(&s, &r, &t, world);
+
+	transform->SetPosition(t);
+	transform->SetRotation(r);
+	transform->SetScale(s);
 }

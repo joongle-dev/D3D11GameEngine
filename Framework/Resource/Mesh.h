@@ -28,6 +28,7 @@ public:
 
 	void BindIndex(const UINT& offset = 0);
 	void BindPosition(const UINT& slot, const UINT& offset = 0, const UINT& stride = sizeof(Vector3));
+	void BindNormal(const UINT& slot, const UINT& offset = 0, const UINT& stride = sizeof(Vector3));
 
 public:
 	uint32_t m_numVertices;

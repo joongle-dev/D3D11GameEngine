@@ -95,7 +95,8 @@ public:
 	T* CreateComponent(GameObject* owner)
 	{
 		//Return newly allocated and constructed component
-		return GetComponentContainer<T>()->Allocate(m_context, owner);
+		T* temp = GetComponentContainer<T>()->Allocate(m_context, owner);
+		return temp;
 	}
 
 	//Destroy component

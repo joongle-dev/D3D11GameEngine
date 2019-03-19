@@ -41,7 +41,9 @@ GameObject * Scene::Instantiate()
 
 	//Initialize GameObject
 	object->m_instanceid = handle.index;
-	object->GetComponent<Transform>()->SetParent(GetRoot());
+	auto parent = GetRoot();
+	auto trans = object->GetComponent<Transform>();
+	trans->SetParent(GetRoot());
 
 	return object;
 }
@@ -64,8 +66,7 @@ void Scene::Destroy(GameObject * object)
 	Util::Handle handle = m_handles[object->m_instanceid];
 	m_handles.ReleaseHandle(handle);
 
-	//Call destructor and deallocate GameObject
-	object->~GameObject();
+	//Deallocate GameObject
 	m_objects->Deallocate(object);
 }
 

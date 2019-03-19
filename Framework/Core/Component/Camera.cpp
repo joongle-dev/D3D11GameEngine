@@ -19,22 +19,20 @@ void Camera::Update()
 {
 }
 
-const XMFLOAT4X4 Camera::GetViewMatrix()
+const Matrix Camera::GetViewMatrix()
 {
-	XMFLOAT4X4 view;
 	XMVECTOR position = XMLoadFloat3(&m_transform->GetPosition());
-	XMStoreFloat4x4(&view, XMMatrixLookAtLH(
+	return XMMatrixLookAtLH(
 		position,
 		position + XMLoadFloat3(&m_transform->GetForward()),
-		XMLoadFloat3(&m_transform->GetUp())));
-	return view;
+		XMLoadFloat3(&m_transform->GetUp()));
 }
 
-const XMFLOAT4X4 Camera::GetProjectionMatrix()
+const Matrix Camera::GetProjectionMatrix()
 {
-	XMFLOAT4X4 projection;
-	float aspect = m_context->GetSubsystem<Graphics>()->GetAspectRatio();
-	XMStoreFloat4x4(&projection, 
-		XMMatrixPerspectiveFovLH(m_fov, aspect, m_near, m_far));
-	return projection;
+	if (!m_rendertarget)
+		return Matrix();
+
+	float aspect = (float)m_rendertarget->GetWidth() / (float)m_rendertarget->GetHeight();
+	return XMMatrixPerspectiveFovLH(m_fov, aspect, m_near, m_far);
 }

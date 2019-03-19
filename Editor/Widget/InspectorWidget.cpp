@@ -12,47 +12,56 @@ void InspectorWidget::Render()
 	if (!EditorHelper::selected || !m_visible)
 		return;
 
+	auto objectdata = EditorHelper::selected->Serialize();
+	JsonEditor("##", objectdata);
+	//EditorHelper::selected->Deserialize(objectdata);
+
 	for (size_t index = 0; index < Util::FamilyTypeID<IComponent>::GetCount(); index++)
-	{
 		if (auto component = (*EditorHelper::selected)[index])
 		{
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 			if (ImGui::CollapsingHeader(component->GetComponentName().c_str(), flags)) {
-				auto data = component->Serialize();
-				ParseData(data);
-				component->Deserialize(data);
+				auto componentdata = component->Serialize();
+				JsonEditor("##", componentdata);
+				component->Deserialize(componentdata);
 			}
 		}
-	}
 }
 
-void InspectorWidget::ParseData(nlohmann::json & j)
+void InspectorWidget::JsonEditor(std::string label, Json & j)
 {
 	for (auto& element : j.items())
 	{
-		ImGui::Text(element.key().c_str());
-
-		switch (element.value().type())
-		{
-			case nlohmann::json::value_t::object:
-			{
-				ParseData(element.value());
-				break;
-			}
-			case nlohmann::json::value_t::array:
-			{
-				size_t size = element.value().size();
-				float temp[4];
-				for (int i = 0; i < size; i++) {
-					std::string label = "##" + element.key() + std::to_string(i);
-					temp[i] = element.value().at(i).get<float>();
-					ImGui::InputFloat(label.c_str(), temp + i);
-					element.value().at(i) = temp[i];
-				}
-				break;
-			}
-			//TODO: string, integer, pointer... types
+		element.value().type();
+		if (element.key().length())
+			ImGui::Text(element.key().c_str());
+		std::string newLabel = label + element.key();
+		switch (element.value().type()) {
+			case Json::value_t::object: {
+				JsonEditor(newLabel, element.value());
+			} break;
+			case Json::value_t::array: {
+				for (int i = 0; i < element.value().size(); i++)
+					JsonEditor(newLabel + std::to_string(i), element.value().at(i));
+			} break;
+			case Json::value_t::number_float: {
+				float temp = element.value().get<float>();
+				ImGui::InputFloat(newLabel.c_str(), &temp);
+				j = temp;
+			} break;
+			case Json::value_t::number_integer: {
+				int temp = element.value().get<int>();
+				ImGui::InputInt(newLabel.c_str(), &temp);
+				j = temp;
+			} break;
+			case Json::value_t::string: {
+				std::string temp = element.value().get<std::string>().data();
+				temp.reserve(256);
+				ImGui::InputText(newLabel.c_str(), temp.data(), 256);
+				j;
+			} break;
 		}
-		ImGui::Separator();
+		if (element.key().length())
+			ImGui::Separator();
 	}
 }

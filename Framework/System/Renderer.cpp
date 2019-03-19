@@ -14,8 +14,14 @@ Renderer::Renderer(Context * context) :
 	m_shader = new Shader(context);
 	m_shader->Create("MeshTest.hlsl");
 
+	D3D11_INPUT_ELEMENT_DESC Desc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
 	m_layout = new InputLayout(context);
-	m_layout->Create(m_shader->GetBytecode());
+	m_layout->Create(m_shader->GetBytecode(), Desc, 2);
 
 	BlendState* blend = new BlendState(context);
 	blend->Create();
@@ -71,6 +77,7 @@ void Renderer::Update()
 			UINT offset = 0;
 
 			m_graphics->GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->m_positions.GetAddressOf(), &stride, &offset);
+			m_graphics->GetDeviceContext()->IASetVertexBuffers(1, 1, mesh->m_normals.GetAddressOf(), &stride, &offset);
 			m_graphics->GetDeviceContext()->IASetIndexBuffer(mesh->m_indices.Get(), DXGI_FORMAT_R32_UINT, 0);
 			m_graphics->GetDeviceContext()->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 		}

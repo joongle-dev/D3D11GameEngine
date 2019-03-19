@@ -15,8 +15,8 @@ public:
 
 	void Update() override;
 
-	const DirectX::XMFLOAT4X4 GetViewMatrix();
-	const DirectX::XMFLOAT4X4 GetProjectionMatrix();
+	const Matrix GetViewMatrix();
+	const Matrix GetProjectionMatrix();
 	
 	const float GetNearPlane() const { return m_near; }
 	const float GetFarPlane() const { return m_far; }

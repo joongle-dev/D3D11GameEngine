@@ -175,3 +175,8 @@ void Mesh::BindPosition(const UINT & slot, const UINT & offset, const UINT & str
 {
 	m_graphics->GetDeviceContext()->IASetVertexBuffers(slot, 1, m_positions.GetAddressOf(), &stride, &offset);
 }
+
+void Mesh::BindNormal(const UINT & slot, const UINT & offset, const UINT & stride)
+{
+	m_graphics->GetDeviceContext()->IASetVertexBuffers(slot, 1, m_normals.GetAddressOf(), &stride, &offset);
+}

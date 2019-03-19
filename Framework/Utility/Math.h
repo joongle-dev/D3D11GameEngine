@@ -2,18 +2,18 @@
 #include "json.hpp"
 #include "SimpleMath.h"
 
-#define PI DirectX::XM_PI
+static constexpr float PI		= 3.14159265359f;
+static constexpr float PI_2		= 6.28318530718f;
+static constexpr float PI_DIV_2 = 1.57079632679f;
+static constexpr float PI_DIV_4 = 0.78539816339f;
+static constexpr float TO_DEG	= 180.0f / PI;
+static constexpr float TO_RAD	= PI / 180.0f;
 
 using Vector2	 = DirectX::SimpleMath::Vector2;
-
 using Vector3	 = DirectX::SimpleMath::Vector3;
-
 using Vector4	 = DirectX::SimpleMath::Vector4;
-
 using Quaternion = DirectX::SimpleMath::Quaternion;
-
 using Matrix	 = DirectX::SimpleMath::Matrix;
-
 using Color		 = DirectX::SimpleMath::Color;
 
 namespace nlohmann {

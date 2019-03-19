@@ -15,19 +15,32 @@ public:
 	virtual void Update() = 0;
 	virtual const Util::TypeID GetComponentID() const = 0;
 	virtual const std::string GetComponentName() const = 0;
-	virtual nlohmann::json Serialize() = 0;
-	virtual void Deserialize(nlohmann::json& j) = 0;
+	virtual Json Serialize() = 0;
+	virtual void Deserialize(Json& j) = 0;
 	class GameObject* GetOwner() const { return m_owner; }
 };
 
 template <class Class>
-class Component : public Serializable<Class>, public IComponent
+class Component : public IComponent
 {
 protected:
 	Component(class Context* context = nullptr, class GameObject* owner = nullptr) :
-		IComponent(context, owner) {}
+		IComponent(context, owner) {
+		static bool temp = false;
+		if (!temp)
+			static_cast<Class*>(this)->InitializeSerializable();
+	}
 	virtual ~Component() = default;
 
+	virtual void InitializeSerializable()
+	{
+	
+	}
+	template <typename GET, typename SET>
+	void RegisterSerializeField(std::string name, GET getter, SET setter)
+	{
+		Serializable<Class>::RegisterSerializeField(name, getter, setter);
+	}
 public:
 	static inline const Util::TypeID ComponentID = Util::FamilyTypeID<IComponent>::GetID<Class>();
 
@@ -44,12 +57,12 @@ public:
 		static const std::string name = std::string(typeid(Class).name()).substr(6); 
 		return name; 
 	}
-	virtual nlohmann::json Serialize() override 
+	virtual Json Serialize() override
 	{ 
-		return Class::StaticSerialize(*static_cast<Class*>(this)); 
+		return Serializable<Class>::StaticSerialize(*static_cast<Class*>(this));
 	}
-	virtual void Deserialize(nlohmann::json& j) override 
+	virtual void Deserialize(Json& j) override
 	{ 
-		Class::StaticDeserialize(*static_cast<Class*>(this), j); 
+		Serializable<Class>::StaticDeserialize(*static_cast<Class*>(this), j); 
 	}
 };

@@ -139,4 +139,5 @@ void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std:
 void HierarchyWidget::DestroyObject(Scene * scene, Transform * transform)
 {
 	scene->Destroy(transform->GetOwner());
+	EditorHelper::selected = nullptr;
 }

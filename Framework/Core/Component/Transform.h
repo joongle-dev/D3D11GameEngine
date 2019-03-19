@@ -34,10 +34,11 @@ public:
 	const Matrix& GetLocalTransform() { Update(); return m_localMatrix; }
 	const Matrix& GetWorldTransform() { Update(); return m_worldMatrix; }
 
-	//Transform mutators
+	//Transform accessors and mutators
 	void RotateAxis(Vector3 axis, float angle);
 	void RotateEuler(Vector3 angles);
-	void SetRotationEuler(Vector3 angles);
+	void SetEulerRotation(Vector3 angles);
+	const Vector3 GetEulerRotation();
 	void Translate(Vector3 translation);
 
 	//Directional vectors
@@ -62,10 +63,10 @@ private:
 	void SetUpdateFlag();
 
 public:
-	void RegisterSerializeFields() override
+	void InitializeSerializable() override
 	{
 		RegisterSerializeField("Scale", &Transform::GetScale, &Transform::SetScale);
-		RegisterSerializeField("Rotation", &Transform::GetRotation, &Transform::SetRotation);
+		RegisterSerializeField("Rotation", &Transform::GetEulerRotation, &Transform::SetEulerRotation);
 		RegisterSerializeField("Position", &Transform::GetPosition, &Transform::SetPosition);
 	}
 
