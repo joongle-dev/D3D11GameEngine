@@ -57,7 +57,7 @@ void Transform::SetScale(const Vector3 vec)
 		Vector3 parent = m_parent->GetScale();
 		m_localScale.x = vec.x / parent.x;
 		m_localScale.y = vec.y / parent.y;
-		m_localScale.z = vec.x / parent.z;
+		m_localScale.z = vec.z / parent.z;
 	}
 	else
 		m_localScale = vec;
@@ -174,9 +174,10 @@ void Transform::RemoveChild(Transform * child)
 {
 	//Search and remove child
 	for (auto iter = m_children.begin(); iter != m_children.end(); iter++)
-		if (*iter == child) { 
-			m_children.erase(iter); 
-			return; }
+		if (*iter == child) {
+			m_children.erase(iter);
+			return;
+		}
 }
 
 void Transform::SetUpdateFlag()

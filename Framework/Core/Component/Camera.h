@@ -20,10 +20,10 @@ public:
 	
 	const float GetNearPlane() { return m_near; }
 	const float GetFarPlane() { return m_far; }
-	const float GetFOV() { return m_fov; }
+	const float GetFOV() { return m_fov * TO_DEG; }
 	void SetNearPlane(const float np) { m_near = np; }
 	void SetFarPlane(const float fp) { m_far = fp; }
-	void SetFOV(const float fov) { m_fov = fov; }
+	void SetFOV(const float fov) { m_fov = fov * TO_RAD; }
 
 	void SetProjectionType(ProjectionType type) { m_type = type; }
 

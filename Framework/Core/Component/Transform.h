@@ -65,9 +65,9 @@ private:
 public:
 	void InitializeSerializable() override
 	{
-		RegisterSerializeField("Scale", &Transform::GetScale, &Transform::SetScale);
-		RegisterSerializeField("Rotation", &Transform::GetEulerRotation, &Transform::SetEulerRotation);
 		RegisterSerializeField("Position", &Transform::GetPosition, &Transform::SetPosition);
+		RegisterSerializeField("Rotation", &Transform::GetEulerRotation, &Transform::SetEulerRotation);
+		RegisterSerializeField("Scale", &Transform::GetScale, &Transform::SetScale);
 	}
 
 private:

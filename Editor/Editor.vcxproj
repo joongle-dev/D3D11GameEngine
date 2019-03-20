@@ -35,6 +35,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Widget\AssetWidget.h" />
     <ClInclude Include="Widget\EditorHelper.h" />
+    <ClInclude Include="Widget\GameWidget.h" />
     <ClInclude Include="Widget\InspectorWidget.h" />
     <ClInclude Include="Widget\IWidget.h" />
     <ClInclude Include="Widget\HierarchyWidget.h" />
@@ -77,6 +78,7 @@
     </ClCompile>
     <ClCompile Include="Widget\AssetWidget.cpp" />
     <ClCompile Include="Widget\EditorHelper.cpp" />
+    <ClCompile Include="Widget\GameWidget.cpp" />
     <ClCompile Include="Widget\HierarchyWidget.cpp" />
     <ClCompile Include="Widget\InspectorWidget.cpp" />
     <ClCompile Include="Widget\LogWidget.cpp" />

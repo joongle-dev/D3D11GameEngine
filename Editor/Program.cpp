@@ -15,7 +15,7 @@ int APIENTRY WinMain(
 	Context* context = editor.GetContext();
 
 	context->GetSubsystem<Graphics>()->SetClearColor(Color(0, 0, 0, 1));
-	context->GetSubsystem<Time>()->LockFramerate(144);
+	//context->GetSubsystem<Time>()->LockFramerate(300);
 
 	ResourceManager* resources = context->GetSubsystem<ResourceManager>();
 	resources->Load<Mesh>("Boy01_Body_Geo.mesh");

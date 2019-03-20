@@ -9,29 +9,27 @@ HierarchyWidget::HierarchyWidget(Context * context) :
 
 void HierarchyWidget::Render()
 {
+	if (ImGui::IsWindowHovered(0) && ImGui::IsMouseClicked(0))
+		EditorHelper::selected = nullptr;
+
 	SceneNode(m_context->GetSubsystem<SceneManager>()->GetCurrentScene());
 }
 
 void HierarchyWidget::SceneNode(Scene * scene)
 {
-	Transform* root = scene->GetRoot();
-
-	//Node flags
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-
-	//Check if this node is open
-	bool open = ImGui::CollapsingHeader(scene->GetName().c_str(), flags);
+	Transform* rootnode = scene->GetRoot();
 	
+	//Check if this node is open
+	bool open = ImGui::CollapsingHeader(scene->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+
 	//Node interaction
-	DropTarget(root);
-	ContextMenu(scene, root);
+	DropTarget(rootnode);
+	ContextMenu(scene, rootnode);
 	
 	//If node was open, display its child nodes (root transforms)
 	if (open)
-	{
-		for (int i = 0; i < root->GetChildCount(); i++)
-			ObjectNode(scene, root->GetChild(i));
-	}
+		for (int i = 0; i < rootnode->GetChildCount(); i++)
+			ObjectNode(scene, rootnode->GetChild(i));
 }
 
 void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
@@ -67,28 +65,37 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 
 void HierarchyWidget::DragSource(Transform * src)
 {
-	ImGuiDragDropFlags flags = ImGuiDragDropFlags_SourceNoDisableHover;
-
-	if (ImGui::BeginDragDropSource(flags))
+	if (ImGui::BeginDragDropSource(0))
 	{
 		//Set drag drop payload
 		ImGui::SetDragDropPayload("HierarchyPayload", &src, sizeof(Transform*));
-
 		ImGui::EndDragDropSource();
 	}
 }
 
 void HierarchyWidget::DropTarget(Transform * dst)
 {
-	ImGuiDragDropFlags flags = 0;
-
 	if (ImGui::BeginDragDropTarget())
 	{
-		//Receive drag drop payload
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HierarchyPayload", flags))
-			//Add received transfrom to children
-			dst->AddChild(*static_cast<Transform**>(payload->Data));
-
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HierarchyPayload", 0))
+		{
+			//Drag source transform
+			Transform* src = *static_cast<Transform**>(payload->Data);
+			//This lambda function checks if the first parameter is an ancestor of second parameter
+			auto AncestorCheck = [](Transform* ancestor, Transform* descendant, const auto& lambda)->bool
+			{
+				if (descendant->GetParent() == ancestor)
+					return true;
+				if (descendant->GetParent() == nullptr)
+					return false;
+				return lambda(ancestor, descendant->GetParent(), lambda);
+			};
+			//If drag source is ancestor of drop target, set source's parent as target's parent
+			if (AncestorCheck(src, dst, AncestorCheck))
+				dst->SetParent(src->GetParent());
+			//Set drop target as drag source's parent
+			src->SetParent(dst);
+		}
 		ImGui::EndDragDropTarget();
 	}
 }

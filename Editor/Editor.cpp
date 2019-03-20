@@ -140,11 +140,12 @@ void Editor::BeginDockspace()
 	{
 		ImGui::DockBuilderAddNode(id, ImGui::GetMainViewport()->Size);
 		ImGuiID main  = id;
-		ImGuiID right = ImGui::DockBuilderSplitNode(main, ImGuiDir_Right, 0.25f, nullptr, &main);
+		ImGuiID right0 = ImGui::DockBuilderSplitNode(main, ImGuiDir_Right, 0.15f, nullptr, &main);
 		ImGuiID down  = ImGui::DockBuilderSplitNode(main, ImGuiDir_Down, 0.3f, nullptr, &main);
+		ImGuiID right1 = ImGui::DockBuilderSplitNode(main, ImGuiDir_Right, 0.15f, nullptr, &main);
 		ImGui::DockBuilderDockWindow("Scene", main);
-		ImGui::DockBuilderDockWindow("Inspector", right);
-		ImGui::DockBuilderDockWindow("Hierarchy", right);
+		ImGui::DockBuilderDockWindow("Inspector", right0);
+		ImGui::DockBuilderDockWindow("Hierarchy", right1);
 		ImGui::DockBuilderDockWindow("Log", down);
 		ImGui::DockBuilderDockWindow("Asset", down);
 		ImGui::DockBuilderFinish(id);

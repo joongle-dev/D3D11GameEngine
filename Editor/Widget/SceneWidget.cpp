@@ -31,30 +31,31 @@ void SceneWidget::CameraControl()
 		Transform* transform = m_camera->GetComponent<Transform>();
 
 		//Keyboard
-		float speed = 1.0f * elapsed;
+		float speed = 40.0f * elapsed;
 		Vector3 forward = transform->GetForward();
 		Vector3 right = transform->GetRight();
 		Vector3 up = transform->GetUp();
 		Vector3 move;
-		if (input->KeyDown(KeyCode::W)) move += forward * speed;
-		if (input->KeyDown(KeyCode::S)) move -= forward * speed;
-		if (input->KeyDown(KeyCode::D)) move += right * speed;
-		if (input->KeyDown(KeyCode::A)) move -= right * speed;
-		if (input->KeyDown(KeyCode::Q)) move += up * speed;
-		if (input->KeyDown(KeyCode::E)) move -= up * speed;
+		if (input->KeyDown(KeyCode::W)) move += forward;
+		if (input->KeyDown(KeyCode::S)) move -= forward;
+		if (input->KeyDown(KeyCode::D)) move += right;
+		if (input->KeyDown(KeyCode::A)) move -= right;
+		if (input->KeyDown(KeyCode::Q)) move += up;
+		if (input->KeyDown(KeyCode::E)) move -= up;
 		move.Normalize();
-		transform->Translate(move);
+		transform->Translate(move * speed);
 
 		//Mouse
-		ImGui::GetIO().KeyRepeatDelay = 0.00f;
-		if (ImGui::IsMouseClicked(2, true)) {
-			float sensitivity = 60.0f * elapsed;
-			Vector2 mouse = input->GetMouseMove();
-			m_angles.y += mouse.x * sensitivity;
-			m_angles.x += mouse.y * sensitivity;
-			transform->SetEulerRotation(Vector3(m_angles.x, m_angles.y, 0));
+		static ImVec2 mouse = ImVec2(0, 0);
+		if (ImGui::IsMouseDragging(2)) {
+			mouse = ImGui::GetMouseDragDelta(2);
+			transform->SetEulerRotation(Vector3(m_angles.x + mouse.y, m_angles.y + mouse.x, 0));
 		}
-		ImGui::GetIO().KeyRepeatDelay = 0.25f;
+		else {
+			m_angles.x += mouse.y;
+			m_angles.y += mouse.x;
+			mouse = ImVec2(0, 0);
+		}
 	}
 }
 

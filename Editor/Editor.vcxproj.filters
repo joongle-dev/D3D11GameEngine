@@ -78,6 +78,9 @@
     <ClInclude Include="Widget\EditorHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Widget\GameWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -135,6 +138,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Widget\EditorHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widget\GameWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

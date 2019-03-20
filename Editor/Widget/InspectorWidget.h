@@ -10,6 +10,8 @@ public:
 	void Render() override;
 
 private:
-	void JsonRecursive(std::string label, Json& j);
+	void ShowTransform();
+	void ShowCamera();
+
 	void JsonEditor(std::string label, Json& j);
 };

@@ -34,6 +34,6 @@ PS_INPUT VS(VS_INPUT input)
 float4 PS(PS_INPUT input) : SV_TARGET
 {
     float3 lightDir = float3(-1, 0, 0);
-    float intensity = clamp(dot(input.normal, -lightDir), 0.2f, 1.0f);
+    float intensity = clamp(dot(input.normal, -lightDir), 0.15f, 1.0f);
     return float4(1 * intensity, 1 * intensity, 1 * intensity, 1);
 }
