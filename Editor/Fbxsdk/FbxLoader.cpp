@@ -76,7 +76,7 @@ XMFLOAT2 GetUV(FbxMesh * mesh, int cpIndex, int uvIndex)
 	return result;
 }
 
-void FbxLoader::FbxSkinData::Insert(uint32_t index, float weight)
+void FbxLoader::FbxSkinData::Insert(float index, float weight)
 {
 	FbxVertexBlends::iterator iter = blends.begin();
 	while (iter != blends.end()) {
@@ -89,24 +89,24 @@ void FbxLoader::FbxSkinData::Insert(uint32_t index, float weight)
 	blends.push_back(std::make_pair(index, weight));
 }
 
-XMFLOAT4 FbxLoader::FbxSkinData::Indices()
+Vector4 FbxLoader::FbxSkinData::Indices()
 {
 	float indices[4] = { 0, 0, 0, 0 };
-	for (int i = 0; i < blends.size() && i < 4; i++)
+	for (size_t i = 0; i < blends.size() && i < 4; i++)
 		indices[i] = blends[i].first;
-	return XMFLOAT4(indices[0], indices[1], indices[2], indices[3]);
+	return Vector4(indices[0], indices[1], indices[2], indices[3]);
 }
 
-XMFLOAT4 FbxLoader::FbxSkinData::Weights()
+Vector4 FbxLoader::FbxSkinData::Weights()
 {
 	float weights[4] = { 0, 0, 0, 0 };
 	float length = 0;
-	for (int i = 0; i < blends.size() && i < 4; i++) {
+	for (size_t i = 0; i < blends.size() && i < 4; i++) {
 		weights[i] = blends[i].second;
 		length += weights[i] * weights[i];
 	}
 	length = sqrt(length);
-	return XMFLOAT4(weights[0] / length, weights[1] / length, weights[2] / length, weights[3] / length);
+	return Vector4(weights[0] / length, weights[1] / length, weights[2] / length, weights[3] / length);
 }
 
 
@@ -138,7 +138,7 @@ FbxLoader::FbxLoader()
 	scene = FbxScene::Create(manager, "");
 	assert(scene != NULL);
 
-	bool result;
+	//bool result;
 	int major, minor, revision;
 	FbxManager::GetFileFormatVersion(major, minor, revision);
 
@@ -275,7 +275,7 @@ void FbxLoader::ProcessMeshData(FbxNode * node)
 
 void FbxLoader::ProcessMaterials()
 {
-	for (size_t i = 0; i < scene->GetMaterialCount(); i++)
+	for (int i = 0; i < scene->GetMaterialCount(); i++)
 	{
 		FbxSurfaceMaterial* fbxMaterial = scene->GetMaterial(i);
 
@@ -385,7 +385,7 @@ std::vector<FbxLoader::FbxSkinData> FbxLoader::GetSkinData(FbxMesh * mesh)
 			{
 				int temp = cluster->GetControlPointIndices()[indexCount];
 				double* weights = cluster->GetControlPointWeights();
-				skinData[temp].Insert(boneIndex, (float)weights[indexCount]);
+				skinData[temp].Insert((float)boneIndex, (float)weights[indexCount]);
 			}
 		}
 	}
@@ -394,7 +394,7 @@ std::vector<FbxLoader::FbxSkinData> FbxLoader::GetSkinData(FbxMesh * mesh)
 
 int FbxLoader::GetBoneIndex(std::string name)
 {
-	for (int i = 0; i < bones.size(); i++)
+	for (size_t i = 0; i < bones.size(); i++)
 		if (bones[i].name == name) return i;
 	return -1;
 }

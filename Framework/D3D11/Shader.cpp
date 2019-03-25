@@ -66,7 +66,7 @@ const bool Shader::ShaderErrorHandler(HRESULT hr, LPD3D10BLOB error)
 			char* compileErrors;
 			compileErrors = (char*)(error->GetBufferPointer());
 
-			for (int i = 0; i < error->GetBufferSize(); i++)
+			for (size_t i = 0; i < error->GetBufferSize(); i++)
 				std::cout << compileErrors[i];
 			printf("\nFailed to compile shader.");
 

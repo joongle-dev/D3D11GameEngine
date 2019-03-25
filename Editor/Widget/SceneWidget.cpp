@@ -17,6 +17,9 @@ SceneWidget::SceneWidget(Context * context) :
 
 void SceneWidget::Render()
 {
+	if (!m_visible)
+		return;
+
 	CameraControl();
 	ShowFrame();
 	ShowGizmo();

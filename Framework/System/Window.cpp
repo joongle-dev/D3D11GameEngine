@@ -6,11 +6,10 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 	Subsystem<Window>(context), 
 	m_name(name)
 {
-	//Get instance handle
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	//Adjust window size
-	RECT rect = { 0, 0, width, height };
+	//Adjustment window rect so that the given width and height are that of the client region size, not window
+	RECT rect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
 	AdjustWindowRect(&rect, style, FALSE);
 
 	//Register window class
@@ -19,7 +18,7 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;		 //Window style
 	wcex.lpfnWndProc = StaticWindowProc;					 //Window procedure
 	wcex.cbClsExtra = 0;									 //
-	wcex.cbWndExtra = sizeof(this);							 //Reserve space to store this instance
+	wcex.cbWndExtra = sizeof(this);							 //Reserve space to store pointer to this instance
 	wcex.hInstance = hInstance;								 //
 	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);		 //Icon
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);			 //Cursor
@@ -44,10 +43,10 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 		hInstance, 
 		this);
 
-	//Store this instance pointer to window class instance
+	//Store pointer to this window class instance in handle
 	SetWindowLongPtr(m_handle, 0, reinterpret_cast<LONG_PTR>(this));
 
-	assert(m_handle, "Window initialization failed");
+	assert((m_handle, "Window initialization failed"));
 
 	Show();
 }
@@ -96,7 +95,9 @@ LRESULT Window::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		default:
 		{
-			//Call additional message handler if available
+			//Call additional message handlers if available
+			if (m_input)
+				m_input(hWnd, msg, wParam, lParam);
 			if (m_message)
 				m_message(hWnd, msg, wParam, lParam);
 			break;

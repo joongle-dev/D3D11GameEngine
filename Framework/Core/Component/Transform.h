@@ -3,8 +3,6 @@
 
 class Transform final : public Component<Transform>
 {
-	using Transforms = std::vector<Transform*>;
-
 public:
 	Transform(class Context* context, class GameObject* owner);
 	~Transform();
@@ -62,14 +60,6 @@ private:
 	void RemoveChild(Transform* child);
 	void SetUpdateFlag();
 
-public:
-	void InitializeSerializable() override
-	{
-		RegisterSerializeField("Position", &Transform::GetPosition, &Transform::SetPosition);
-		RegisterSerializeField("Rotation", &Transform::GetEulerRotation, &Transform::SetEulerRotation);
-		RegisterSerializeField("Scale", &Transform::GetScale, &Transform::SetScale);
-	}
-
 private:
 	Vector3		m_localScale;
 	Quaternion	m_localRotation;
@@ -79,5 +69,5 @@ private:
 	
 	bool		m_dirty;
 	Transform*	m_parent;
-	Transforms	m_children;
+	std::vector<Transform*>	m_children;
 };

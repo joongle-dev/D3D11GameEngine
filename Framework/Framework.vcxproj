@@ -33,6 +33,7 @@
     <ClInclude Include="D3D11\RenderTarget.h" />
     <ClInclude Include="D3D11\Shader.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Resource\Material.h" />
     <ClInclude Include="Resource\Mesh.h" />
     <ClInclude Include="Resource\Resource.h" />
     <ClInclude Include="Resource\Texture.h" />
@@ -47,13 +48,11 @@
     <ClInclude Include="System\Time.h" />
     <ClInclude Include="System\Window.h" />
     <ClInclude Include="Utility\ChunkAllocator.h" />
-    <ClInclude Include="Utility\Json.h" />
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Utility\FamilyTypeID.h" />
     <ClInclude Include="Utility\FileStream.h" />
     <ClInclude Include="Utility\Geometry.h" />
     <ClInclude Include="Utility\Handle.h" />
-    <ClInclude Include="Utility\Serializable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -68,6 +67,7 @@
     <ClCompile Include="D3D11\RenderTarget.cpp" />
     <ClCompile Include="D3D11\Shader.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Resource\Material.cpp" />
     <ClCompile Include="Resource\Mesh.cpp" />
     <ClCompile Include="Resource\Texture.cpp" />
     <ClCompile Include="Framework.cpp">
@@ -136,8 +136,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(SolutionDir)/Library;$(SolutionDir)/Assets;$(DH)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir);$(SolutionDir)/Library</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(SolutionDir)/Libraries;$(SolutionDir)/Assets;$(DH)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir);$(SolutionDir)/Libraries</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -170,8 +170,8 @@
       </AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(ProjectName).lib" "$(SolutionDir)/Library/" 
-copy /Y "$(OutDir)$(ProjectName).pdb" ""$(SolutionDir)/Library"</Command>
+      <Command>copy /Y "$(OutDir)$(ProjectName).lib" "$(SolutionDir)/Libraries/" 
+copy /Y "$(OutDir)$(ProjectName).pdb" ""$(SolutionDir)/Libraries"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

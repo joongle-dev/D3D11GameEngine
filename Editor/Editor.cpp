@@ -6,6 +6,7 @@
 #include "./ImGui/imgui_impl_dx11.h"
 
 #include "./Widget/SceneWidget.h"
+#include "./Widget/GameWidget.h"
 #include "./Widget/HierarchyWidget.h"
 #include "./Widget/InspectorWidget.h"
 #include "./Widget/LogWidget.h"
@@ -42,6 +43,7 @@ Editor::Editor()
 
 	//Add widgets
 	m_widgets.emplace_back(new SceneWidget(m_context));
+	m_widgets.emplace_back(new GameWidget(m_context));
 	m_widgets.emplace_back(new InspectorWidget(m_context));
 	m_widgets.emplace_back(new HierarchyWidget(m_context));
 	m_widgets.emplace_back(new LogWidget(m_context));
@@ -144,6 +146,7 @@ void Editor::BeginDockspace()
 		ImGuiID down  = ImGui::DockBuilderSplitNode(main, ImGuiDir_Down, 0.3f, nullptr, &main);
 		ImGuiID right1 = ImGui::DockBuilderSplitNode(main, ImGuiDir_Right, 0.15f, nullptr, &main);
 		ImGui::DockBuilderDockWindow("Scene", main);
+		ImGui::DockBuilderDockWindow("Game", main);
 		ImGui::DockBuilderDockWindow("Inspector", right0);
 		ImGui::DockBuilderDockWindow("Hierarchy", right1);
 		ImGui::DockBuilderDockWindow("Log", down);

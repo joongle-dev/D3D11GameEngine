@@ -15,28 +15,28 @@ Scene::Scene(Context* context) :
 
 	//Create main camera object
 	GameObject* object = Instantiate();
-	object->AddComponent<Camera>();
+	object->AddComponent<Camera>()->SetRenderTarget(context->GetSubsystem<Renderer>()->GetMainTarget());
 	object->SetName("Main Camera");
 }
 
 void Scene::Update()
 {
 	//Update GameObjects in hierarchial order
-	for (int i = 0; i < m_root->GetChildCount(); i++)
+	for (size_t i = 0; i < m_root->GetChildCount(); i++)
 		Update(m_root->GetChild(i));
 }
 
 void Scene::Update(Transform * transform)
 {
 	transform->GetOwner()->Update();
-	for (int i = 0; i < transform->GetChildCount(); i++)
+	for (size_t i = 0; i < transform->GetChildCount(); i++)
 		Update(transform->GetChild(i));
 }
 
 GameObject * Scene::Instantiate()
 {
 	//Allocate new GameObject and add to handle table
-	GameObject* object = m_objects->Allocate(m_context, this);
+	GameObject* object = m_objects->allocate(m_context, this);
 	Util::Handle handle = m_handles.AllocateHandle(object);
 
 	//Initialize GameObject
@@ -67,7 +67,7 @@ void Scene::Destroy(GameObject * object)
 	m_handles.ReleaseHandle(handle);
 
 	//Deallocate GameObject
-	m_objects->Deallocate(object);
+	m_objects->free(object);
 }
 
 void Scene::DestroyComponent(IComponent * component)
@@ -76,5 +76,5 @@ void Scene::DestroyComponent(IComponent * component)
 
 	//Deallocate component
 	if (m_components[component->GetComponentID()])
-		m_components[component->GetComponentID()]->Deallocate(component);
+		m_components[component->GetComponentID()]->free(component);
 }

@@ -24,24 +24,15 @@ public:
 	const std::string& GetName() const { return m_name; }
 	void SetName(const std::string& name) { m_name = name; }
 	
-	const UINT& GetInstanceID() const { return m_instanceid; }
+	const size_t& GetInstanceID() const { return m_instanceid; }
 
 	class IComponent* operator[](size_t index) { return m_components[index]; }
-
-	Json Serialize()
-	{
-		return Serializable<GameObject>::StaticSerialize(*this);
-	}
-	void Deserialize(Json& j)
-	{
-		Serializable<GameObject>::StaticDeserialize(*this, j);
-	}
 
 private:
 	class Context* m_context;
 	class Scene* m_scene;
-	uint32_t m_instanceid;
 
+	size_t m_instanceid;
 	std::string	m_name;
 	std::vector<class IComponent*> m_components;
 };
@@ -50,7 +41,7 @@ private:
 template<class T>
 inline T* GameObject::AddComponent()
 {
-	assert(m_components[T::ComponentID] == nullptr, "Component already exists");
+	assert((m_components[T::ComponentID] == nullptr, "Component already exists"));
 
 	T* temp = m_scene->CreateComponent<T>(this);
 	m_components[T::ComponentID] = temp;

@@ -10,13 +10,13 @@ class FbxLoader
 	struct FbxSkinData
 	{
 	private:
-		typedef std::pair<uint32_t, float> FbxVertexBlend;
+		typedef std::pair<float, float> FbxVertexBlend;
 		typedef std::vector<FbxVertexBlend> FbxVertexBlends;
 		FbxVertexBlends blends;
 	public:
-		void Insert(uint32_t index, float weight);
-		DirectX::XMFLOAT4 Indices();
-		DirectX::XMFLOAT4 Weights();
+		void Insert(float index, float weight);
+		Vector4 Indices();
+		Vector4 Weights();
 	};
 	struct FbxMaterial
 	{
@@ -24,14 +24,14 @@ class FbxLoader
 		std::string diffuseTexture;
 		std::string specularTexture;
 		std::string normalTexture;
-		DirectX::XMFLOAT4 diffuseColor;
-		DirectX::XMFLOAT4 specularColor;
+		Vector4 diffuseColor;
+		Vector4 specularColor;
 		float specularPower;
 	};
 	struct FbxBoneData
 	{
 		std::string name;
-		DirectX::XMFLOAT4X4 global;
+		Matrix global;
 		int index;
 		int parentIndex;
 	};
@@ -42,11 +42,11 @@ class FbxLoader
 		uint32_t numIndices;
 		uint32_t attribute;
 		std::vector<uint32_t> indices;
-		std::vector<DirectX::XMFLOAT3> positions;
-		std::vector<DirectX::XMFLOAT3> normals;
-		std::vector<DirectX::XMFLOAT2> uvs;
-		std::vector<DirectX::XMFLOAT4> blendIndices;
-		std::vector<DirectX::XMFLOAT4> blendWeights;
+		std::vector<Vector3> positions;
+		std::vector<Vector3> normals;
+		std::vector<Vector2> uvs;
+		std::vector<Vector4> blendIndices;
+		std::vector<Vector4> blendWeights;
 		void SaveAsFile();
 	};
 	struct FbxAnimData

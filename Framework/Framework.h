@@ -8,6 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <assert.h>
 #include <wincodec.h>
 #include <wrl.h>
 
@@ -29,21 +30,17 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
-#include "json.hpp"
-
 //Mainframe
 #include "./System/Context.h"
 #include "./Engine.h"
 
 //Utilities
-#include "./Utility/Json.h"
 #include "./Utility/Math.h"
 #include "./Utility/FamilyTypeID.h"
 #include "./Utility/Handle.h"
 #include "./Utility/FileStream.h"
 #include "./Utility/Geometry.h"
 #include "./Utility/ChunkAllocator.h"
-#include "./Utility/Serializable.h"
 
 //Graphics
 #include "D3D11/ConstantBuffer.h"
@@ -66,6 +63,7 @@
 //Resource
 #include "./Resource/Resource.h"
 #include "./Resource/Texture.h"
+#include "./Resource/Material.h"
 #include "./Resource/Mesh.h"
 
 //Core

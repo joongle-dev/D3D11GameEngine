@@ -28,7 +28,7 @@ void HierarchyWidget::SceneNode(Scene * scene)
 	
 	//If node was open, display its child nodes (root transforms)
 	if (open)
-		for (int i = 0; i < rootnode->GetChildCount(); i++)
+		for (size_t i = 0; i < rootnode->GetChildCount(); i++)
 			ObjectNode(scene, rootnode->GetChild(i));
 }
 
@@ -57,7 +57,7 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	//If node was open, display its child nodes (this transform's children)
 	if (open)
 	{
-		for (int i = 0; i < transform->GetChildCount(); i++)
+		for (size_t i = 0; i < transform->GetChildCount(); i++)
 			ObjectNode(scene, transform->GetChild(i));
 		ImGui::TreePop();
 	}

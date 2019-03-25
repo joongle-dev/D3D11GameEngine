@@ -9,8 +9,6 @@ public:
 
 protected:
 	ISubsystem() = default;
-
-	virtual LRESULT MsgProc(HWND, const UINT&, const WPARAM&, const LPARAM&) = 0;
 };
 
 template <class T>
@@ -24,8 +22,6 @@ public:
 protected:
 	Subsystem(class Context* context) : m_context(context) {}
 	virtual ~Subsystem() = default;
-
-	virtual LRESULT MsgProc(HWND, const UINT&, const WPARAM&, const LPARAM&) { return TRUE; };
 
 	class Context* m_context;
 };

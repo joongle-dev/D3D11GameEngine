@@ -23,11 +23,12 @@ public:
 
 	void Update() override;
 
-	void SetCamera(class Camera* camera) { m_camera = camera; }
+	class RenderTarget* GetMainTarget() const { return m_mainTarget; }
 
 private:
 	class Graphics* m_graphics;
-	class IComponentContainer* m_meshRenderers;
+
+	class RenderTarget* m_mainTarget;
 
 	class ConstantBuffer<CameraBuffer>* m_cameraBuffer;
 	class ConstantBuffer<WorldBuffer>* m_worldBuffer;

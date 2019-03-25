@@ -23,6 +23,9 @@ public:
 	inline void AttachResizeProc(ResizeProc proc) { 
 		m_resize = proc; 
 	}
+	inline void AttachInputProc(MessageProc proc) {
+		m_input = proc;
+	}
 	inline void AttachMessageProc(MessageProc proc) { 
 		m_message = proc; 
 	}
@@ -49,6 +52,7 @@ private:
 	std::wstring m_name;
 
 	MessageProc m_message;
+	MessageProc m_input;
 	ResizeProc m_resize;
 
 	static LRESULT CALLBACK StaticWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

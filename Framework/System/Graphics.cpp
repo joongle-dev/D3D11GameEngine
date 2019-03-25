@@ -18,30 +18,30 @@ Graphics::Graphics(Context* context) :
 	//Create DirectX interface factory
 	ComPtr<IDXGIFactory> pFactory;
 	HRESULT hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)pFactory.GetAddressOf());
-	assert(SUCCEEDED(hr), "Failed to initialize DXGI");
+	assert((SUCCEEDED(hr), "Failed to initialize DXGI"));
 
 	//Use the factory to create an adapter for the primary graphics interface (video card).
 	ComPtr<IDXGIAdapter> pAdapter;
 	hr = pFactory->EnumAdapters(0, pAdapter.GetAddressOf());
-	assert(SUCCEEDED(hr), "Failed to initialize DXGI");
+	assert((SUCCEEDED(hr), "Failed to initialize DXGI"));
 
 	//Enumerate the primary adapter output (monitor).
 	ComPtr<IDXGIOutput> pAdapterOutput;
 	hr = pAdapter->EnumOutputs(0, pAdapterOutput.GetAddressOf());
-	assert(SUCCEEDED(hr), "Failed to initialize DXGI");
+	assert((SUCCEEDED(hr), "Failed to initialize DXGI"));
 
 	//Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
 	UINT nModes;
 	hr = pAdapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &nModes, NULL);
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 
 	//Create a list to hold all the possible display modes for this monitor/video card combination.
 	DXGI_MODE_DESC* pDisplayModeList = new DXGI_MODE_DESC[nModes];
 	hr = pAdapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &nModes, pDisplayModeList);
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 
 	//Now go through all the display modes and find the one that matches the screen width and height.
-	for (int i = 0; i < nModes; i++)
+	for (UINT i = 0; i < nModes; i++)
 	{
 		if (pDisplayModeList[i].Width == width && pDisplayModeList[i].Height == height)
 		{
@@ -57,7 +57,7 @@ Graphics::Graphics(Context* context) :
 	//Get the adapter (video card) description.
 	DXGI_ADAPTER_DESC adapterDesc;
 	hr = pAdapter->GetDesc(&adapterDesc);
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 	m_gpuMemorySize = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 	m_gpuDescription = adapterDesc.Description;
 
@@ -85,7 +85,7 @@ void Graphics::SetResolution(const UINT & width, const UINT & height)
 	m_rendertargetview.ReleaseAndGetAddressOf();
 
 	auto hr = m_swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, NULL);
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 
 	CreateRenderTargetView();
 	CreateDepthStencilView(width, height, m_depthstencilview.ReleaseAndGetAddressOf());
@@ -148,7 +148,7 @@ void Graphics::CreateSwapChain(HWND hWnd)
 	//Create the swap chain, Direct3D device, and Direct3D device context.
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, featureLevels, sizeof(featureLevels) / sizeof(featureLevels[0]),
 		D3D11_SDK_VERSION, &swapChainDesc, m_swapchain.GetAddressOf(), m_device.GetAddressOf(), NULL, m_devicecontext.GetAddressOf());
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 }
 
 void Graphics::CreateRenderTargetView()
@@ -157,11 +157,11 @@ void Graphics::CreateRenderTargetView()
 
 	//Get the pointer to the back buffer.
 	HRESULT hr = m_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)pBackBuffer.GetAddressOf());
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 
 	//Create the render target view with the back buffer pointer.
 	hr = m_device->CreateRenderTargetView(pBackBuffer.Get(), NULL, m_rendertargetview.GetAddressOf());
-	assert(SUCCEEDED(hr));
+	assert((SUCCEEDED(hr)));
 }
 
 void Graphics::CreateRenderTargetView(const UINT & width, const UINT & height, ID3D11RenderTargetView ** rtv, ID3D11ShaderResourceView ** srv, const DXGI_FORMAT & format)
@@ -185,7 +185,7 @@ void Graphics::CreateRenderTargetView(const UINT & width, const UINT & height, I
 		desc.MiscFlags = 0;
 
 		auto hr = m_device->CreateTexture2D(&desc, nullptr, texture.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		assert((SUCCEEDED(hr)));
 	}
 
 	//Create render target view
@@ -197,7 +197,7 @@ void Graphics::CreateRenderTargetView(const UINT & width, const UINT & height, I
 		desc.Texture2D.MipSlice = 0;
 
 		auto hr = m_device->CreateRenderTargetView(texture.Get(), &desc, rtv);
-		assert(SUCCEEDED(hr));
+		assert((SUCCEEDED(hr)));
 	}
 
 	//Create shader resource view
@@ -210,7 +210,7 @@ void Graphics::CreateRenderTargetView(const UINT & width, const UINT & height, I
 		desc.Texture2D.MostDetailedMip = 0;
 
 		auto hr = m_device->CreateShaderResourceView(texture.Get(), &desc, srv);
-		assert(SUCCEEDED(hr));
+		assert((SUCCEEDED(hr)));
 	}
 }
 
@@ -235,7 +235,7 @@ void Graphics::CreateDepthStencilView(const UINT & width, const UINT & height, I
 		desc.MiscFlags = 0;
 
 		auto hr = m_device->CreateTexture2D(&desc, NULL, buffer.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		assert((SUCCEEDED(hr)));
 	}
 
 	//Create depth stencil view

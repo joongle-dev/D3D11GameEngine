@@ -94,9 +94,8 @@ public:
 	template <class T>
 	T* CreateComponent(GameObject* owner)
 	{
-		//Return newly allocated and constructed component
-		T* temp = GetComponentContainer<T>()->Allocate(m_context, owner);
-		return temp;
+		//Return newly allocated component
+		return GetComponentContainer<T>()->allocate(m_context, owner);
 	}
 
 	//Destroy component

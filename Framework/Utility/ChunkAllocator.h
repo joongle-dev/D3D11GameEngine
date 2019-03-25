@@ -7,7 +7,7 @@ public:
 	IChunkAllocator() = default;
 	virtual ~IChunkAllocator() = default;
 
-	virtual void Deallocate(void* object) = 0;
+	virtual void free(void* object) = 0;
 };
 
 template <class T, size_t CHUNKSIZE = 128>
@@ -22,14 +22,18 @@ class ChunkAllocator : public IChunkAllocator
 			for (size_t i = 0; i < CHUNKSIZE; i++)
 				handles[i] = reinterpret_cast<T*>(memory) + i;
 		}
+		~Chunk()
+		{
+			for (size_t i = 0; i < numAllocated; i++)
+				handles[i]->~T();
+		}
 		T* begin() { return reinterpret_cast<T*>(memory); }
 
 	public:
 		size_t numAllocated;
 		T*     handles[CHUNKSIZE];
-		__int8 memory[CHUNKSIZE * sizeof(T)];
+		char   memory[CHUNKSIZE * sizeof(T)];
 	};
-
 	using Chunks = std::vector<Chunk*>;
 
 public:
@@ -62,7 +66,7 @@ public:
 		inline bool operator!=(const iterator& other) { return (m_index != other.m_index) || (m_chunk != other.m_chunk); }
 
 	private:
-		typename size_t m_index;
+		size_t m_index;
 		typename Chunks::iterator m_chunk;
 	};
 	iterator begin() { return iterator(m_chunks.begin(), m_chunks.end()); }
@@ -75,7 +79,7 @@ public:
 		//Add initial chunk
 		m_chunks.emplace_back(new Chunk);
 	}
-	virtual ~ChunkAllocator()
+	~ChunkAllocator()
 	{
 		//Iterate and delete all chunks
 		for (auto chunk : m_chunks) 
@@ -83,22 +87,21 @@ public:
 	}
 
 	template <typename... Args>
-	T* Allocate(Args&&... args)
+	T* allocate(Args&&... args)
 	{
 		//If chunk with available space is found, allocate and return object
 		for (auto chunk : m_chunks)
 		{
 			if (chunk->numAllocated >= CHUNKSIZE) continue;
-			T* temp = new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
-			return temp;
+			return new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
 		}
 		
 		//If no avaiable chunk is found, add new chunk, allocate and return object
 		auto chunk = m_chunks.emplace_back(new Chunk);
-		return chunk->handles[chunk->numAllocated++];
+		return new(chunk->handles[chunk->numAllocated++]) T(std::forward<Args>(args)...);
 	}
 
-	void Deallocate(T* object)
+	void free(T* object)
 	{
 		object->~T();
 		//Iterate chunks until chunk that holds the object is found
@@ -114,9 +117,9 @@ public:
 					}
 	}
 
-	void Deallocate(void* object) override
+	void free(void* object) override
 	{
-		Deallocate(static_cast<T*>(object));
+		free(static_cast<T*>(object));
 	}
 
 private:

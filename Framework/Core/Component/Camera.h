@@ -20,10 +20,10 @@ public:
 	
 	const float GetNearPlane() { return m_near; }
 	const float GetFarPlane() { return m_far; }
-	const float GetFOV() { return m_fov * TO_DEG; }
+	const float GetFOV() { return m_fov; }
 	void SetNearPlane(const float np) { m_near = np; }
 	void SetFarPlane(const float fp) { m_far = fp; }
-	void SetFOV(const float fov) { m_fov = fov * TO_RAD; }
+	void SetFOV(const float fov) { m_fov = fov; }
 
 	void SetProjectionType(ProjectionType type) { m_type = type; }
 
@@ -31,12 +31,6 @@ public:
 	void SetRenderTarget(class RenderTarget* target) { m_rendertarget = target; }
 
 public:
-	void InitializeSerializable() override
-	{
-		RegisterSerializeField("Fov", &Camera::GetFOV, &Camera::SetFOV);
-		RegisterSerializeField("Near", &Camera::GetNearPlane, &Camera::SetNearPlane);
-		RegisterSerializeField("Far", &Camera::GetFarPlane, &Camera::SetFarPlane);
-	}
 
 private:
 	class Transform* m_transform;

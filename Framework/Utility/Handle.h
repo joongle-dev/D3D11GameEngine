@@ -31,7 +31,7 @@ namespace Util
 		void ExpandTable()
 		{
 			size_t oldSize = m_Table.size();
-			assert(oldSize <= limit, "Instance limit reached.");
+			assert((oldSize <= limit, "Instance limit reached."));
 			size_t newSize = oldSize + growth > limit ? oldSize + growth : limit;
 			m_Table.resize(newSize);
 			ZeroMemory(&m_Table[oldSize], sizeof(TableEntry) * growth);
@@ -67,7 +67,7 @@ namespace Util
 		//Release slot in table
 		void ReleaseHandle(Handle handle)
 		{
-			assert(handle.index < m_Table.size(), "Invalid handle");
+			assert((handle.index < m_Table.size(), "Invalid handle"));
 			if (m_Table[handle.index].first == handle.version)
 				m_Table[handle.index].second = nullptr;
 		}
@@ -75,7 +75,7 @@ namespace Util
 		//Check if given handle is expired
 		inline bool IsExpired(Handle handle)
 		{
-			assert(handle.index < m_Table.size(), "Invalid handle");
+			assert((handle.index < m_Table.size(), "Invalid handle"));
 			//Return version expired OR instance expired
 			return (m_Table[handle.index].first != handle.version) || (m_Table[handle.index].second == nullptr);
 		}
@@ -83,14 +83,14 @@ namespace Util
 		//Return handle of given index
 		inline Handle operator[](uint32_t index)
 		{
-			assert(index < m_Table.size(), "Invalid handle");
+			assert((index < m_Table.size(), "Invalid handle"));
 			return Handle(index, m_Table[index].first);
 		}
 
 		//Return instance of given handle
 		inline T* operator[](Handle handle)
 		{
-			assert(handle.index < m_Table.size(), "Invalid handle");
+			assert((handle.index < m_Table.size(), "Invalid handle"));
 			if (m_Table[handle.index].first == handle.version)
 				return m_Table[handle.index].second;
 		}

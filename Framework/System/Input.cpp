@@ -10,6 +10,8 @@ Input::Input(Context* context) :
 {
 	ZeroMemory(m_oldKeyState, sizeof(byte) * MAX_INPUT);
 	ZeroMemory(m_newKeyState, sizeof(byte) * MAX_INPUT);
+
+	context->GetSubsystem<Window>()->AttachInputProc([this](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) { return WndProc(hWnd, msg, wParam, lParam); });
 }
 
 Input::~Input()
@@ -30,4 +32,9 @@ void Input::Update()
 	m_oldMousePosition = m_newMousePosition;
 	m_newMousePosition = { static_cast<float>(cursor.x), static_cast<float>(cursor.y) };
 	m_delMousePosition = { m_newMousePosition.x - m_oldMousePosition.x, m_newMousePosition.y - m_oldMousePosition.y };
+}
+
+LRESULT Input::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	return LRESULT();
 }

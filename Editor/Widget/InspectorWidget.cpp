@@ -13,34 +13,15 @@ void InspectorWidget::Render()
 	if (!EditorHelper::selected || !m_visible)
 		return;
 
-	//Edit GameObject
-	auto objectdata = EditorHelper::selected->Serialize();
-	JsonEditor("##", objectdata);
-	EditorHelper::selected->Deserialize(objectdata);
+	ImGui::Text("Name");
+	std::string str = EditorHelper::selected->GetName();
+	str.reserve(128);
+	ImGui::InputText("##Name", str.data(), 128);
+	EditorHelper::selected->SetName(str);
 	ImGui::NewLine();
-
-	//Edit components
-	for (size_t index = 0; index < Util::FamilyTypeID<IComponent>::GetCount(); index++)
-		if (auto component = (*EditorHelper::selected)[index])
-		{
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-			if (ImGui::CollapsingHeader(component->GetComponentName().c_str(), flags)) {
-				auto componentdata = component->Serialize();
-				JsonEditor("##", componentdata);
-				component->Deserialize(componentdata);
-				ImGui::NewLine();
-			}
-		}
-
-	//ImGui::Text("Name");
-	//std::string str = EditorHelper::selected->GetName();
-	//str.reserve(128);
-	//ImGui::InputText("##Name", str.data(), 128);
-	//EditorHelper::selected->SetName(str);
-	//ImGui::NewLine();
-	//
-	//ShowTransform();
-	//ShowCamera();
+	
+	ShowTransform();
+	ShowCamera();
 }
 
 void InspectorWidget::ShowTransform()
@@ -52,22 +33,19 @@ void InspectorWidget::ShowTransform()
 	{
 		Vector3 position = transform->GetPosition();
 		ImGui::Text("Position");
-		ImGui::InputFloat("##PositionX", &position.x, 1.0f, 1.0f, 3, 0);
-		ImGui::InputFloat("##PositionY", &position.y, 1.0f, 1.0f, 3, 0);
-		ImGui::InputFloat("##PositionZ", &position.z, 1.0f, 1.0f, 3, 0);
+		ImGui::InputFloat3("##Position", &position.x);
 		transform->SetPosition(position);
+
 		Vector3 rotation = transform->GetEulerRotation();
 		ImGui::Text("Rotation");
-		ImGui::InputFloat("##RotationX", &rotation.x, 1.0f, 1.0f, 3, 0);
-		ImGui::InputFloat("##RotationY", &rotation.y, 1.0f, 1.0f, 3, 0);
-		ImGui::InputFloat("##RotationZ", &rotation.z, 1.0f, 1.0f, 3, 0);
+		ImGui::InputFloat3("##Rotation", &rotation.x);
 		transform->SetEulerRotation(rotation);
+
 		Vector3 scale = transform->GetScale();
 		ImGui::Text("Scale");
-		ImGui::InputFloat("##ScaleX", &scale.x, 1.0f, 1.0f, 3, 0);
-		ImGui::InputFloat("##ScaleY", &scale.y, 1.0f, 1.0f, 3, 0);
-		ImGui::InputFloat("##ScaleZ", &scale.z, 1.0f, 1.0f, 3, 0);
+		ImGui::InputFloat3("##Scale", &scale.x);
 		transform->SetScale(scale);
+
 		ImGui::NewLine();
 	}
 }
@@ -81,20 +59,24 @@ void InspectorWidget::ShowCamera()
 	{
 		float fov = camera->GetFOV();
 		ImGui::Text("FOV");
-		ImGui::InputFloat("##Fov", &fov, 1.0f, 1.0f, 1, 0);
+		ImGui::SliderAngle("##Fov", &fov, 60.0f, 110.0f);
 		camera->SetFOV(fov);
+
 		float nearplane = camera->GetNearPlane();
 		ImGui::Text("Near");
-		ImGui::InputFloat("##Near", &nearplane, 1.0f, 1.0f, 1, 0);
+		ImGui::InputFloat("##Near", &nearplane, 1, 10, 1);
 		camera->SetNearPlane(nearplane);
+
 		float farplane = camera->GetFarPlane();
 		ImGui::Text("Far");
-		ImGui::InputFloat("##Far", &farplane, 1.0f, 1.0f, 1, 0);
+		ImGui::InputFloat("##Far", &farplane, 1, 10, 1);
 		camera->SetFarPlane(farplane);
+
 		ImGui::NewLine();
 	}
 }
 
+/*
 void InspectorWidget::JsonEditor(std::string label, Json & j)
 {
 	for (auto& [key, value] : j.items())
@@ -108,7 +90,7 @@ void InspectorWidget::JsonEditor(std::string label, Json & j)
 				JsonEditor(newLabel, value);
 			} break;
 			case Json::value_t::array: {
-				for (int i = 0; i < value.size(); i++)
+				for (size_t i = 0; i < value.size(); i++)
 					JsonEditor(newLabel + std::to_string(i), value.at(i));
 			} break;
 			case Json::value_t::number_float: {
@@ -125,7 +107,7 @@ void InspectorWidget::JsonEditor(std::string label, Json & j)
 			} break;
 			case Json::value_t::string: {
 				char temp[128];
-				strcpy(temp, value.get<std::string>().data());
+				strcpy_s(temp, value.get<std::string>().data());
 				ImGui::InputText(newLabel.c_str(), temp, 128);
 				if (hasKey) j[key] = temp;
 				else j = temp;
@@ -135,3 +117,4 @@ void InspectorWidget::JsonEditor(std::string label, Json & j)
 			ImGui::Separator();
 	}
 }
+*/

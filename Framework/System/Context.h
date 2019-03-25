@@ -28,7 +28,7 @@ private:
 template <class T, typename... Args>
 inline T* Context::AddSubsystem(Args&&... arg)
 {
-	assert(m_subsystems[T::SubsystemID] == nullptr, "Subsystem already exists");
+	assert((m_subsystems[T::SubsystemID] == nullptr, "Subsystem already exists"));
 
 	m_subsystems[T::SubsystemID] = new T(this, std::forward<Args>(arg)...);
 	return static_cast<T*>(m_subsystems[T::SubsystemID]);

@@ -12,6 +12,4 @@ public:
 private:
 	void ShowTransform();
 	void ShowCamera();
-
-	void JsonEditor(std::string label, Json& j);
 };

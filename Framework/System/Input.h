@@ -33,6 +33,8 @@ public:
 	const Vector2& GetMousePosition() const { return m_newMousePosition; }
 	const Vector2& GetMouseMove() const { return m_delMousePosition; }
 
+	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 private:
 	byte m_oldKeyState[MAX_INPUT];
 	byte m_newKeyState[MAX_INPUT];
