@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "Loader.h"
 #include <filesystem>
-#include <assimp/Exporter.hpp>
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <fbxsdk.h>
 
+#define FBXSDK_NEW_API
+#define FBXSDK_SHARED 
+#include <fbxsdk.h>
 #pragma comment(lib, "libfbxsdk.lib")
 
 Importer::Importer(Context * context) :
@@ -29,19 +31,47 @@ void Importer::ImportModel(const std::string & filepath)
 	const aiScene* scene = importer.ReadFile(filepath, flags);
 	
 	if (scene) {
-		fbxsdk::FbxManager* fbxManager = fbxsdk::FbxManager::Create();
-		fbxsdk::FbxImporter* fbxImporter = fbxsdk::FbxImporter::Create(fbxManager, "");
-		fbxsdk::FbxIOSettings* fbxIos = FbxIOSettings::Create(fbxManager, IOSROOT);
-		fbxIos->SetBoolProp(IMP_FBX_TEXTURE, true);
-		fbxsdk::FbxScene* fbxScene = fbxsdk::FbxScene::Create(fbxManager, "");
-		fbxImporter->Initialize(filepath.c_str(), -1, fbxIos);
-		fbxImporter->Import(fbxScene);
-
 		ProcessMaterial(scene);
+		if (filepath.rfind("fbx") != std::string::npos)
+			ProcessFbxMaterial(scene, filepath);
 		ProcessMesh(scene);
 	}
 	else 
 		printf("Error importing %s : %s", filepath, importer.GetErrorString());
+}
+
+void Importer::ProcessFbxMaterial(const aiScene * scene, const std::string & filepath)
+{
+	using namespace fbxsdk;
+
+	FbxManager* fbxManager = FbxManager::Create();
+	FbxImporter* fbxImporter = FbxImporter::Create(fbxManager, "");
+	FbxIOSettings* fbxIos = FbxIOSettings::Create(fbxManager, IOSROOT);
+	fbxIos->SetBoolProp(IMP_FBX_TEXTURE, true);
+	FbxScene* fbxScene = FbxScene::Create(fbxManager, "");
+	fbxImporter->Initialize(filepath.c_str(), -1, fbxIos);
+	fbxImporter->Import(fbxScene);
+
+	for (unsigned int i = 0; i < scene->mNumMaterials; i++)
+	{
+		FbxSurfaceMaterial* fbxMaterial = fbxScene->GetMaterial(i);
+		FbxProperty property;
+
+		property = fbxMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+		if (property.IsValid() == true && property.GetSrcObjectCount() > 0)
+			if (FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>())
+				materials[i].diffuseTex = std::string(texture->GetFileName());
+
+		property = fbxMaterial->FindProperty(FbxSurfaceMaterial::sSpecular);
+		if (property.IsValid() == true && property.GetSrcObjectCount() > 0)
+			if (FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>())
+				materials[i].specularTex = std::string(texture->GetFileName());
+
+		property = fbxMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
+		if (property.IsValid() == true && property.GetSrcObjectCount() > 0)
+			if (FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>())
+				materials[i].normalTex = std::string(texture->GetFileName());
+	}
 }
 
 void Importer::ProcessMaterial(const aiScene * scene)
@@ -55,19 +85,8 @@ void Importer::ProcessMaterial(const aiScene * scene)
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
 		{
 			aiString path;
-			//material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-			material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), path);
-			if (const aiTexture* texture = scene->GetEmbeddedTexture(path.data))
-			{
-				std::string filename = texture->mFilename.C_Str();
-				aiTexel texel[256];
-				memcpy(texel, texture->pcData, sizeof(aiTexel) * 256);
-				int a = 0;
-			}
-			else
-			{
-				int a = 0;
-			}
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+			materials[i].diffuseTex = path.C_Str();
 		}
 	}
 }

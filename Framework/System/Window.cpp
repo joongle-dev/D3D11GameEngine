@@ -6,7 +6,7 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 	Subsystem<Window>(context), 
 	m_name(name)
 {
-	HINSTANCE hInstance = GetModuleHandle(NULL);
+	m_instance = GetModuleHandle(NULL);
 
 	//Adjustment window rect so that the given width and height are that of the client region size, not window
 	RECT rect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
@@ -19,7 +19,7 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 	wcex.lpfnWndProc = StaticWindowProc;					 //Window procedure
 	wcex.cbClsExtra = 0;									 //
 	wcex.cbWndExtra = sizeof(this);							 //Reserve space to store pointer to this instance
-	wcex.hInstance = hInstance;								 //
+	wcex.hInstance = m_instance;							 //
 	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);		 //Icon
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);			 //Cursor
 	wcex.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH); //Background color
@@ -40,7 +40,7 @@ Window::Window(Context* context, const std::wstring& name, const unsigned int& w
 		rect.bottom - rect.top,
 		nullptr, 
 		nullptr,
-		hInstance, 
+		m_instance,
 		this);
 
 	//Store pointer to this window class instance in handle

@@ -17,6 +17,8 @@ class Importer final
 	struct MaterialData
 	{
 		std::string diffuseTex;
+		std::string specularTex;
+		std::string normalTex;
 	};
 public:
 	Importer(class Context* context);
@@ -25,6 +27,7 @@ public:
 	void ImportModel(const std::string& filepath);
 
 private:
+	void ProcessFbxMaterial(const struct aiScene* scene, const std::string& filepath);
 	void ProcessMaterial(const struct aiScene* scene);
 	void ProcessMesh(const struct aiScene* scene);
 
