@@ -14,8 +14,8 @@ namespace Util
 		template <class T>
 		static constexpr TypeID GetID()
 		{
-			static const TypeID ID = s_count++;
-			return ID;
+			static const TypeID id = s_count++;
+			return id;
 		}
 		static unsigned int GetCount()
 		{

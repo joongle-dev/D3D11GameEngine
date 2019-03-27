@@ -98,6 +98,5 @@ public:
 		return GetComponentContainer<T>()->allocate(m_context, owner);
 	}
 
-	//Destroy component
 	void DestroyComponent(IComponent* component);
 };

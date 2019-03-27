@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor.h" />
-    <ClInclude Include="Fbxsdk\FbxLoader.h" />
     <ClInclude Include="ImGui\ImGuizmo.h" />
     <ClInclude Include="ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="ImGui\imgui_impl_win32.h" />
@@ -32,6 +31,82 @@
     <ClInclude Include="ImGui\Source\imstb_textedit.h" />
     <ClInclude Include="ImGui\Source\imstb_truetype.h" />
     <ClInclude Include="ImGui\TextEditor.h" />
+    <ClInclude Include="Importer\assimp\ai_assert.h" />
+    <ClInclude Include="Importer\assimp\anim.h" />
+    <ClInclude Include="Importer\assimp\BaseImporter.h" />
+    <ClInclude Include="Importer\assimp\Bitmap.h" />
+    <ClInclude Include="Importer\assimp\BlobIOSystem.h" />
+    <ClInclude Include="Importer\assimp\ByteSwapper.h" />
+    <ClInclude Include="Importer\assimp\camera.h" />
+    <ClInclude Include="Importer\assimp\cexport.h" />
+    <ClInclude Include="Importer\assimp\cfileio.h" />
+    <ClInclude Include="Importer\assimp\cimport.h" />
+    <ClInclude Include="Importer\assimp\color4.h" />
+    <ClInclude Include="Importer\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="Importer\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="Importer\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="Importer\assimp\config.h" />
+    <ClInclude Include="Importer\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="Importer\assimp\DefaultIOStream.h" />
+    <ClInclude Include="Importer\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="Importer\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="Importer\assimp\Defines.h" />
+    <ClInclude Include="Importer\assimp\defs.h" />
+    <ClInclude Include="Importer\assimp\Exceptional.h" />
+    <ClInclude Include="Importer\assimp\Exporter.hpp" />
+    <ClInclude Include="Importer\assimp\fast_atof.h" />
+    <ClInclude Include="Importer\assimp\GenericProperty.h" />
+    <ClInclude Include="Importer\assimp\Hash.h" />
+    <ClInclude Include="Importer\assimp\Importer.hpp" />
+    <ClInclude Include="Importer\assimp\importerdesc.h" />
+    <ClInclude Include="Importer\assimp\IOStream.hpp" />
+    <ClInclude Include="Importer\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="Importer\assimp\IOSystem.hpp" />
+    <ClInclude Include="Importer\assimp\irrXMLWrapper.h" />
+    <ClInclude Include="Importer\assimp\light.h" />
+    <ClInclude Include="Importer\assimp\LineSplitter.h" />
+    <ClInclude Include="Importer\assimp\LogAux.h" />
+    <ClInclude Include="Importer\assimp\Logger.hpp" />
+    <ClInclude Include="Importer\assimp\LogStream.hpp" />
+    <ClInclude Include="Importer\assimp\Macros.h" />
+    <ClInclude Include="Importer\assimp\material.h" />
+    <ClInclude Include="Importer\assimp\MathFunctions.h" />
+    <ClInclude Include="Importer\assimp\matrix3x3.h" />
+    <ClInclude Include="Importer\assimp\matrix4x4.h" />
+    <ClInclude Include="Importer\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="Importer\assimp\mesh.h" />
+    <ClInclude Include="Importer\assimp\metadata.h" />
+    <ClInclude Include="Importer\assimp\NullLogger.hpp" />
+    <ClInclude Include="Importer\assimp\ParsingUtils.h" />
+    <ClInclude Include="Importer\assimp\pbrmaterial.h" />
+    <ClInclude Include="Importer\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
+    <ClInclude Include="Importer\assimp\postprocess.h" />
+    <ClInclude Include="Importer\assimp\Profiler.h" />
+    <ClInclude Include="Importer\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="Importer\assimp\qnan.h" />
+    <ClInclude Include="Importer\assimp\quaternion.h" />
+    <ClInclude Include="Importer\assimp\RemoveComments.h" />
+    <ClInclude Include="Importer\assimp\scene.h" />
+    <ClInclude Include="Importer\assimp\SceneCombiner.h" />
+    <ClInclude Include="Importer\assimp\SGSpatialSort.h" />
+    <ClInclude Include="Importer\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="Importer\assimp\SmoothingGroups.h" />
+    <ClInclude Include="Importer\assimp\SpatialSort.h" />
+    <ClInclude Include="Importer\assimp\StandardShapes.h" />
+    <ClInclude Include="Importer\assimp\StreamReader.h" />
+    <ClInclude Include="Importer\assimp\StreamWriter.h" />
+    <ClInclude Include="Importer\assimp\StringComparison.h" />
+    <ClInclude Include="Importer\assimp\StringUtils.h" />
+    <ClInclude Include="Importer\assimp\Subdivision.h" />
+    <ClInclude Include="Importer\assimp\texture.h" />
+    <ClInclude Include="Importer\assimp\TinyFormatter.h" />
+    <ClInclude Include="Importer\assimp\types.h" />
+    <ClInclude Include="Importer\assimp\vector2.h" />
+    <ClInclude Include="Importer\assimp\vector3.h" />
+    <ClInclude Include="Importer\assimp\version.h" />
+    <ClInclude Include="Importer\assimp\Vertex.h" />
+    <ClInclude Include="Importer\assimp\XMLTools.h" />
+    <ClInclude Include="Importer\Loader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Widget\AssetWidget.h" />
     <ClInclude Include="Widget\EditorHelper.h" />
@@ -44,7 +119,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Editor.cpp" />
-    <ClCompile Include="Fbxsdk\FbxLoader.cpp" />
     <ClCompile Include="ImGui\ImGuizmo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -72,6 +146,7 @@
     <ClCompile Include="ImGui\TextEditor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Importer\Loader.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -83,6 +158,16 @@
     <ClCompile Include="Widget\InspectorWidget.cpp" />
     <ClCompile Include="Widget\LogWidget.cpp" />
     <ClCompile Include="Widget\SceneWidget.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Importer\assimp\color4.inl" />
+    <None Include="Importer\assimp\material.inl" />
+    <None Include="Importer\assimp\matrix3x3.inl" />
+    <None Include="Importer\assimp\matrix4x4.inl" />
+    <None Include="Importer\assimp\quaternion.inl" />
+    <None Include="Importer\assimp\SmoothingGroups.inl" />
+    <None Include="Importer\assimp\vector2.inl" />
+    <None Include="Importer\assimp\vector3.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -138,8 +223,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(SolutionDir)/Libraries;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)/Libraries;</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(SolutionDir)/Libraries</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)/Libraries</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -159,12 +244,15 @@
       <ConformanceMode>false</ConformanceMode>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Fbxsdk;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)/Fbxsdk;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

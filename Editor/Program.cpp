@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Editor.h"
+#include "Importer/Loader.h"
 
 int APIENTRY WinMain(
 	_In_ HINSTANCE hInstance,
@@ -7,12 +8,13 @@ int APIENTRY WinMain(
 	_In_ LPSTR lpCmdLine,
 	_In_ int iCmdShow)
 {
-	//FbxLoader loader;
-	//loader.Load("Boxing.fbx");
 
 	Editor editor;
 
 	Context* context = editor.GetContext();
+
+	Importer importer(context);
+	importer.ImportModel("../Assets/Boxing.fbx");
 
 	context->GetSubsystem<Graphics>()->SetClearColor(Color(0, 0, 0, 1));
 	//context->GetSubsystem<Time>()->LockFramerate(300);

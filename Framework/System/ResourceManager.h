@@ -24,6 +24,9 @@ public:
 	template <class T>
 	void RegisterDirectory(std::string path);
 
+	template <class T>
+	const std::string& GetDirectory();
+
 private:
 	std::vector<std::string> m_directories;
 	std::vector<ResourceVec> m_resources;
@@ -57,4 +60,10 @@ template<class T>
 inline void ResourceManager::RegisterDirectory(std::string path)
 {
 	m_directories[T::ResourceID] = path;
+}
+
+template<class T>
+inline const std::string & ResourceManager::GetDirectory()
+{
+	return m_directories[T::ResourceID];
 }
