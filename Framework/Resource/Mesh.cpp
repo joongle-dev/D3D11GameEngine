@@ -58,7 +58,7 @@ void Mesh::Create(Geometry & geometry)
 	}
 }
 
-void Mesh::LoadFromFile(std::string & path)
+void Mesh::LoadFromFile(const std::string & path)
 {
 	//Open file
 	FileStreamRead file;
@@ -110,14 +110,14 @@ void Mesh::LoadFromFile(std::string & path)
 	{
 		file.Read(buffer, m_numVertices * sizeof(Vector3));
 		m_graphics->CreateBuffer(
-			m_binormals.ReleaseAndGetAddressOf(), 
+			m_tangents.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
 			m_numVertices * sizeof(Vector3), 
 			buffer);
 
 		file.Read(buffer, m_numVertices * sizeof(Vector3));
 		m_graphics->CreateBuffer(
-			m_tangents.ReleaseAndGetAddressOf(), 
+			m_binormals.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
 			m_numVertices * sizeof(Vector3), 
 			buffer);

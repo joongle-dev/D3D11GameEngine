@@ -51,6 +51,12 @@
 #include "D3D11/InputLayout.h"
 #include "D3D11/RenderTarget.h"
 
+//Resource
+#include "./Resource/Resource.h"
+#include "./Resource/Texture.h"
+#include "./Resource/Material.h"
+#include "./Resource/Mesh.h"
+
 //System
 #include "./System/Time.h"
 #include "./System/Window.h"
@@ -59,12 +65,6 @@
 #include "./System/ResourceManager.h"
 #include "./System/SceneManager.h"
 #include "./System/Renderer.h"
-
-//Resource
-#include "./Resource/Resource.h"
-#include "./Resource/Texture.h"
-#include "./Resource/Material.h"
-#include "./Resource/Mesh.h"
 
 //Core
 #include "./Core/Scene.h"

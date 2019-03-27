@@ -6,7 +6,7 @@ public:
 	Shader(class Context* context);
 	~Shader() = default;
 
-	void Create(std::string path, std::string vs = "VS", std::string ps = "PS");
+	void Create(const std::string& path, const std::string& vs = "VS", const std::string& ps = "PS", const D3D_SHADER_MACRO* macro = nullptr);
 	void Bind();
 
 	const bool ShaderErrorHandler(HRESULT hr, LPD3D10BLOB error);

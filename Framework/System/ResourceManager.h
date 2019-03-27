@@ -37,11 +37,14 @@ private:
 template<class T>
 inline T * ResourceManager::Load(std::string path)
 {
-	T* temp = new T(m_context);
-	temp->LoadFromFile(m_directories[T::ResourceID] + path);
-	m_resources[T::ResourceID].emplace_back(temp);
-	m_names[T::ResourceID][temp->GetName()] = temp;
-	return temp;
+	auto iter = m_filenames[T::ResourceID].emplace(path, new T(m_context));
+	if (iter.second)
+	{
+		iter.first->second->LoadFromFile(m_directories[T::ResourceID] + path);
+		m_resources[T::ResourceID].emplace_back(iter.first->second);
+		m_names[T::ResourceID][iter.first->second->GetName()] = iter.first->second;
+	}
+	return static_cast<T*>(iter.first->second);
 }
 
 template<class T>

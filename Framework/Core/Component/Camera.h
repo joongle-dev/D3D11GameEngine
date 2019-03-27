@@ -30,6 +30,8 @@ public:
 	class RenderTarget* GetRenderTarget() const { return m_rendertarget; }
 	void SetRenderTarget(class RenderTarget* target) { m_rendertarget = target; }
 
+	class Transform* GetTransform() const { return m_transform; }
+
 public:
 
 private:

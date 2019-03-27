@@ -7,7 +7,7 @@ Shader::Shader(Context * context)
 	m_graphics = context->GetSubsystem<Graphics>();
 }
 
-void Shader::Create(std::string path, std::string vs, std::string ps)
+void Shader::Create(const std::string& path, const std::string& vs, const std::string& ps, const D3D_SHADER_MACRO* macro)
 {
 	HRESULT hr;
 	LPD3D10BLOB error = nullptr;
@@ -16,7 +16,7 @@ void Shader::Create(std::string path, std::string vs, std::string ps)
 
 	hr = D3DCompileFromFile(
 		filename.c_str(),
-		NULL,
+		macro,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		ps.c_str(),
 		"ps_5_0",
@@ -35,7 +35,7 @@ void Shader::Create(std::string path, std::string vs, std::string ps)
 
 	hr = D3DCompileFromFile(
 		filename.c_str(),
-		NULL, 
+		macro,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE, 
 		vs.c_str(), 
 		"vs_5_0", 

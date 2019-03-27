@@ -3,11 +3,12 @@
 
 enum VertexAttribute : uint32_t
 {
-	COLOR = 1 << 0,
-	UV = 1 << 1,
-	NORMAL = 1 << 2,
-	TANGENT = 1 << 3,
-	SKIN = 1 << 4
+	POSITION = 1 << 0,
+	UV       = 1 << 1,
+	NORMAL   = 1 << 2,
+	TANGENT  = 1 << 3,
+	SKIN     = 1 << 4,
+	COLOR    = 1 << 5,
 };
 
 class Mesh final : public Resource<Mesh>
@@ -18,7 +19,7 @@ public:
 
 	void Create(Geometry& geometry);
 
-	void LoadFromFile(std::string& path) override;
+	void LoadFromFile(const std::string& path) override;
 
 	const unsigned int GetIndexCount() const { return m_numIndices; }
 	const unsigned int GetVertexCount() const { return m_numVertices; }

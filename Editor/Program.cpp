@@ -20,13 +20,14 @@ int APIENTRY WinMain(
 	//context->GetSubsystem<Time>()->LockFramerate(300);
 
 	ResourceManager* resources = context->GetSubsystem<ResourceManager>();
-	resources->Load<Mesh>("Boy01_Body_Geo.mesh");
 
 	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
 	GameObject* object = scene->Instantiate();
 	object->SetName("T Pose");
-	object->AddComponent<MeshRenderer>()->SetMesh(resources->Get<Mesh>("Boy01_Body_Geo"));
+	MeshRenderer* meshrender = object->AddComponent<MeshRenderer>();
+	meshrender->SetMesh(resources->Load<Mesh>("Boy01_Body_Geo.mesh"));
+	meshrender->SetMaterial(resources->Load<Material>("Boy01_Body_MAT.mat"));
 
 	GameObject* object1 = scene->Instantiate();
 	object1->GetComponent<Transform>()->SetParent(object->GetComponent<Transform>());

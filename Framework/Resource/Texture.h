@@ -7,9 +7,9 @@ public:
 	Texture(class Context* context);
 	~Texture() = default;
 
-	void LoadFromFile(std::string& filename) override;
+	void LoadFromFile(const std::string& filename) override;
 
-	inline const ID3D11ShaderResourceView* const GetTexture() { return m_shaderResourceView.Get(); }
+	ID3D11ShaderResourceView* GetTexture() const { return m_shaderResourceView.Get(); }
 
 private:
 	std::vector<uint8_t> LoadRGBAImage(std::wstring filename);

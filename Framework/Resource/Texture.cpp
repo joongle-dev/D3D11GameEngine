@@ -11,7 +11,7 @@ Texture::Texture(Context * context) :
 	m_graphics = context->GetSubsystem<Graphics>();
 }
 
-void Texture::LoadFromFile(std::string & filename)
+void Texture::LoadFromFile(const std::string & filename)
 {
 	//Set name as the filename
 	size_t firstindex = m_name.find_last_of('/');

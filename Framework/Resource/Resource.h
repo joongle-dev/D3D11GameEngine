@@ -10,7 +10,7 @@ public:
 	}
 	virtual ~IResource() = default;
 
-	virtual void LoadFromFile(std::string& path) = 0;
+	virtual void LoadFromFile(const std::string& path) = 0;
 
 	const std::string& GetName() const { return m_name; }
 
@@ -27,7 +27,7 @@ class Resource : public IResource
 public:
 	static inline const Util::TypeID ResourceID = Util::FamilyTypeID<IResource>::GetID<T>();
 
-	virtual void LoadFromFile(std::string& path) {};
+	virtual void LoadFromFile(const std::string& path) {};
 
 protected:
 	Resource(class Context* context) : IResource(context) {}

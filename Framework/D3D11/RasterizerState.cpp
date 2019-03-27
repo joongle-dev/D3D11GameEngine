@@ -8,7 +8,7 @@ RasterizerState::RasterizerState(Context * context)
 
 	ZeroMemory(&m_desc, sizeof(D3D11_RASTERIZER_DESC));
 	m_desc.AntialiasedLineEnable = true;
-	m_desc.CullMode = D3D11_CULL_BACK;
+	m_desc.CullMode = D3D11_CULL_NONE;
 	m_desc.DepthBias = 0;
 	m_desc.DepthBiasClamp = 0.0f;
 	m_desc.DepthClipEnable = true;
