@@ -17,6 +17,7 @@ void Mesh::Create(Geometry & geometry)
 	m_numIndices  = geometry.indices.size();
 	m_attribute   = 0;
 	m_attribute  |= geometry.normals.size() == m_numVertices ? VertexAttribute::NORMAL : 0;
+	m_attribute  |= geometry.tangents.size() == m_numVertices ? VertexAttribute::TANGENT : 0;
 	m_attribute  |= geometry.uvs.size()     == m_numVertices ? VertexAttribute::UV : 0;
 
 	//Create index buffer.
@@ -45,6 +46,21 @@ void Mesh::Create(Geometry & geometry)
 			D3D11_BIND_VERTEX_BUFFER,
 			m_numVertices * sizeof(Vector3),
 			geometry.normals .data());
+	}
+
+	//Create tangent attribute buffer
+	if (m_attribute & VertexAttribute::TANGENT)
+	{
+		m_graphics->CreateBuffer(
+			m_tangents.ReleaseAndGetAddressOf(),
+			D3D11_BIND_VERTEX_BUFFER,
+			m_numVertices * sizeof(Vector3),
+			geometry.tangents.data());
+		m_graphics->CreateBuffer(
+			m_binormals .ReleaseAndGetAddressOf(),
+			D3D11_BIND_VERTEX_BUFFER,
+			m_numVertices * sizeof(Vector3),
+			geometry.binormals.data());
 	}
 
 	//Create UV attribute buffer

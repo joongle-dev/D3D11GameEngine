@@ -53,6 +53,7 @@
     <ClInclude Include="Utility\FileStream.h" />
     <ClInclude Include="Utility\Geometry.h" />
     <ClInclude Include="Utility\Handle.h" />
+    <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -81,6 +82,8 @@
     <ClCompile Include="System\SceneManager.cpp" />
     <ClCompile Include="System\Time.cpp" />
     <ClCompile Include="System\Window.cpp" />
+    <ClCompile Include="Utility\Geometry.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

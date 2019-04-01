@@ -13,6 +13,7 @@ public:
 
 	ID3D10Blob* GetBytecode() const { return m_bytecode.Get(); }
 
+	unsigned short test;
 private:
 	class Graphics* m_graphics;
 

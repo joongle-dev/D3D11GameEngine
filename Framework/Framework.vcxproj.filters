@@ -35,6 +35,7 @@
     <ClInclude Include="D3D11\RenderTarget.h" />
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Resource\Material.h" />
+    <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -61,5 +62,7 @@
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="D3D11\RenderTarget.cpp" />
     <ClCompile Include="Resource\Material.cpp" />
+    <ClCompile Include="Utility\Geometry.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
 </Project>

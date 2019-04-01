@@ -3,12 +3,12 @@
 
 enum TextureType : unsigned short
 {
-	TEX_ALBEDO = 1 << 0,
-	TEX_ROUGHNESS = 1 << 1,
-	TEX_METALLIC = 1 << 2,
-	TEX_EMISSIVE = 1 << 3,
-	TEX_NORMAL = 1 << 4,
-	TEX_DISPLACEMENT = 1 << 5,
+	TEX_ALBEDO       = 1 << 0,
+	TEX_ROUGHNESS    = 1 << 1,
+	TEX_METALLIC     = 1 << 2,
+	TEX_EMISSIVE     = 1 << 3,
+	TEX_NORMAL       = 1 << 4,
+	TEX_HEIGHT = 1 << 5,
 };
 
 class Material final : public Resource<Material>
@@ -21,6 +21,10 @@ public:
 
 	class Shader* GetShader() const { return m_shader; }
 	class Texture* GetTexture(const TextureType type) { return m_textures[type]; }
+	void SetTexture(const TextureType type, class Texture* texture) { m_textures[type] = texture; UpdateShader(); }
+
+public:
+	void UpdateShader();
 
 private:
 	class Renderer* m_renderer;

@@ -34,7 +34,7 @@ void SceneWidget::CameraControl()
 		Transform* transform = m_camera->GetComponent<Transform>();
 
 		//Keyboard
-		float speed = 40.0f * elapsed;
+		float speed = 2.0f * elapsed;
 		Vector3 forward = transform->GetForward();
 		Vector3 right = transform->GetRight();
 		Vector3 up = transform->GetUp();
@@ -101,10 +101,10 @@ void SceneWidget::ShowGizmo()
 	Matrix world = transform->GetWorldTransform();
 	Matrix view = camera->GetViewMatrix();
 	Matrix proj = camera->GetProjectionMatrix();
-
+	
 	ImGuizmo::SetDrawlist();
-	ImGuizmo::SetRect(framePos.x, framePos.y, frameSize.x, frameSize.y);
-	ImGuizmo::Manipulate(&view._11, &proj._11, operation, mode, &world._11);
+	ImGuizmo::SetRect(framePos.x + ImGui::GetWindowPos().x, framePos.y + ImGui::GetWindowPos().y, frameSize.x, frameSize.y);
+	ImGuizmo::Manipulate(*view.m, *proj.m, operation, mode, *world.m);
 
 	DirectX::XMVECTOR s, r, t;
 	DirectX::XMMatrixDecompose(&s, &r, &t, world);

@@ -14,6 +14,12 @@ struct WorldBuffer
 	DirectX::XMMATRIX world;
 };
 
+struct GizmoVertex
+{
+	Vector3 position;
+	Vector4 color;
+};
+
 class Renderer final : public Subsystem<Renderer>
 {
 public:
@@ -37,9 +43,12 @@ private:
 	class ConstantBuffer<CameraBuffer>* m_cameraBuffer;
 	class ConstantBuffer<WorldBuffer>* m_worldBuffer;
 	class InputLayout* m_layout;
-	class Shader* m_shader;
 
 	class Camera* m_camera;
 
-	std::map<unsigned short, std::unique_ptr<class Shader>> m_shaders;
+	std::map<unsigned short, class Shader*> m_shaders;
+
+	class Shader* gizmoshader;
+	class InputLayout* gizmolayout;
+	class VertexBuffer* gizmovertices;
 };

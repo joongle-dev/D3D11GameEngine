@@ -128,10 +128,12 @@ void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std:
 	//Create Cube
 	if (name == "Cube")
 	{
-		Geometry::CreateCube(geometry, 10.0f);
+		Geometry::CreateCube(geometry);
 		Mesh* mesh = new Mesh(m_context);
 		mesh->Create(geometry);
-		object->AddComponent<MeshRenderer>()->SetMesh(mesh);
+		MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
+		renderer->SetMesh(mesh);
+		renderer->SetMaterial(new Material(m_context));
 	}
 	//Create Sphere
 	else if (name == "Sphere")
@@ -139,7 +141,9 @@ void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std:
 		Geometry::CreateSphere(geometry, 5.0f);
 		Mesh* mesh = new Mesh(m_context);
 		mesh->Create(geometry);
-		object->AddComponent<MeshRenderer>()->SetMesh(mesh);
+		MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
+		renderer->SetMesh(mesh);
+		renderer->SetMaterial(new Material(m_context));
 	}
 }
 

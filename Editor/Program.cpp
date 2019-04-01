@@ -13,8 +13,8 @@ int APIENTRY WinMain(
 
 	Context* context = editor.GetContext();
 
-	Importer importer(context);
-	importer.ImportModel("../Assets/Boxing.fbx");
+	//Importer importer(context);
+	//importer.ImportModel("../Assets/Slash.fbx");
 
 	context->GetSubsystem<Graphics>()->SetClearColor(Color(0, 0, 0, 1));
 	//context->GetSubsystem<Time>()->LockFramerate(300);
@@ -23,14 +23,50 @@ int APIENTRY WinMain(
 
 	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
-	GameObject* object = scene->Instantiate();
-	object->SetName("T Pose");
-	MeshRenderer* meshrender = object->AddComponent<MeshRenderer>();
-	meshrender->SetMesh(resources->Load<Mesh>("Boy01_Body_Geo.mesh"));
-	meshrender->SetMaterial(resources->Load<Material>("Boy01_Body_MAT.mat"));
+	Geometry geometry;
+	Geometry::CreateCube(geometry);
+	geometry.GenerateTangents();
 
-	GameObject* object1 = scene->Instantiate();
-	object1->GetComponent<Transform>()->SetParent(object->GetComponent<Transform>());
+	Mesh* sphere = new Mesh(context);
+	sphere->Create(geometry);
+
+	//GameObject* object = scene->Instantiate();
+	//object->SetName("T Pose");
+	//MeshRenderer* meshrender = object->AddComponent<MeshRenderer>();
+	////meshrender->SetMesh(resources->Load<Mesh>("Boy01_Body_Geo.mesh"));
+	////meshrender->SetMaterial(resources->Load<Material>("Boy01_Body_MAT.mat"));
+	//meshrender->SetMesh(resources->Load<Mesh>("Paladin_J_Nordstrom.mesh"));
+	//meshrender->SetMaterial(resources->Load<Material>("Paladin_MAT.mat"));
+
+	Material* material = new Material(context);
+	material->SetTexture(TEX_ALBEDO, resources->Load<Texture>("green-ceramic-tiles_basecolor.png"));
+	material->SetTexture(TEX_NORMAL, resources->Load<Texture>("green-ceramic-tiles_normal-dx.png"));
+	//material->SetTexture(TEX_NORMAL, resources->Load<Texture>("Untitled.png"));
+	material->SetTexture(TEX_HEIGHT, resources->Load<Texture>("green-ceramic-tiles_Height.png"));
+	//material->SetTexture(TEX_HEIGHT, resources->Load<Texture>("Untitled1.png"));
+	material->SetTexture(TEX_ROUGHNESS, resources->Load<Texture>("green-ceramic-tiles_roughness.png"));
+	material->SetTexture(TEX_METALLIC, resources->Load<Texture>("green-ceramic-tiles_metallic.png"));
+
+	GameObject* object0 = scene->Instantiate();
+	object0->SetName("Tile");
+	//object0->GetComponent<Transform>()->SetScale(Vector3(10, 10, 10));
+	MeshRenderer* meshrender0 = object0->AddComponent<MeshRenderer>();
+	meshrender0->SetMesh(sphere);
+	meshrender0->SetMaterial(material);
+
+	material = new Material(context);
+	material->SetTexture(TEX_ALBEDO, resources->Load<Texture>("bark1-albedo.png"));
+	material->SetTexture(TEX_NORMAL, resources->Load<Texture>("bark1-normal3.png"));
+	material->SetTexture(TEX_HEIGHT, resources->Load<Texture>("bark1-height2.png"));
+	material->SetTexture(TEX_ROUGHNESS, resources->Load<Texture>("bark1-rough.png"));
+	material->SetTexture(TEX_METALLIC, resources->Load<Texture>("bark1-metalness.png"));
+
+	object0 = scene->Instantiate();
+	object0->SetName("Bark");
+	//object0->GetComponent<Transform>()->SetScale(Vector3(10, 10, 10));
+	meshrender0 = object0->AddComponent<MeshRenderer>();
+	meshrender0->SetMesh(sphere);
+	meshrender0->SetMaterial(material);
 
 	editor.Run();
 
