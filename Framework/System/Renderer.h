@@ -35,6 +35,8 @@ public:
 
 	class Shader* GetMatchingShader(unsigned short flags);
 
+	void RenderCamera(class Scene* scene, class Camera* camera);
+
 private:
 	class Graphics* m_graphics;
 

@@ -5,7 +5,6 @@ struct VS_INPUT
     float4 position : POSITION;
     float3 normal   : NORMAL0;
     float3 tangent  : TANGENT0;
-    float3 binormal : BINORMAL0;
     float2 uv       : TEXCOORD0;
 };
 
@@ -14,7 +13,6 @@ struct PS_INPUT
     float4 position : SV_POSITION;
     float3 normal   : NORMAL0;
     float3 tangent  : TANGENT0;
-    float3 binormal : BINORMAL0;
     float2 uv       : TEXCOORD0;
     float3 toeye    : DIR0;
 };
@@ -29,8 +27,6 @@ PS_INPUT VS(VS_INPUT input)
     output.position = mul(output.position, projection);
     output.normal = normalize(mul(input.normal, (float3x3) world));
     output.tangent = normalize(mul(input.tangent, (float3x3)world));
-    output.binormal = normalize(mul(input.binormal, (float3x3) world));
-    //output.binormal = normalize(cross(output.normal, output.tangent));
     output.uv = input.uv;
 
     return output;
@@ -41,14 +37,19 @@ Texture2D RoughnessTexture : register(t1);
 Texture2D MetallicTexture : register(t2);
 Texture2D NormalTexture : register(t3);
 Texture2D HeightTexture : register(t4);
-SamplerState Sampler : register(s0);
+SamplerState Sampler : register(s0)
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
 
 float4 PS(PS_INPUT input) : SV_TARGET
 {
     input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
-    input.binormal = normalize(cross(input.normal, input.tangent));
+    float3 binormal = normalize(cross(input.normal, input.tangent));
 
-    float3x3 TBN = float3x3(input.tangent, input.binormal, input.normal);
+    float3x3 TBN = float3x3(input.tangent, binormal, input.normal);
     float3x3 invTBN = transpose(TBN);
 
     float3 color = 0;
@@ -59,36 +60,8 @@ float4 PS(PS_INPUT input) : SV_TARGET
 
     float3 lightDir = normalize(float3(0, 0, -1));
 
-    float2 dx = ddx(input.uv);
-    float2 dy = ddx(input.uv);
-    float fDisplaceFactor = 0.04f;
-    float3 vToEyeTangent = normalize(mul(input.toeye, invTBN));
-    float fNumStep = lerp(80, 0, abs(dot(float3(0.0f, 0.0f, 1.0f), vToEyeTangent)));
-    float2 vDisplace = fDisplaceFactor * vToEyeTangent.xy / vToEyeTangent.z / fNumStep;
-    float fStepSize = 1.0f / fNumStep;
-    float fCurrentStep = 0.0f;
-    float2 vCurrTexcoord = input.uv;
-    float2 vPrevTexcoord = input.uv;
-    float fCurrHeight = HeightTexture.Sample(Sampler, vCurrTexcoord);
-    float fPrevHeight = fCurrHeight;
-    [unroll(20)]
-    while (fCurrentStep < fCurrHeight)
-    {
-        vPrevTexcoord = vCurrTexcoord;
-        vCurrTexcoord += vDisplace;
-        fPrevHeight = fCurrHeight;
-        fCurrHeight = HeightTexture.Sample(Sampler, vCurrTexcoord);
-        fCurrentStep += fStepSize;
-    }
-    //float fWeight = fCurrHeight / (fCurrHeight - fPrevHeight);
-    //input.uv = vPrevTexcoord * fWeight + vCurrTexcoord * (1.0f - fWeight);
-    input.uv = vCurrTexcoord;
-
-    //if (input.uv.x < 0.0f || input.uv.x > 1.0f || input.uv.y < 0.0f || input.uv.y > 1.0f)
-    //    discard;
-
 #if HEIGHT
-
+    //input.uv += mul(input.toeye, invTBN).xy * HeightTexture.Sample(Sampler, input.uv).r * 0.1f;
 #endif
     
 #if NORMAL

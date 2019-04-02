@@ -36,6 +36,7 @@
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Resource\Material.h" />
     <ClInclude Include="VertexBuffer.h" />
+    <ClInclude Include="Core\Component\Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -64,5 +65,6 @@
     <ClCompile Include="Resource\Material.cpp" />
     <ClCompile Include="Utility\Geometry.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
+    <ClCompile Include="Core\Component\Light.cpp" />
   </ItemGroup>
 </Project>

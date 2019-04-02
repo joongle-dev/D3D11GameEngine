@@ -64,6 +64,7 @@ public:
 		inline T* operator->() { return (*m_chunk)->handles[m_index]; }
 		inline bool operator==(const iterator& other) { return (m_index == other.m_index) && (m_chunk == other.m_chunk); }
 		inline bool operator!=(const iterator& other) { return (m_index != other.m_index) || (m_chunk != other.m_chunk); }
+		operator T*() const { return (*m_chunk)->handles[m_index]; }
 
 	private:
 		size_t m_index;

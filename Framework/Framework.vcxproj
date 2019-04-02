@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Component\Camera.h" />
     <ClInclude Include="Core\Component\Component.h" />
+    <ClInclude Include="Core\Component\Light.h" />
     <ClInclude Include="Core\Component\MeshRenderer.h" />
     <ClInclude Include="Core\Component\Transform.h" />
     <ClInclude Include="Core\GameObject.h" />
@@ -57,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
+    <ClCompile Include="Core\Component\Light.cpp" />
     <ClCompile Include="Core\Component\MeshRenderer.cpp" />
     <ClCompile Include="Core\Component\Transform.cpp" />
     <ClCompile Include="Core\GameObject.cpp" />

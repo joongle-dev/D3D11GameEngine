@@ -20,8 +20,7 @@ Renderer::Renderer(Context * context) :
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 4, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 3, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	m_layout = new InputLayout(context);
@@ -69,77 +68,8 @@ void Renderer::Update()
 
 	m_layout->Bind();
 
-	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
-	UINT offset[] = { 0, 0, 0, 0, 0 };
-
 	for (auto camera = scene->ComponentBegin<Camera>(); camera != scene->ComponentEnd<Camera>(); camera++)
-	{
-		RenderTarget* rendertarget = camera->GetRenderTarget();
-
-		if (!rendertarget) 
-			continue;
-
-		rendertarget->Clear(Color(0.5f, 0.5f, 0.0f, 1.0f));
-		rendertarget->Bind();
-
-		auto cameraData = m_cameraBuffer->Map();
-		{
-			cameraData->view = XMMatrixTranspose(XMLoadFloat4x4(&camera->GetViewMatrix()));
-			cameraData->projection = XMMatrixTranspose(XMLoadFloat4x4(&camera->GetProjectionMatrix()));
-			cameraData->campos = camera->GetTransform()->GetPosition();
-		}
-		m_cameraBuffer->Unmap();
-		m_cameraBuffer->Bind(ShaderType::VS, 0);
-		
-		for (auto renderable = scene->ComponentBegin<MeshRenderer>(); renderable != scene->ComponentEnd<MeshRenderer>(); renderable++)
-		{
-			auto worldData = m_worldBuffer->Map();
-			{
-				worldData->world = XMMatrixTranspose(XMLoadFloat4x4(&renderable->GetTransform()->GetWorldTransform()));
-			}
-			m_worldBuffer->Unmap();
-			m_worldBuffer->Bind(ShaderType::VS, 1);
-
-			Mesh* mesh = renderable->GetMesh();
-			if (!mesh) continue;
-
-			Material* material = renderable->GetMaterial();
-			if (!material) continue;
-
-			material->GetShader()->Bind();
-
-			ID3D11ShaderResourceView* srv[] =
-			{
-				material->GetTexture(TEX_ALBEDO) ? material->GetTexture(TEX_ALBEDO)->GetTexture() : nullptr,
-				material->GetTexture(TEX_ROUGHNESS) ? material->GetTexture(TEX_ROUGHNESS)->GetTexture() : nullptr,
-				material->GetTexture(TEX_METALLIC) ? material->GetTexture(TEX_METALLIC)->GetTexture() : nullptr,
-				material->GetTexture(TEX_NORMAL) ? material->GetTexture(TEX_NORMAL)->GetTexture() : nullptr,
-				material->GetTexture(TEX_HEIGHT) ? material->GetTexture(TEX_HEIGHT)->GetTexture() : nullptr
-			};
-
-			ID3D11Buffer* vbs[] = 
-			{ 
-				mesh->m_positions.Get(), 
-				mesh->m_normals.Get(), 
-				mesh->m_tangents.Get(), 
-				mesh->m_binormals.Get(), 
-				mesh->m_uvs.Get() 
-			};
-
-			m_graphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_layout->Bind();
-			m_graphics->GetDeviceContext()->IASetVertexBuffers(0, 5, vbs, stride, offset);
-			m_graphics->GetDeviceContext()->IASetIndexBuffer(mesh->m_indices.Get(), DXGI_FORMAT_R32_UINT, 0);
-			m_graphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
-			m_graphics->GetDeviceContext()->DrawIndexed(mesh->GetIndexCount(), 0, 0);
-
-			gizmoshader->Bind();
-			gizmolayout->Bind();
-			m_graphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-			gizmovertices->BindPipeline();
-			m_graphics->GetDeviceContext()->Draw(24, 0);
-		}
-	}
+		RenderCamera(scene, camera);
 }
 
 Shader * Renderer::GetMatchingShader(unsigned short flags)
@@ -159,4 +89,75 @@ Shader * Renderer::GetMatchingShader(unsigned short flags)
 		iter.first->second->test = flags;
 	}
 	return iter.first->second;
+}
+
+void Renderer::RenderCamera(Scene* scene, Camera * camera)
+{
+	RenderTarget* pRenderTarget = camera->GetRenderTarget();
+
+	if (!pRenderTarget)
+		return;
+
+	pRenderTarget->Clear(Color(0.5f, 0.5f, 0.0f, 1.0f));
+	pRenderTarget->Bind();
+
+	auto pCameraData = m_cameraBuffer->Map();
+	{
+		pCameraData->view = XMMatrixTranspose(XMLoadFloat4x4(&camera->GetViewMatrix()));
+		pCameraData->projection = XMMatrixTranspose(XMLoadFloat4x4(&camera->GetProjectionMatrix()));
+		pCameraData->campos = camera->GetTransform()->GetPosition();
+	}
+	m_cameraBuffer->Unmap();
+	m_cameraBuffer->Bind(ShaderType::VS, 0);
+
+	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
+	UINT offset[] = { 0, 0, 0, 0 };
+
+	for (auto renderable = scene->ComponentBegin<MeshRenderer>(); renderable != scene->ComponentEnd<MeshRenderer>(); renderable++)
+	{
+		auto pWorldData = m_worldBuffer->Map();
+		{
+			pWorldData->world = XMMatrixTranspose(XMLoadFloat4x4(&renderable->GetTransform()->GetWorldTransform()));
+		}
+		m_worldBuffer->Unmap();
+		m_worldBuffer->Bind(ShaderType::VS, 1);
+
+		Mesh* pMesh = renderable->GetMesh();
+		if (!pMesh) continue;
+
+		Material* pMaterial = renderable->GetMaterial();
+		if (!pMaterial) continue;
+
+		pMaterial->GetShader()->Bind();
+
+		ID3D11ShaderResourceView* srv[] =
+		{
+			pMaterial->GetTexture(TEX_ALBEDO) ? pMaterial->GetTexture(TEX_ALBEDO)->GetTexture() : nullptr,
+			pMaterial->GetTexture(TEX_ROUGHNESS) ? pMaterial->GetTexture(TEX_ROUGHNESS)->GetTexture() : nullptr,
+			pMaterial->GetTexture(TEX_METALLIC) ? pMaterial->GetTexture(TEX_METALLIC)->GetTexture() : nullptr,
+			pMaterial->GetTexture(TEX_NORMAL) ? pMaterial->GetTexture(TEX_NORMAL)->GetTexture() : nullptr,
+			pMaterial->GetTexture(TEX_HEIGHT) ? pMaterial->GetTexture(TEX_HEIGHT)->GetTexture() : nullptr
+		};
+
+		ID3D11Buffer* vbs[] =
+		{
+			pMesh->m_positions.Get(),
+			pMesh->m_normals.Get(),
+			pMesh->m_tangents.Get(),
+			pMesh->m_uvs.Get()
+		};
+
+		m_graphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_layout->Bind();
+		m_graphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
+		m_graphics->GetDeviceContext()->IASetIndexBuffer(pMesh->m_indices.Get(), DXGI_FORMAT_R32_UINT, 0);
+		m_graphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
+		m_graphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+
+		gizmoshader->Bind();
+		gizmolayout->Bind();
+		m_graphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+		gizmovertices->BindPipeline();
+		m_graphics->GetDeviceContext()->Draw(24, 0);
+	}
 }
