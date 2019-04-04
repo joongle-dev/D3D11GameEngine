@@ -14,11 +14,6 @@ Transform::Transform(Context* context, GameObject* owner) :
 
 Transform::~Transform()
 {
-	auto owner = GetOwner();
-	//Destroy all transforms' GameObjects
-	for (auto child : m_children)
-		child->GetOwner()->Destroy();
-
 	//Remove self from parent's children
 	if (m_parent)
 		m_parent->RemoveChild(this);

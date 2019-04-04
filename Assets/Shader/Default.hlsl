@@ -1,5 +1,11 @@
 #include "Common.hlsl"
 
+cbuffer Light : register(b2)
+{
+    float3 lightpos;
+    float3 lightdir;
+}
+
 struct VS_INPUT
 {
     float4 position : POSITION;
@@ -11,10 +17,14 @@ struct VS_INPUT
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
-    float3 normal   : NORMAL0;
-    float3 tangent  : TANGENT0;
     float2 uv       : TEXCOORD0;
-    float3 toeye    : DIR0;
+    float3 normal   : TEXCOORD1;
+    float3 tangent  : TEXCOORD2;
+    float3 binormal : TEXCOORD3;
+    float3 toeye    : TEXCOORD4;
+    float4 tolight  : TEXCOORD5;
+    float3 lightdir : TEXCOORD6;
+    float4 lightcol : TEXCOORD7;
 };
 
 PS_INPUT VS(VS_INPUT input)
@@ -22,11 +32,21 @@ PS_INPUT VS(VS_INPUT input)
     PS_INPUT output;
 
     output.position = mul(input.position, world);
+
     output.toeye = normalize(campos - output.position.xyz);
+    
+    output.tolight.xyz = lightpos - output.position.xyz;
+    output.tolight.w = length(output.tolight.xyz);
+    output.tolight.xyz = normalize(output.tolight.xyz);
+    output.lightdir = normalize(lightdir);
+    
     output.position = mul(output.position, view);
     output.position = mul(output.position, projection);
-    output.normal = normalize(mul(input.normal, (float3x3) world));
+
+    output.normal = normalize(mul(input.normal, (float3x3)world));
     output.tangent = normalize(mul(input.tangent, (float3x3)world));
+    output.binormal = normalize(cross(output.normal, output.tangent));
+
     output.uv = input.uv;
 
     return output;
@@ -46,10 +66,7 @@ SamplerState Sampler : register(s0)
 
 float4 PS(PS_INPUT input) : SV_TARGET
 {
-    input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
-    float3 binormal = normalize(cross(input.normal, input.tangent));
-
-    float3x3 TBN = float3x3(input.tangent, binormal, input.normal);
+    float3x3 TBN = float3x3(input.tangent, input.binormal, input.normal);
     float3x3 invTBN = transpose(TBN);
 
     float3 color = 0;
@@ -57,8 +74,6 @@ float4 PS(PS_INPUT input) : SV_TARGET
     float3 albedo = 1.0f;
     float roughness = 1.0f;
     float metalness = 0.0f;
-
-    float3 lightDir = normalize(float3(0, 0, -1));
 
 #if HEIGHT
     //input.uv += mul(input.toeye, invTBN).xy * HeightTexture.Sample(Sampler, input.uv).r * 0.1f;
@@ -69,18 +84,17 @@ float4 PS(PS_INPUT input) : SV_TARGET
     input.normal = normalize(mul(vNormalSample, TBN));
 #endif
     
-    float NdotL = max(dot(-lightDir, input.normal), 0.1f);
-    float NdotH = max(dot(normalize(input.toeye - lightDir), input.normal), 0.0f);
-    float NdotV = max(dot(input.toeye, input.normal), 0.0f);
-
-#if ALBEDO
-    albedo = AlbedoTexture.Sample(Sampler, input.uv).rgb;
+#if DIRECTIONAL_LIGHT
+    float NdotL = max(dot(-input.lightdir, input.normal), 0.0f);
+#else
+    float NdotL = max(dot(input.tolight.xyz, input.normal), 0.0f);
 #endif
+    float NdotH = max(dot(normalize(input.toeye + input.tolight.xyz), input.normal), 0.0f);
+    float NdotV = max(dot(input.toeye, input.normal), 0.0f);
 
 #if ROUGHNESS
     roughness = RoughnessTexture.Sample(Sampler, input.uv).r;
-#endif
-    
+
     //GGX
     //float NdotHSqr = NdotH * NdotH;
     //float TanNdotHSqr = (1 - NdotHSqr) / NdotHSqr;
@@ -96,8 +110,23 @@ float4 PS(PS_INPUT input) : SV_TARGET
     //float gloss = 1.0f - roughness;
     //float specular = pow(max(NdotH, 0.0f), gloss * 255.0f);
     //color += float3(1, 1, 1) * specular * (1.0f - roughness);
-
+#endif
+    
+#if ALBEDO
+    albedo = AlbedoTexture.Sample(Sampler, input.uv).rgb;
     color += albedo * roughness;
+#endif
+    
+#if DIRECTIONAL_LIGHT
+    return float4(color * NdotL, 1.0f);
+#endif
 
-    return float4(color * NdotL, 1);
+#if POINT_LIGHT
+    return float4(color * NdotL, saturate(2.0f / input.tolight.w));
+#endif
+
+#if SPOT_LIGHT
+#endif
+
+    return float4(color * NdotL, 1.0f);
 }

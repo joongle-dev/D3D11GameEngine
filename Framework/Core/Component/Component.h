@@ -3,19 +3,19 @@
 class IComponent
 {
 protected:
-	class GameObject* m_owner;
+	class GameObject* m_pGameObject;
 	class Context* m_context;
 
 public:
 	IComponent(class Context* context, class GameObject* owner) : 
-		m_context(context), m_owner(owner) {}
+		m_context(context), m_pGameObject(owner) {}
 	virtual ~IComponent() = default;
 
 	virtual void Update() = 0;
 
 	virtual const Util::TypeID GetComponentID() const = 0;
 	virtual const std::string GetComponentName() const = 0;
-	class GameObject* GetOwner() const { return m_owner; }
+	class GameObject* GetOwner() const { return m_pGameObject; }
 };
 
 template <class Class>

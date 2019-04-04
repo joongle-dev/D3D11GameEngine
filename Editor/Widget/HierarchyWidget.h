@@ -17,6 +17,4 @@ private:
 	void DropTarget(class Transform* dst);
 
 	void ContextMenu(class Scene* scene, class Transform* parent);
-	void CreateObject(class Scene* scene, class Transform* parent, const std::string& name = "Empty Object");
-	void DestroyObject(class Scene* scene, class Transform* transform);
 };

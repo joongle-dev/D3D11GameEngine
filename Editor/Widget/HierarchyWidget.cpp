@@ -104,51 +104,77 @@ void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 {
 	if (ImGui::BeginPopupContextItem("HierarchyMenu"))
 	{
-		if (ImGui::MenuItem("Delete"))       DestroyObject(scene, transform);
+		if (ImGui::MenuItem("Delete"))
+		{
+			scene->Destroy(transform->GetOwner());
+		}
 		ImGui::Separator();
-		if (ImGui::MenuItem("Create Empty")) CreateObject(scene, transform);
+		if (ImGui::MenuItem("Create Empty"))
+		{
+			auto object = scene->Instantiate();
+			object->GetComponent<Transform>()->SetParent(transform);
+			object->SetName("Empty Object");
+		}
 		if (ImGui::BeginMenu("Create 3D"))
 		{
-			if (ImGui::MenuItem("Cube"))     CreateObject(scene, transform, "Cube");
-			if (ImGui::MenuItem("Sphere"))   CreateObject(scene, transform, "Sphere");
+			if (ImGui::MenuItem("Cube"))
+			{
+				GameObject* object = scene->Instantiate();
+				object->GetComponent<Transform>()->SetParent(transform);
+				object->SetName("Cube");
+
+				Geometry geometry;
+				Geometry::CreateCube(geometry);
+				Mesh* mesh = new Mesh(m_context);
+				mesh->Create(geometry);
+				MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
+				renderer->SetMesh(mesh);
+				renderer->SetMaterial(new Material(m_context));
+			}
+			if (ImGui::MenuItem("Sphere"))
+			{
+				GameObject* object = scene->Instantiate();
+				object->GetComponent<Transform>()->SetParent(transform);
+				object->SetName("Sphere");
+
+				Geometry geometry;
+				Geometry::CreateSphere(geometry);
+				Mesh* mesh = new Mesh(m_context);
+				mesh->Create(geometry);
+				MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
+				renderer->SetMesh(mesh);
+				renderer->SetMaterial(new Material(m_context));
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Create Light"))
+		{
+			if (ImGui::MenuItem("Directional Light"))
+			{
+				GameObject* object = scene->Instantiate();
+				object->GetComponent<Transform>()->SetParent(transform);
+				object->SetName("Directional Light");
+
+				object->AddComponent<Light>()->SetLightType(Light::Directional);
+			}
+			if (ImGui::MenuItem("Point Light"))
+			{
+				GameObject* object = scene->Instantiate();
+				object->GetComponent<Transform>()->SetParent(transform);
+				object->SetName("Point Light");
+
+				object->AddComponent<Light>()->SetLightType(Light::Point);
+			}
+			if (ImGui::MenuItem("Spot Light"))
+			{
+				GameObject* object = scene->Instantiate();
+				object->GetComponent<Transform>()->SetParent(transform);
+				object->SetName("Spot Light");
+
+				object->AddComponent<Light>()->SetLightType(Light::Spot);
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndPopup();
 	}
-}
-
-void HierarchyWidget::CreateObject(Scene * scene, Transform * parent, const std::string & name)
-{
-	//Instantiate GameObject, and set its parent and name
-	auto object = scene->Instantiate();
-	object->GetComponent<Transform>()->SetParent(parent);
-	object->SetName(name);
-
-	Geometry geometry;
-	//Create Cube
-	if (name == "Cube")
-	{
-		Geometry::CreateCube(geometry);
-		Mesh* mesh = new Mesh(m_context);
-		mesh->Create(geometry);
-		MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
-		renderer->SetMesh(mesh);
-		renderer->SetMaterial(new Material(m_context));
-	}
-	//Create Sphere
-	else if (name == "Sphere")
-	{
-		Geometry::CreateSphere(geometry, 5.0f);
-		Mesh* mesh = new Mesh(m_context);
-		mesh->Create(geometry);
-		MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
-		renderer->SetMesh(mesh);
-		renderer->SetMaterial(new Material(m_context));
-	}
-}
-
-void HierarchyWidget::DestroyObject(Scene * scene, Transform * transform)
-{
-	scene->Destroy(transform->GetOwner());
-	EditorHelper::selected = nullptr;
 }

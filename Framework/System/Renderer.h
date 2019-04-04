@@ -14,6 +14,13 @@ struct WorldBuffer
 	DirectX::XMMATRIX world;
 };
 
+struct LightBuffer
+{
+	Vector3 lightpos;
+	Vector3 lightdir;
+	float padding[2];
+};
+
 struct GizmoVertex
 {
 	Vector3 position;
@@ -31,19 +38,20 @@ public:
 
 	void Update() override;
 
-	class RenderTarget* GetMainTarget() const { return m_mainTarget; }
+	void RenderCamera(class Scene* scene, class Camera* camera);
 
 	class Shader* GetMatchingShader(unsigned short flags);
 
-	void RenderCamera(class Scene* scene, class Camera* camera);
+	class RenderTarget* GetMainTarget() const { return m_mainTarget; }
 
 private:
 	class Graphics* m_graphics;
 
 	class RenderTarget* m_mainTarget;
 
-	class ConstantBuffer<CameraBuffer>* m_cameraBuffer;
-	class ConstantBuffer<WorldBuffer>* m_worldBuffer;
+	class ConstantBuffer<CameraBuffer>* m_CameraBuffer;
+	class ConstantBuffer<WorldBuffer>* m_WorldBuffer;
+	class ConstantBuffer<LightBuffer>* m_LightBuffer;
 	class InputLayout* m_layout;
 
 	class Camera* m_camera;

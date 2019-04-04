@@ -75,3 +75,4 @@
 #include "./Core/Component/Transform.h"
 #include "./Core/Component/Camera.h"
 #include "./Core/Component/MeshRenderer.h"
+#include "./Core/Component/Light.h"

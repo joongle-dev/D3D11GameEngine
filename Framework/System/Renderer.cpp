@@ -12,8 +12,9 @@ Renderer::Renderer(Context * context) :
 	m_mainTarget = new RenderTarget(context);
 	m_mainTarget->Create(1920, 1080);
 
-	m_cameraBuffer = new ConstantBuffer<CameraBuffer>(context);
-	m_worldBuffer = new ConstantBuffer<WorldBuffer>(context);
+	m_CameraBuffer = new ConstantBuffer<CameraBuffer>(context);
+	m_WorldBuffer = new ConstantBuffer<WorldBuffer>(context);
+	m_LightBuffer = new ConstantBuffer<LightBuffer>(context);
 
 	D3D11_INPUT_ELEMENT_DESC Desc[] =
 	{
@@ -64,31 +65,12 @@ Renderer::Renderer(Context * context) :
 
 void Renderer::Update()
 {
-	auto scene = m_context->GetSubsystem<SceneManager>()->GetCurrentScene();
+	auto pCurrentScene = m_context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
 	m_layout->Bind();
 
-	for (auto camera = scene->ComponentBegin<Camera>(); camera != scene->ComponentEnd<Camera>(); camera++)
-		RenderCamera(scene, camera);
-}
-
-Shader * Renderer::GetMatchingShader(unsigned short flags)
-{
-	auto iter = m_shaders.emplace(flags, new Shader(m_context));
-	if (iter.second)
-	{
-		D3D_SHADER_MACRO macros[] = {
-			{ "ALBEDO",    flags & TEX_ALBEDO    ? "1" : "0" },
-			{ "ROUGHNESS", flags & TEX_ROUGHNESS ? "1" : "0" },
-			{ "METALLIC",  flags & TEX_METALLIC  ? "1" : "0" },
-			{ "NORMAL",    flags & TEX_NORMAL    ? "1" : "0" },
-			{ "HEIGHT",    flags & TEX_HEIGHT    ? "1" : "0" },
-			{ nullptr, nullptr }
-		};
-		iter.first->second->Create("../Assets/Shader/Default.hlsl", "VS", "PS", macros);
-		iter.first->second->test = flags;
-	}
-	return iter.first->second;
+	for (auto itCamera = pCurrentScene->ComponentBegin<Camera>(); itCamera != pCurrentScene->ComponentEnd<Camera>(); itCamera++)
+		RenderCamera(pCurrentScene, itCamera);
 }
 
 void Renderer::RenderCamera(Scene* scene, Camera * camera)
@@ -98,45 +80,47 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 	if (!pRenderTarget)
 		return;
 
-	pRenderTarget->Clear(Color(0.5f, 0.5f, 0.0f, 1.0f));
+	pRenderTarget->Clear(Color(0.0f, 0.0f, 0.0f, 1.0f));
 	pRenderTarget->Bind();
 
-	auto pCameraData = m_cameraBuffer->Map();
+	Transform* pCameraTransform = camera->GetTransform();
+	auto pCameraData = m_CameraBuffer->Map();
 	{
-		pCameraData->view = XMMatrixTranspose(XMLoadFloat4x4(&camera->GetViewMatrix()));
-		pCameraData->projection = XMMatrixTranspose(XMLoadFloat4x4(&camera->GetProjectionMatrix()));
+		pCameraData->view = XMMatrixTranspose(camera->GetViewMatrix());
+		pCameraData->projection = XMMatrixTranspose(camera->GetProjectionMatrix());
 		pCameraData->campos = camera->GetTransform()->GetPosition();
 	}
-	m_cameraBuffer->Unmap();
-	m_cameraBuffer->Bind(ShaderType::VS, 0);
+	m_CameraBuffer->Unmap();
+	m_CameraBuffer->Bind(ShaderType::VS, 0);
 
 	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
 	UINT offset[] = { 0, 0, 0, 0 };
 
-	for (auto renderable = scene->ComponentBegin<MeshRenderer>(); renderable != scene->ComponentEnd<MeshRenderer>(); renderable++)
+	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
 	{
-		auto pWorldData = m_worldBuffer->Map();
+		Transform* pRenderableTransform = itRenderable->GetTransform();
+		auto pWorldData = m_WorldBuffer->Map();
 		{
-			pWorldData->world = XMMatrixTranspose(XMLoadFloat4x4(&renderable->GetTransform()->GetWorldTransform()));
+			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
 		}
-		m_worldBuffer->Unmap();
-		m_worldBuffer->Bind(ShaderType::VS, 1);
+		m_WorldBuffer->Unmap();
+		Mesh* pMesh = itRenderable->GetMesh();
+		m_WorldBuffer->Bind(ShaderType::VS, 1);
 
-		Mesh* pMesh = renderable->GetMesh();
 		if (!pMesh) continue;
 
-		Material* pMaterial = renderable->GetMaterial();
+		Material* pMaterial = itRenderable->GetMaterial();
 		if (!pMaterial) continue;
 
 		pMaterial->GetShader()->Bind();
 
 		ID3D11ShaderResourceView* srv[] =
 		{
-			pMaterial->GetTexture(TEX_ALBEDO) ? pMaterial->GetTexture(TEX_ALBEDO)->GetTexture() : nullptr,
-			pMaterial->GetTexture(TEX_ROUGHNESS) ? pMaterial->GetTexture(TEX_ROUGHNESS)->GetTexture() : nullptr,
-			pMaterial->GetTexture(TEX_METALLIC) ? pMaterial->GetTexture(TEX_METALLIC)->GetTexture() : nullptr,
-			pMaterial->GetTexture(TEX_NORMAL) ? pMaterial->GetTexture(TEX_NORMAL)->GetTexture() : nullptr,
-			pMaterial->GetTexture(TEX_HEIGHT) ? pMaterial->GetTexture(TEX_HEIGHT)->GetTexture() : nullptr
+			pMaterial->GetTexture(Material::TEX_ALBEDO) ? pMaterial->GetTexture(Material::TEX_ALBEDO)->GetTexture() : nullptr,
+			pMaterial->GetTexture(Material::TEX_ROUGHNESS) ? pMaterial->GetTexture(Material::TEX_ROUGHNESS)->GetTexture() : nullptr,
+			pMaterial->GetTexture(Material::TEX_METALLIC) ? pMaterial->GetTexture(Material::TEX_METALLIC)->GetTexture() : nullptr,
+			pMaterial->GetTexture(Material::TEX_NORMAL) ? pMaterial->GetTexture(Material::TEX_NORMAL)->GetTexture() : nullptr,
+			pMaterial->GetTexture(Material::TEX_HEIGHT) ? pMaterial->GetTexture(Material::TEX_HEIGHT)->GetTexture() : nullptr
 		};
 
 		ID3D11Buffer* vbs[] =
@@ -151,8 +135,21 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 		m_layout->Bind();
 		m_graphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
 		m_graphics->GetDeviceContext()->IASetIndexBuffer(pMesh->m_indices.Get(), DXGI_FORMAT_R32_UINT, 0);
+
 		m_graphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
-		m_graphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
+		{
+			Transform* pLightTransform = itLight->GetTransform();
+			auto pLightData = m_LightBuffer->Map();
+			{
+				pLightData->lightpos = pLightTransform->GetPosition();
+				pLightData->lightdir = pLightTransform->GetForward();
+			}
+			m_LightBuffer->Unmap();
+			m_LightBuffer->Bind(ShaderType::VS, 2);
+
+			m_graphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+		}
 
 		gizmoshader->Bind();
 		gizmolayout->Bind();
@@ -160,4 +157,23 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 		gizmovertices->BindPipeline();
 		m_graphics->GetDeviceContext()->Draw(24, 0);
 	}
+}
+
+Shader * Renderer::GetMatchingShader(unsigned short flags)
+{
+	auto iter = m_shaders.emplace(flags, new Shader(m_context));
+	if (iter.second)
+	{
+		D3D_SHADER_MACRO macros[] = {
+			{ "ALBEDO",    flags & Material::TEX_ALBEDO    ? "1" : "0" },
+			{ "ROUGHNESS", flags & Material::TEX_ROUGHNESS ? "1" : "0" },
+			{ "METALLIC",  flags & Material::TEX_METALLIC  ? "1" : "0" },
+			{ "NORMAL",    flags & Material::TEX_NORMAL    ? "1" : "0" },
+			{ "HEIGHT",    flags & Material::TEX_HEIGHT    ? "1" : "0" },
+			{ nullptr, nullptr }
+		};
+		iter.first->second->Create("../Assets/Shader/Default.hlsl", "VS", "PS", macros);
+		iter.first->second->test = flags;
+	}
+	return iter.first->second;
 }

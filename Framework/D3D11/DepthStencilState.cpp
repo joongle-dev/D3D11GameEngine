@@ -9,7 +9,7 @@ DepthStencilState::DepthStencilState(Context* context)
 	ZeroMemory(&m_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 	m_desc.DepthEnable = true;
 	m_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	m_desc.DepthFunc = D3D11_COMPARISON_LESS;
+	m_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	m_desc.StencilEnable = true;
 	m_desc.StencilReadMask = 0xFF;
 	m_desc.StencilWriteMask = 0xFF;

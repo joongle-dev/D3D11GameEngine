@@ -39,13 +39,13 @@ int APIENTRY WinMain(
 	//meshrender->SetMaterial(resources->Load<Material>("Paladin_MAT.mat"));
 
 	Material* material = new Material(context);
-	material->SetTexture(TEX_ALBEDO, resources->Load<Texture>("green-ceramic-tiles_basecolor.png"));
-	material->SetTexture(TEX_NORMAL, resources->Load<Texture>("green-ceramic-tiles_normal-dx.png"));
-	//material->SetTexture(TEX_NORMAL, resources->Load<Texture>("Untitled.png"));
-	material->SetTexture(TEX_HEIGHT, resources->Load<Texture>("green-ceramic-tiles_Height.png"));
-	//material->SetTexture(TEX_HEIGHT, resources->Load<Texture>("Untitled1.png"));
-	material->SetTexture(TEX_ROUGHNESS, resources->Load<Texture>("green-ceramic-tiles_roughness.png"));
-	material->SetTexture(TEX_METALLIC, resources->Load<Texture>("green-ceramic-tiles_metallic.png"));
+	material->SetTexture(Material::TEX_ALBEDO, resources->Load<Texture>("green-ceramic-tiles_basecolor.png"));
+	material->SetTexture(Material::TEX_NORMAL, resources->Load<Texture>("green-ceramic-tiles_normal-dx.png"));
+	//material->SetTexture(Material::TEX_NORMAL, resources->Load<Texture>("Untitled.png"));
+	material->SetTexture(Material::TEX_HEIGHT, resources->Load<Texture>("green-ceramic-tiles_Height.png"));
+	//material->SetTexture(Material::TEX_HEIGHT, resources->Load<Texture>("Untitled1.png"));
+	material->SetTexture(Material::TEX_ROUGHNESS, resources->Load<Texture>("green-ceramic-tiles_roughness.png"));
+	material->SetTexture(Material::TEX_METALLIC, resources->Load<Texture>("green-ceramic-tiles_metallic.png"));
 
 	GameObject* object0 = scene->Instantiate();
 	object0->SetName("Tile");
@@ -55,11 +55,11 @@ int APIENTRY WinMain(
 	meshrender0->SetMaterial(material);
 
 	material = new Material(context);
-	material->SetTexture(TEX_ALBEDO, resources->Load<Texture>("bark1-albedo.png"));
-	material->SetTexture(TEX_NORMAL, resources->Load<Texture>("bark1-normal3.png"));
-	material->SetTexture(TEX_HEIGHT, resources->Load<Texture>("bark1-height2.png"));
-	material->SetTexture(TEX_ROUGHNESS, resources->Load<Texture>("bark1-rough.png"));
-	material->SetTexture(TEX_METALLIC, resources->Load<Texture>("bark1-metalness.png"));
+	material->SetTexture(Material::TEX_ALBEDO, resources->Load<Texture>("bark1-albedo.png"));
+	material->SetTexture(Material::TEX_NORMAL, resources->Load<Texture>("bark1-normal3.png"));
+	material->SetTexture(Material::TEX_HEIGHT, resources->Load<Texture>("bark1-height2.png"));
+	material->SetTexture(Material::TEX_ROUGHNESS, resources->Load<Texture>("bark1-rough.png"));
+	material->SetTexture(Material::TEX_METALLIC, resources->Load<Texture>("bark1-metalness.png"));
 
 	object0 = scene->Instantiate();
 	object0->SetName("Bark");
