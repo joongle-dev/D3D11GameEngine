@@ -22,15 +22,15 @@ void Shader::Create(const std::string& path, const std::string& vs, const std::s
 		"ps_5_0",
 		D3DCOMPILE_ENABLE_STRICTNESS,
 		NULL,
-		m_bytecode.ReleaseAndGetAddressOf(),
+		mBytecode.ReleaseAndGetAddressOf(),
 		&error);
 	assert(ShaderErrorHandler(hr, error));
 
 	hr = m_graphics->GetDevice()->CreatePixelShader(
-		m_bytecode->GetBufferPointer(),
-		m_bytecode->GetBufferSize(),
+		mBytecode->GetBufferPointer(),
+		mBytecode->GetBufferSize(),
 		NULL,
-		m_pixel.ReleaseAndGetAddressOf());
+		mPixelShader.ReleaseAndGetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	hr = D3DCompileFromFile(
@@ -41,22 +41,22 @@ void Shader::Create(const std::string& path, const std::string& vs, const std::s
 		"vs_5_0", 
 		D3DCOMPILE_ENABLE_STRICTNESS, 
 		NULL, 
-		m_bytecode.ReleaseAndGetAddressOf(), 
+		mBytecode.ReleaseAndGetAddressOf(), 
 		&error);
 	assert(ShaderErrorHandler(hr, error));
 
 	hr = m_graphics->GetDevice()->CreateVertexShader(
-		m_bytecode->GetBufferPointer(), 
-		m_bytecode->GetBufferSize(), 
+		mBytecode->GetBufferPointer(), 
+		mBytecode->GetBufferSize(), 
 		NULL, 
-		m_vertex.ReleaseAndGetAddressOf());
+		mVertexShader.ReleaseAndGetAddressOf());
 	assert(SUCCEEDED(hr));
 }
 
 void Shader::Bind()
 {
-	m_graphics->GetDeviceContext()->VSSetShader(m_vertex.Get(), nullptr, 0);
-	m_graphics->GetDeviceContext()->PSSetShader(m_pixel.Get(), nullptr, 0);
+	m_graphics->GetDeviceContext()->VSSetShader(mVertexShader.Get(), nullptr, 0);
+	m_graphics->GetDeviceContext()->PSSetShader(mPixelShader.Get(), nullptr, 0);
 }
 
 const bool Shader::ShaderErrorHandler(HRESULT hr, LPD3D10BLOB error)

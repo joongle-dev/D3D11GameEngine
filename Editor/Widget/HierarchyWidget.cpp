@@ -107,6 +107,7 @@ void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 		if (ImGui::MenuItem("Delete"))
 		{
 			scene->Destroy(transform->GetOwner());
+			EditorHelper::selected = nullptr;
 		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Create Empty"))

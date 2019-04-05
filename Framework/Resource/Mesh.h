@@ -21,30 +21,30 @@ public:
 
 	void LoadFromFile(const std::string& path) override;
 
-	const unsigned int GetIndexCount() const { return m_numIndices; }
-	const unsigned int GetVertexCount() const { return m_numVertices; }
+	const unsigned int GetIndexCount() const { return mNumIndices; }
+	const unsigned int GetVertexCount() const { return mNumVertices; }
 
-	ID3D11Buffer* GetIndices() const { return m_indices.Get(); }
-	ID3D11Buffer* GetPositions() const { return m_positions.Get(); }
+	ID3D11Buffer* GetIndices()   const { return mIndices.Get(); }
+	ID3D11Buffer* GetPositions() const { return mPositions.Get(); }
+	ID3D11Buffer* GetNormals()   const { return mNormals.Get(); }
+	ID3D11Buffer* GetTangents()  const { return mTangents.Get(); }
+	ID3D11Buffer* GetBinormals() const { return mBinormals.Get(); }
+	ID3D11Buffer* GetTexcoords() const { return mTexcoords.Get(); }
 
-	void BindIndex(const UINT& offset = 0);
-	void BindPosition(const UINT& slot, const UINT& offset = 0, const UINT& stride = sizeof(Vector3));
-	void BindNormal(const UINT& slot, const UINT& offset = 0, const UINT& stride = sizeof(Vector3));
+private:
+	class Graphics* mGraphics;
 
-public:
-	uint32_t m_numVertices;
-	uint32_t m_numIndices;
-	uint32_t m_attribute;
+	uint32_t mNumVertices;
+	uint32_t mNumIndices;
+	uint32_t mAttributes;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_indices;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_positions;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_normals;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_binormals;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_tangents;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_uvs;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_colors;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_blendIndices;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_blendWeights;
-
-	class Graphics* m_graphics;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mIndices;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mPositions;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mNormals;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mTangents;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBinormals;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mTexcoords;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mColors;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBlendIndices;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBlendWeights;
 };

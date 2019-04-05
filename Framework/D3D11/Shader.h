@@ -11,14 +11,13 @@ public:
 
 	const bool ShaderErrorHandler(HRESULT hr, LPD3D10BLOB error);
 
-	ID3D10Blob* GetBytecode() const { return m_bytecode.Get(); }
+	ID3D10Blob* GetBytecode() const { return mBytecode.Get(); }
 
-	unsigned short test;
 private:
 	class Graphics* m_graphics;
 
-	Microsoft::WRL::ComPtr<ID3D10Blob> m_bytecode;
+	Microsoft::WRL::ComPtr<ID3D10Blob> mBytecode;
 
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertex;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixel;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> mVertexShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> mPixelShader;
 };

@@ -7,69 +7,69 @@ using namespace DirectX;
 Mesh::Mesh(Context * context) :
 	Resource<Mesh>(context)
 {
-	m_graphics = context->GetSubsystem<Graphics>();
+	mGraphics = context->GetSubsystem<Graphics>();
 }
 
 void Mesh::Create(Geometry & geometry)
 {
 	m_name = "";
-	m_numVertices = geometry.positions.size();
-	m_numIndices  = geometry.indices.size();
-	m_attribute   = 0;
-	m_attribute  |= geometry.normals.size() == m_numVertices ? VertexAttribute::NORMAL : 0;
-	m_attribute  |= geometry.tangents.size() == m_numVertices ? VertexAttribute::TANGENT : 0;
-	m_attribute  |= geometry.uvs.size()     == m_numVertices ? VertexAttribute::UV : 0;
+	mNumVertices = geometry.positions.size();
+	mNumIndices  = geometry.indices.size();
+	mAttributes   = 0;
+	mAttributes  |= geometry.normals.size() == mNumVertices ? VertexAttribute::NORMAL : 0;
+	mAttributes  |= geometry.tangents.size() == mNumVertices ? VertexAttribute::TANGENT : 0;
+	mAttributes  |= geometry.uvs.size()     == mNumVertices ? VertexAttribute::UV : 0;
 
 	//Create index buffer.
 	{
-		m_graphics->CreateBuffer(
-			m_indices.ReleaseAndGetAddressOf(),
+		mGraphics->CreateBuffer(
+			mIndices.ReleaseAndGetAddressOf(),
 			D3D11_BIND_INDEX_BUFFER,
-			m_numIndices * sizeof(uint32_t),
+			mNumIndices * sizeof(uint32_t),
 			geometry.indices.data());
 	}
 
 	//Create position attribute buffer
 	{
-		m_graphics->CreateBuffer(
-			m_positions.ReleaseAndGetAddressOf(),
+		mGraphics->CreateBuffer(
+			mPositions.ReleaseAndGetAddressOf(),
 			D3D11_BIND_VERTEX_BUFFER,
-			m_numVertices * sizeof(Vector3),
+			mNumVertices * sizeof(Vector3),
 			geometry.positions.data());
 	}
 
 	//Create normal attribute buffer
-	if (m_attribute & VertexAttribute::NORMAL)
+	if (mAttributes & VertexAttribute::NORMAL)
 	{
-		m_graphics->CreateBuffer(
-			m_normals.ReleaseAndGetAddressOf(),
+		mGraphics->CreateBuffer(
+			mNormals.ReleaseAndGetAddressOf(),
 			D3D11_BIND_VERTEX_BUFFER,
-			m_numVertices * sizeof(Vector3),
+			mNumVertices * sizeof(Vector3),
 			geometry.normals .data());
 	}
 
 	//Create tangent attribute buffer
-	if (m_attribute & VertexAttribute::TANGENT)
+	if (mAttributes & VertexAttribute::TANGENT)
 	{
-		m_graphics->CreateBuffer(
-			m_tangents.ReleaseAndGetAddressOf(),
+		mGraphics->CreateBuffer(
+			mTangents.ReleaseAndGetAddressOf(),
 			D3D11_BIND_VERTEX_BUFFER,
-			m_numVertices * sizeof(Vector3),
+			mNumVertices * sizeof(Vector3),
 			geometry.tangents.data());
-		m_graphics->CreateBuffer(
-			m_binormals .ReleaseAndGetAddressOf(),
+		mGraphics->CreateBuffer(
+			mBinormals .ReleaseAndGetAddressOf(),
 			D3D11_BIND_VERTEX_BUFFER,
-			m_numVertices * sizeof(Vector3),
+			mNumVertices * sizeof(Vector3),
 			geometry.binormals.data());
 	}
 
 	//Create UV attribute buffer
-	if (m_attribute & VertexAttribute::UV)
+	if (mAttributes & VertexAttribute::UV)
 	{
-		m_graphics->CreateBuffer(
-			m_uvs.ReleaseAndGetAddressOf(),
+		mGraphics->CreateBuffer(
+			mTexcoords.ReleaseAndGetAddressOf(),
 			D3D11_BIND_VERTEX_BUFFER,
-			m_numVertices * sizeof(Vector2),
+			mNumVertices * sizeof(Vector2),
 			geometry.uvs.data());
 	}
 }
@@ -82,117 +82,102 @@ void Mesh::LoadFromFile(const std::string & path)
 
 	//Read mesh properties
 	file.Read(m_name);
-	file.Read(m_numVertices);
-	file.Read(m_numIndices);
-	file.Read(m_attribute);
+	file.Read(mNumVertices);
+	file.Read(mNumIndices);
+	file.Read(mAttributes);
 
 	//Create byte buffer to load data into
-	size_t bufferSize = std::max(m_numIndices * sizeof(uint32_t), m_numVertices * sizeof(XMFLOAT4));
+	size_t bufferSize = std::max(mNumIndices * sizeof(uint32_t), mNumVertices * sizeof(XMFLOAT4));
 	void* buffer = new byte[bufferSize];
 
 	//Create index buffer.
 	{
-		file.Read(buffer, m_numIndices * sizeof(uint32_t));
-		m_graphics->CreateBuffer(
-			m_indices.ReleaseAndGetAddressOf(),
+		file.Read(buffer, mNumIndices * sizeof(uint32_t));
+		mGraphics->CreateBuffer(
+			mIndices.ReleaseAndGetAddressOf(),
 			D3D11_BIND_INDEX_BUFFER,
-			m_numIndices * sizeof(uint32_t),
+			mNumIndices * sizeof(uint32_t),
 			buffer);
 	}
 
 	//Create position attribute buffer
 	{
-		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		m_graphics->CreateBuffer(
-			m_positions.ReleaseAndGetAddressOf(),
+		file.Read(buffer, mNumVertices * sizeof(Vector3));
+		mGraphics->CreateBuffer(
+			mPositions.ReleaseAndGetAddressOf(),
 			D3D11_BIND_VERTEX_BUFFER,
-			m_numVertices * sizeof(Vector3),
+			mNumVertices * sizeof(Vector3),
 			buffer);
 	}
 
 	//Create normal attribute buffer
-	if (m_attribute & VertexAttribute::NORMAL) 
+	if (mAttributes & VertexAttribute::NORMAL) 
 	{
-		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		m_graphics->CreateBuffer(
-			m_normals.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector3));
+		mGraphics->CreateBuffer(
+			mNormals.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector3), 
+			mNumVertices * sizeof(Vector3), 
 			buffer);
 	}
 
 	//Create tangent attribute buffer
-	if (m_attribute & VertexAttribute::TANGENT) 
+	if (mAttributes & VertexAttribute::TANGENT) 
 	{
-		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		m_graphics->CreateBuffer(
-			m_tangents.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector3));
+		mGraphics->CreateBuffer(
+			mTangents.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector3), 
+			mNumVertices * sizeof(Vector3), 
 			buffer);
 
-		file.Read(buffer, m_numVertices * sizeof(Vector3));
-		m_graphics->CreateBuffer(
-			m_binormals.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector3));
+		mGraphics->CreateBuffer(
+			mBinormals.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector3), 
+			mNumVertices * sizeof(Vector3), 
 			buffer);
 	}
 
 	//Create UV attribute buffer
-	if (m_attribute & VertexAttribute::UV) 
+	if (mAttributes & VertexAttribute::UV) 
 	{
-		file.Read(buffer, m_numVertices * sizeof(Vector2));
-		m_graphics->CreateBuffer(
-			m_uvs.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector2));
+		mGraphics->CreateBuffer(
+			mTexcoords.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector2), 
+			mNumVertices * sizeof(Vector2), 
 			buffer);
 	}
 
 	//Create color attribute buffer
-	if (m_attribute & VertexAttribute::COLOR) 
+	if (mAttributes & VertexAttribute::COLOR) 
 	{
-		file.Read(buffer, m_numVertices * sizeof(Vector4));
-		m_graphics->CreateBuffer(
-			m_colors.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector4));
+		mGraphics->CreateBuffer(
+			mColors.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector4), 
+			mNumVertices * sizeof(Vector4), 
 			buffer);
 	}
 
 	//Create skin blending attribute buffer
-	if (m_attribute & VertexAttribute::SKIN) 
+	if (mAttributes & VertexAttribute::SKIN) 
 	{
-		file.Read(buffer, m_numVertices * sizeof(Vector4));
-		m_graphics->CreateBuffer(
-			m_blendIndices.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector4));
+		mGraphics->CreateBuffer(
+			mBlendIndices.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector4), 
+			mNumVertices * sizeof(Vector4), 
 			buffer);
 
-		file.Read(buffer, m_numVertices * sizeof(Vector4));
-		m_graphics->CreateBuffer(
-			m_blendWeights.ReleaseAndGetAddressOf(), 
+		file.Read(buffer, mNumVertices * sizeof(Vector4));
+		mGraphics->CreateBuffer(
+			mBlendWeights.ReleaseAndGetAddressOf(), 
 			D3D11_BIND_VERTEX_BUFFER, 
-			m_numVertices * sizeof(Vector4), 
+			mNumVertices * sizeof(Vector4), 
 			buffer);
 	}
 
 	file.Close();
-}
-
-void Mesh::BindIndex(const UINT & offset)
-{
-	m_graphics->GetDeviceContext()->IASetIndexBuffer(m_indices.Get(), DXGI_FORMAT_R32_UINT, offset);
-}
-
-void Mesh::BindPosition(const UINT & slot, const UINT & offset, const UINT & stride)
-{
-	m_graphics->GetDeviceContext()->IASetVertexBuffers(slot, 1, m_positions.GetAddressOf(), &stride, &offset);
-}
-
-void Mesh::BindNormal(const UINT & slot, const UINT & offset, const UINT & stride)
-{
-	m_graphics->GetDeviceContext()->IASetVertexBuffers(slot, 1, m_normals.GetAddressOf(), &stride, &offset);
 }

@@ -76,12 +76,12 @@ float4 PS(PS_INPUT input) : SV_TARGET
     float metalness = 0.0f;
 
 #if HEIGHT
-    //input.uv += mul(input.toeye, invTBN).xy * HeightTexture.Sample(Sampler, input.uv).r * 0.1f;
+    input.uv += mul(input.toeye, invTBN).xy * HeightTexture.Sample(Sampler, input.uv).r * 0.1f;
 #endif
     
 #if NORMAL
-    float3 vNormalSample = NormalTexture.Sample(Sampler, input.uv).rgb * 2.0f - 1.0f;
-    input.normal = normalize(mul(vNormalSample, TBN));
+    float3 normalsample = NormalTexture.Sample(Sampler, input.uv).rgb * 2.0f - 1.0f;
+    input.normal = normalize(mul(normalsample, TBN));
 #endif
     
 #if DIRECTIONAL_LIGHT
@@ -114,9 +114,10 @@ float4 PS(PS_INPUT input) : SV_TARGET
     
 #if ALBEDO
     albedo = AlbedoTexture.Sample(Sampler, input.uv).rgb;
-    color += albedo * roughness;
 #endif
     
+    color += albedo * roughness;
+
 #if DIRECTIONAL_LIGHT
     return float4(color * NdotL, 1.0f);
 #endif

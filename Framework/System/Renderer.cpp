@@ -5,16 +5,16 @@
 using namespace DirectX;
 
 Renderer::Renderer(Context * context) :
-	Subsystem<Renderer>(context), m_camera(nullptr)
+	Subsystem<Renderer>(context)
 {
-	m_graphics = context->GetSubsystem<Graphics>();
+	mGraphics = context->GetSubsystem<Graphics>();
 
-	m_mainTarget = new RenderTarget(context);
-	m_mainTarget->Create(1920, 1080);
+	mMainTarget = new RenderTarget(context);
+	mMainTarget->Create(1920, 1080);
 
-	m_CameraBuffer = new ConstantBuffer<CameraBuffer>(context);
-	m_WorldBuffer = new ConstantBuffer<WorldBuffer>(context);
-	m_LightBuffer = new ConstantBuffer<LightBuffer>(context);
+	mCameraBuffer = new ConstantBuffer<CameraBuffer>(context);
+	mWorldBuffer = new ConstantBuffer<WorldBuffer>(context);
+	mLightBuffer = new ConstantBuffer<LightBuffer>(context);
 
 	D3D11_INPUT_ELEMENT_DESC Desc[] =
 	{
@@ -24,8 +24,8 @@ Renderer::Renderer(Context * context) :
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 3, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	m_layout = new InputLayout(context);
-	m_layout->Create(GetMatchingShader(0)->GetBytecode(), Desc, sizeof(Desc) / sizeof(Desc[0]));
+	mInputLayout = new InputLayout(context);
+	mInputLayout->Create(GetMatchingShader(0)->GetBytecode(), Desc, sizeof(Desc) / sizeof(Desc[0]));
 
 	BlendState* blend = new BlendState(context);
 	blend->Create();
@@ -38,36 +38,13 @@ Renderer::Renderer(Context * context) :
 	RasterizerState* raster = new RasterizerState(context);
 	raster->Create();
 	raster->Bind();
-
-
-	Geometry geom;
-	Geometry::CreateCube(geom);
-	geom.GenerateTangents();
-	std::vector<GizmoVertex> vertices;
-	for (size_t i = 0; i < geom.positions.size(); i++)
-	{
-		vertices.push_back({ geom.positions[i], Vector4(1, 0, 0, 1) });
-		vertices.push_back({ geom.positions[i] + geom.normals[i] * 0.25f, Vector4(1, 0, 0, 1) });
-		vertices.push_back({ geom.positions[i], Vector4(0, 1, 0, 1) });
-		vertices.push_back({ geom.positions[i] + geom.tangents[i] * 0.25f, Vector4(0, 1, 0, 1) });
-		vertices.push_back({ geom.positions[i], Vector4(0, 0, 1, 1) });
-		vertices.push_back({ geom.positions[i] + geom.binormals[i] * 0.25f, Vector4(0, 0, 1, 1) });
-	}
-	gizmovertices = new VertexBuffer(context);
-	gizmovertices->Create<GizmoVertex>(vertices);
-
-	gizmoshader = new Shader(context);
-	gizmoshader->Create("../Assets/Shader/Gizmo.hlsl");
-
-	gizmolayout = new InputLayout(context);
-	gizmolayout->Create(gizmoshader->GetBytecode());
 }
 
 void Renderer::Update()
 {
 	auto pCurrentScene = m_context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
-	m_layout->Bind();
+	mInputLayout->Bind();
 
 	for (auto itCamera = pCurrentScene->ComponentBegin<Camera>(); itCamera != pCurrentScene->ComponentEnd<Camera>(); itCamera++)
 		RenderCamera(pCurrentScene, itCamera);
@@ -84,84 +61,81 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 	pRenderTarget->Bind();
 
 	Transform* pCameraTransform = camera->GetTransform();
-	auto pCameraData = m_CameraBuffer->Map();
+	auto pCameraData = mCameraBuffer->Map();
 	{
 		pCameraData->view = XMMatrixTranspose(camera->GetViewMatrix());
 		pCameraData->projection = XMMatrixTranspose(camera->GetProjectionMatrix());
 		pCameraData->campos = camera->GetTransform()->GetPosition();
 	}
-	m_CameraBuffer->Unmap();
-	m_CameraBuffer->Bind(ShaderType::VS, 0);
+	mCameraBuffer->Unmap();
+	mCameraBuffer->Bind(ShaderType::VS, 0);
 
 	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
 	UINT offset[] = { 0, 0, 0, 0 };
 
+	mInputLayout->Bind();
+
 	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
 	{
 		Transform* pRenderableTransform = itRenderable->GetTransform();
-		auto pWorldData = m_WorldBuffer->Map();
+		auto pWorldData = mWorldBuffer->Map();
 		{
 			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
 		}
-		m_WorldBuffer->Unmap();
-		Mesh* pMesh = itRenderable->GetMesh();
-		m_WorldBuffer->Bind(ShaderType::VS, 1);
+		mWorldBuffer->Unmap();
+		mWorldBuffer->Bind(ShaderType::VS, 1);
 
+		Mesh* pMesh = itRenderable->GetMesh();
 		if (!pMesh) continue;
+
+		ID3D11Buffer* vbs[] =
+		{
+			pMesh->GetPositions(),
+			pMesh->GetNormals(),
+			pMesh->GetTangents(),
+			pMesh->GetTexcoords(),
+		};
 
 		Material* pMaterial = itRenderable->GetMaterial();
 		if (!pMaterial) continue;
 
-		pMaterial->GetShader()->Bind();
+		unsigned char materialflags = pMaterial->GetMaterialFlags();
+
+		GetMatchingShader(materialflags)->Bind();
 
 		ID3D11ShaderResourceView* srv[] =
 		{
-			pMaterial->GetTexture(Material::TEX_ALBEDO) ? pMaterial->GetTexture(Material::TEX_ALBEDO)->GetTexture() : nullptr,
-			pMaterial->GetTexture(Material::TEX_ROUGHNESS) ? pMaterial->GetTexture(Material::TEX_ROUGHNESS)->GetTexture() : nullptr,
-			pMaterial->GetTexture(Material::TEX_METALLIC) ? pMaterial->GetTexture(Material::TEX_METALLIC)->GetTexture() : nullptr,
-			pMaterial->GetTexture(Material::TEX_NORMAL) ? pMaterial->GetTexture(Material::TEX_NORMAL)->GetTexture() : nullptr,
-			pMaterial->GetTexture(Material::TEX_HEIGHT) ? pMaterial->GetTexture(Material::TEX_HEIGHT)->GetTexture() : nullptr
+			materialflags & Material::TEX_ALBEDO    ? pMaterial->GetTexture(Material::TEX_ALBEDO)->GetTexture()    : nullptr,
+			materialflags & Material::TEX_ROUGHNESS ? pMaterial->GetTexture(Material::TEX_ROUGHNESS)->GetTexture() : nullptr,
+			materialflags & Material::TEX_METALLIC  ? pMaterial->GetTexture(Material::TEX_METALLIC)->GetTexture()  : nullptr,
+			materialflags & Material::TEX_NORMAL    ? pMaterial->GetTexture(Material::TEX_NORMAL)->GetTexture()    : nullptr,
+			materialflags & Material::TEX_HEIGHT    ? pMaterial->GetTexture(Material::TEX_HEIGHT)->GetTexture()    : nullptr,
 		};
 
-		ID3D11Buffer* vbs[] =
-		{
-			pMesh->m_positions.Get(),
-			pMesh->m_normals.Get(),
-			pMesh->m_tangents.Get(),
-			pMesh->m_uvs.Get()
-		};
+		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
+		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
 
-		m_graphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_layout->Bind();
-		m_graphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
-		m_graphics->GetDeviceContext()->IASetIndexBuffer(pMesh->m_indices.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-		m_graphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
 		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
 		{
 			Transform* pLightTransform = itLight->GetTransform();
-			auto pLightData = m_LightBuffer->Map();
+			auto pLightData = mLightBuffer->Map();
 			{
 				pLightData->lightpos = pLightTransform->GetPosition();
 				pLightData->lightdir = pLightTransform->GetForward();
 			}
-			m_LightBuffer->Unmap();
-			m_LightBuffer->Bind(ShaderType::VS, 2);
+			mLightBuffer->Unmap();
+			mLightBuffer->Bind(ShaderType::VS, 2);
 
-			m_graphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
 		}
-
-		gizmoshader->Bind();
-		gizmolayout->Bind();
-		m_graphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-		gizmovertices->BindPipeline();
-		m_graphics->GetDeviceContext()->Draw(24, 0);
 	}
 }
 
-Shader * Renderer::GetMatchingShader(unsigned short flags)
+Shader * Renderer::GetMatchingShader(unsigned char flags)
 {
-	auto iter = m_shaders.emplace(flags, new Shader(m_context));
+	auto iter = mShaders.emplace(flags, std::make_unique<Shader>(m_context));
 	if (iter.second)
 	{
 		D3D_SHADER_MACRO macros[] = {
@@ -173,7 +147,6 @@ Shader * Renderer::GetMatchingShader(unsigned short flags)
 			{ nullptr, nullptr }
 		};
 		iter.first->second->Create("../Assets/Shader/Default.hlsl", "VS", "PS", macros);
-		iter.first->second->test = flags;
 	}
-	return iter.first->second;
+	return iter.first->second.get();
 }

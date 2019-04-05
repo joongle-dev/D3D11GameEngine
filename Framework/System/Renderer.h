@@ -40,25 +40,19 @@ public:
 
 	void RenderCamera(class Scene* scene, class Camera* camera);
 
-	class Shader* GetMatchingShader(unsigned short flags);
+	class Shader* GetMatchingShader(unsigned char flags);
 
-	class RenderTarget* GetMainTarget() const { return m_mainTarget; }
+	class RenderTarget* GetMainTarget() const { return mMainTarget; }
 
 private:
-	class Graphics* m_graphics;
+	class Graphics* mGraphics;
 
-	class RenderTarget* m_mainTarget;
+	class RenderTarget* mMainTarget;
 
-	class ConstantBuffer<CameraBuffer>* m_CameraBuffer;
-	class ConstantBuffer<WorldBuffer>* m_WorldBuffer;
-	class ConstantBuffer<LightBuffer>* m_LightBuffer;
-	class InputLayout* m_layout;
+	class ConstantBuffer<CameraBuffer>* mCameraBuffer;
+	class ConstantBuffer<WorldBuffer>* mWorldBuffer;
+	class ConstantBuffer<LightBuffer>* mLightBuffer;
+	class InputLayout* mInputLayout;
 
-	class Camera* m_camera;
-
-	std::map<unsigned short, class Shader*> m_shaders;
-
-	class Shader* gizmoshader;
-	class InputLayout* gizmolayout;
-	class VertexBuffer* gizmovertices;
+	std::map<unsigned char, std::unique_ptr<class Shader>> mShaders;
 };
