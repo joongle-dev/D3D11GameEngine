@@ -5,8 +5,7 @@ struct CameraBuffer
 {
 	DirectX::XMMATRIX view;
 	DirectX::XMMATRIX projection;
-	DirectX::XMFLOAT3 campos;
-	float padding;
+	DirectX::XMVECTOR campos;
 };
 
 struct WorldBuffer
@@ -16,15 +15,28 @@ struct WorldBuffer
 
 struct LightBuffer
 {
-	Vector3 lightpos;
-	Vector3 lightdir;
-	float padding[2];
+	DirectX::XMVECTOR lightpos;
+	DirectX::XMVECTOR lightdir;
 };
 
 struct GizmoVertex
 {
 	Vector3 position;
 	Vector4 color;
+};
+
+enum ShaderFlags : unsigned int
+{
+	DEPTH_PASS     = 1 << 0,
+	DIRECTIONAL_LIGHT = 1 << 1,
+	POINT_LIGHT       = 1 << 2,
+	SPOT_LIGHT        = 1 << 3,
+	ALBEDO_TEXTURE    = 1 << 4,
+	ROUGHNESS_TEXTURE = 1 << 5,
+	METALLIC_TEXTURE  = 1 << 6,
+	EMISSIVE_TEXTURE  = 1 << 7,
+	NORMAL_TEXTURE    = 1 << 8,
+	HEIGHT_TEXTURE    = 1 << 9,
 };
 
 class Renderer final : public Subsystem<Renderer>
@@ -40,7 +52,7 @@ public:
 
 	void RenderCamera(class Scene* scene, class Camera* camera);
 
-	class Shader* GetMatchingShader(unsigned char flags);
+	class Shader* GetMatchingShader(unsigned int flags);
 
 	class RenderTarget* GetMainTarget() const { return mMainTarget; }
 
@@ -54,5 +66,10 @@ private:
 	class ConstantBuffer<LightBuffer>* mLightBuffer;
 	class InputLayout* mInputLayout;
 
-	std::map<unsigned char, std::unique_ptr<class Shader>> mShaders;
+
+	class DepthStencilState* mLightPassDepth;
+	class BlendState* mDepthPassBlend;
+	class BlendState* mLightPassBlend;
+
+	std::map<unsigned int, std::unique_ptr<class Shader>> mShaders;
 };

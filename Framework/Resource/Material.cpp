@@ -7,6 +7,7 @@ Material::Material(Context * context) :
 	mUVOffset(0, 0),
 	mUVTiling(1, 1)
 {
+	ZeroMemory(mTextures, sizeof(Texture*) * NUM_TEX_TYPE);
 }
 
 void Material::LoadFromFile(const std::string & path)
@@ -21,26 +22,27 @@ void Material::LoadFromFile(const std::string & path)
 
 	file.Read(stringbuf);
 	if (!stringbuf.empty())
-		mTextures[TEX_ALBEDO] = m_manager->Load<Texture>(stringbuf);
+		mTextures[Albedo] = m_manager->Load<Texture>(stringbuf);
 
 	file.Read(stringbuf);
 	if (!stringbuf.empty())
-		mTextures[TEX_ROUGHNESS] = m_manager->Load<Texture>(stringbuf);
+		mTextures[Roughness] = m_manager->Load<Texture>(stringbuf);
 
 	file.Read(stringbuf);
 	if (!stringbuf.empty())
-		mTextures[TEX_NORMAL] = m_manager->Load<Texture>(stringbuf);
+		mTextures[Normal] = m_manager->Load<Texture>(stringbuf);
 }
 
-Material::MaterialType Material::GetMaterialFlags() const
+unsigned int Material::GetShaderFlags() const
 {
-	unsigned char flags = 0;
+	unsigned int flags = 0;
 
-	flags |= mTextures.count(TEX_ALBEDO) ? TEX_ALBEDO : 0;
-	flags |= mTextures.count(TEX_ROUGHNESS) ? TEX_ROUGHNESS : 0;
-	flags |= mTextures.count(TEX_METALLIC) ? TEX_METALLIC : 0;
-	flags |= mTextures.count(TEX_NORMAL) ? TEX_NORMAL : 0;
-	flags |= mTextures.count(TEX_HEIGHT) ? TEX_HEIGHT : 0;
+	flags |= mTextures[Albedo]    ? ALBEDO_TEXTURE    : 0;
+	flags |= mTextures[Roughness] ? ROUGHNESS_TEXTURE : 0;
+	flags |= mTextures[Metallic]  ? METALLIC_TEXTURE  : 0;
+	flags |= mTextures[Emissive]  ? EMISSIVE_TEXTURE  : 0;
+	flags |= mTextures[Normal]    ? NORMAL_TEXTURE    : 0;
+	flags |= mTextures[Height]    ? HEIGHT_TEXTURE    : 0;
 
-	return static_cast<MaterialType>(flags);
+	return flags;
 }

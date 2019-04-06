@@ -9,14 +9,17 @@ cbuffer Light : register(b2)
 struct VS_INPUT
 {
     float4 position : POSITION;
+#if !DEPTH_PASS
     float3 normal   : NORMAL0;
     float3 tangent  : TANGENT0;
     float2 uv       : TEXCOORD0;
+#endif
 };
 
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+#if !DEPTH_PASS
     float2 uv       : TEXCOORD0;
     float3 normal   : TEXCOORD1;
     float3 tangent  : TEXCOORD2;
@@ -25,6 +28,7 @@ struct PS_INPUT
     float4 tolight  : TEXCOORD5;
     float3 lightdir : TEXCOORD6;
     float4 lightcol : TEXCOORD7;
+#endif
 };
 
 PS_INPUT VS(VS_INPUT input)
@@ -32,22 +36,25 @@ PS_INPUT VS(VS_INPUT input)
     PS_INPUT output;
 
     output.position = mul(input.position, world);
-
+#if !DEPTH_PASS
     output.toeye = normalize(campos - output.position.xyz);
-    
+    #if DIRECTIONAL_LIGHT
+    output.tolight.xyz = -lightdir;
+    #else
     output.tolight.xyz = lightpos - output.position.xyz;
+    #endif
     output.tolight.w = length(output.tolight.xyz);
     output.tolight.xyz = normalize(output.tolight.xyz);
     output.lightdir = normalize(lightdir);
     
-    output.position = mul(output.position, view);
-    output.position = mul(output.position, projection);
-
     output.normal = normalize(mul(input.normal, (float3x3)world));
     output.tangent = normalize(mul(input.tangent, (float3x3)world));
     output.binormal = normalize(cross(output.normal, output.tangent));
 
     output.uv = input.uv;
+#endif
+    output.position = mul(output.position, view);
+    output.position = mul(output.position, projection);
 
     return output;
 }
@@ -66,6 +73,10 @@ SamplerState Sampler : register(s0)
 
 float4 PS(PS_INPUT input) : SV_TARGET
 {
+#if DEPTH_PASS
+    return float4(0, 0, 0, 1);
+#else
+
     float3x3 TBN = float3x3(input.tangent, input.binormal, input.normal);
     float3x3 invTBN = transpose(TBN);
 
@@ -75,11 +86,11 @@ float4 PS(PS_INPUT input) : SV_TARGET
     float roughness = 1.0f;
     float metalness = 0.0f;
 
-#if HEIGHT
-    input.uv += mul(input.toeye, invTBN).xy * HeightTexture.Sample(Sampler, input.uv).r * 0.1f;
+#if HEIGHT_TEXTURE
+    //input.uv += mul(input.toeye, invTBN).xy * HeightTexture.Sample(Sampler, input.uv).r * 0.1f;
 #endif
     
-#if NORMAL
+#if NORMAL_TEXTURE
     float3 normalsample = NormalTexture.Sample(Sampler, input.uv).rgb * 2.0f - 1.0f;
     input.normal = normalize(mul(normalsample, TBN));
 #endif
@@ -92,27 +103,16 @@ float4 PS(PS_INPUT input) : SV_TARGET
     float NdotH = max(dot(normalize(input.toeye + input.tolight.xyz), input.normal), 0.0f);
     float NdotV = max(dot(input.toeye, input.normal), 0.0f);
 
-#if ROUGHNESS
-    roughness = RoughnessTexture.Sample(Sampler, input.uv).r;
-
-    //GGX
-    //float NdotHSqr = NdotH * NdotH;
-    //float TanNdotHSqr = (1 - NdotHSqr) / NdotHSqr;
-    //color += (1.0 / 3.1415926535) * sqrt(roughness / (NdotHSqr * (roughnessSqr + TanNdotHSqr)));
-    
+#if ROUGHNESS_TEXTURE
     //Trowbridge-Reitz
+    roughness = RoughnessTexture.Sample(Sampler, input.uv).r;
     float roughnessSqr = roughness * roughness;
     float distribution = NdotH * NdotH * (roughnessSqr - 1.0) + 1.0;
     float specular = roughnessSqr / (3.1415926535 * distribution * distribution);
     color += float3(1, 1, 1) * specular * (1.0f - roughness);
-
-    //Blinn-Phong
-    //float gloss = 1.0f - roughness;
-    //float specular = pow(max(NdotH, 0.0f), gloss * 255.0f);
-    //color += float3(1, 1, 1) * specular * (1.0f - roughness);
 #endif
     
-#if ALBEDO
+#if ALBEDO_TEXTURE
     albedo = AlbedoTexture.Sample(Sampler, input.uv).rgb;
 #endif
     
@@ -127,7 +127,9 @@ float4 PS(PS_INPUT input) : SV_TARGET
 #endif
 
 #if SPOT_LIGHT
+
 #endif
 
     return float4(color * NdotL, 1.0f);
+#endif
 }

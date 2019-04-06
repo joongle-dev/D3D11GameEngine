@@ -9,10 +9,12 @@ public:
 	void Create();
 	void Bind();
 
-private:
-	class Graphics* m_graphics;
+	D3D11_DEPTH_STENCIL_DESC* Map() { return &mDepthStencilDesc; }
 
-	D3D11_DEPTH_STENCIL_DESC m_desc;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_state;
+private:
+	class Graphics* mGraphics;
+
+	D3D11_DEPTH_STENCIL_DESC mDepthStencilDesc;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
 };
 

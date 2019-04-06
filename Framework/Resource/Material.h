@@ -4,17 +4,16 @@
 class Material final : public Resource<Material>
 {
 public:
-	enum MaterialType : unsigned char
+	enum TextureType : unsigned int
 	{
-		TEX_ALBEDO    = 1 << 0,
-		TEX_ROUGHNESS = 1 << 1,
-		TEX_METALLIC  = 1 << 2,
-		TEX_EMISSIVE  = 1 << 3,
-		TEX_NORMAL    = 1 << 4,
-		TEX_HEIGHT    = 1 << 5,
+		Albedo,
+		Roughness,
+		Metallic,
+		Emissive,
+		Normal,
+		Height,
+		NUM_TEX_TYPE,
 	};
-
-	using TextureMap = std::map<MaterialType, class Texture*>;
 
 public:
 	Material(class Context* context);
@@ -22,10 +21,11 @@ public:
 
 	void LoadFromFile(const std::string& path) override;
 
-	class Texture* GetTexture(const MaterialType type) { return mTextures[type]; }
-	void SetTexture(const MaterialType type, class Texture* texture) { mTextures[type] = texture; }
+	ID3D11ShaderResourceView* GetShaderResource(const TextureType type) { return mTextures[type] ? mTextures[type]->GetTexture() : nullptr; }
+	class Texture* GetTexture(const TextureType type) { return mTextures[type]; }
+	void SetTexture(const TextureType type, class Texture* texture) { mTextures[type] = texture; }
 
-	MaterialType GetMaterialFlags() const;
+	unsigned int GetShaderFlags() const;
 
 public:
 	void UpdateShader();
@@ -35,5 +35,5 @@ private:
 	Vector2 mUVOffset;
 	Vector2 mUVTiling;
 
-	TextureMap mTextures;
+	class Texture* mTextures[NUM_TEX_TYPE];
 };

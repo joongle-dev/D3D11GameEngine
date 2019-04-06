@@ -9,10 +9,12 @@ public:
 	void Create();
 	void Bind();
 
-private:
-	class Graphics* m_graphics;
+	D3D11_BLEND_DESC* Map() { return &mBlendDesc; }
 
-	D3D11_BLEND_DESC m_desc;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_state;
+private:
+	class Graphics* mGraphics;
+
+	D3D11_BLEND_DESC mBlendDesc;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> mBlendState;
 };
 
