@@ -12,16 +12,16 @@ public:
 
 	void Update() override;
 
-	void SetMesh(class Mesh* mesh) { m_mesh = mesh; }
-	class Mesh* GetMesh() const { return m_mesh; }
+	void SetMesh(class Mesh* mesh) { mMesh = mesh; }
+	class Mesh* GetMesh() const { return mMesh; }
 
-	void SetMaterial(class Material* material) { m_material = material; }
-	class Material* GetMaterial() const { return m_material; }
-	class Transform* GetTransform() const { return m_transform; }
+	void SetMaterial(class Material* material) { mMaterial = material; }
+	class Material* GetMaterial() const { return mMaterial; }
+
+	class Transform* GetTransform() const { return mTransform; }
 
 private:
-	class Transform* m_transform;
-
-	class Material* m_material;
-	class Mesh* m_mesh;
+	class Transform* mTransform;
+	class Material*  mMaterial;
+	class Mesh*      mMesh;
 };

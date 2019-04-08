@@ -1,6 +1,5 @@
 #include "Framework.h"
 #include "Renderer.h"
-#include "VertexBuffer.h"
 
 using namespace DirectX;
 

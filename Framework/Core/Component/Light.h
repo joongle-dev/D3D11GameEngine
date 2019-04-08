@@ -4,7 +4,7 @@
 class Light final : public Component<Light>
 {
 public:
-	enum LightType : unsigned char
+	enum LightType : unsigned int
 	{
 		Directional,
 		Point,

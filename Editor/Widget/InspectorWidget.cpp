@@ -22,6 +22,7 @@ void InspectorWidget::Render()
 	
 	ShowTransform();
 	ShowCamera();
+	ShowMeshRender();
 }
 
 void InspectorWidget::ShowTransform()
@@ -72,6 +73,17 @@ void InspectorWidget::ShowCamera()
 		ImGui::InputFloat("##Far", &farplane, 1, 10, 1);
 		camera->SetFarPlane(farplane);
 
+		ImGui::NewLine();
+	}
+}
+
+void InspectorWidget::ShowMeshRender()
+{
+	MeshRenderer* renderer = EditorHelper::selected->GetComponent<MeshRenderer>();
+	if (!renderer)	return;
+
+	if (ImGui::CollapsingHeader("MeshRenderer", ImGuiTreeNodeFlags_DefaultOpen))
+	{
 		ImGui::NewLine();
 	}
 }

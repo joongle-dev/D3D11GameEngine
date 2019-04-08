@@ -1,18 +1,19 @@
 #pragma once
 #include "Resource.h"
 
-enum VertexAttribute : uint32_t
-{
-	POSITION = 1 << 0,
-	UV       = 1 << 1,
-	NORMAL   = 1 << 2,
-	TANGENT  = 1 << 3,
-	SKIN     = 1 << 4,
-	COLOR    = 1 << 5,
-};
-
 class Mesh final : public Resource<Mesh>
 {
+public:
+	enum VertexAttribute : uint32_t
+	{
+		POSITION = 1 << 0,
+		TEXCOORD = 1 << 1,
+		NORMAL   = 1 << 2,
+		TANGENT  = 1 << 3,
+		SKIN     = 1 << 4,
+		COLOR    = 1 << 5,
+	};
+
 public:
 	Mesh(class Context* context);
 	~Mesh() = default;

@@ -18,7 +18,7 @@ void Mesh::Create(Geometry & geometry)
 	mAttributes   = 0;
 	mAttributes  |= geometry.normals.size() == mNumVertices ? VertexAttribute::NORMAL : 0;
 	mAttributes  |= geometry.tangents.size() == mNumVertices ? VertexAttribute::TANGENT : 0;
-	mAttributes  |= geometry.uvs.size()     == mNumVertices ? VertexAttribute::UV : 0;
+	mAttributes  |= geometry.uvs.size()     == mNumVertices ? VertexAttribute::TEXCOORD : 0;
 
 	//Create index buffer.
 	{
@@ -64,7 +64,7 @@ void Mesh::Create(Geometry & geometry)
 	}
 
 	//Create UV attribute buffer
-	if (mAttributes & VertexAttribute::UV)
+	if (mAttributes & VertexAttribute::TEXCOORD)
 	{
 		mGraphics->CreateBuffer(
 			mTexcoords.ReleaseAndGetAddressOf(),
@@ -140,7 +140,7 @@ void Mesh::LoadFromFile(const std::string & path)
 	}
 
 	//Create UV attribute buffer
-	if (mAttributes & VertexAttribute::UV) 
+	if (mAttributes & VertexAttribute::TEXCOORD) 
 	{
 		file.Read(buffer, mNumVertices * sizeof(Vector2));
 		mGraphics->CreateBuffer(

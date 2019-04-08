@@ -13,15 +13,16 @@ int APIENTRY WinMain(
 
 	Context* context = editor.GetContext();
 
-	//Importer importer(context);
-	//importer.ImportModel("../Assets/Slash.fbx");
-
 	context->GetSubsystem<Graphics>()->SetClearColor(Color(0, 0, 0, 1));
 	//context->GetSubsystem<Time>()->LockFramerate(300);
 
 	ResourceManager* resources = context->GetSubsystem<ResourceManager>();
 
 	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
+
+	Importer importer(context);
+	//importer.ImportModel("../Assets/Slash.fbx");
+	importer.TestFunc(scene, "../Assets/Slash.fbx");
 
 	Geometry geometry;
 	Geometry::CreateCube(geometry);

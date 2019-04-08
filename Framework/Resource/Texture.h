@@ -9,7 +9,7 @@ public:
 
 	void LoadFromFile(const std::string& filename) override;
 
-	ID3D11ShaderResourceView* GetTexture() const { return m_shaderResourceView.Get(); }
+	ID3D11ShaderResourceView* GetShaderResource() const { return m_shaderResourceView.Get(); }
 
 private:
 	std::vector<uint8_t> LoadRGBAImage(std::wstring filename);

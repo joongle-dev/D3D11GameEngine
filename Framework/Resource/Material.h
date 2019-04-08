@@ -21,14 +21,11 @@ public:
 
 	void LoadFromFile(const std::string& path) override;
 
-	ID3D11ShaderResourceView* GetShaderResource(const TextureType type) { return mTextures[type] ? mTextures[type]->GetTexture() : nullptr; }
+	ID3D11ShaderResourceView* GetShaderResource(const TextureType type) { return mTextures[type] ? mTextures[type]->GetShaderResource() : nullptr; }
 	class Texture* GetTexture(const TextureType type) { return mTextures[type]; }
 	void SetTexture(const TextureType type, class Texture* texture) { mTextures[type] = texture; }
 
 	unsigned int GetShaderFlags() const;
-
-public:
-	void UpdateShader();
 
 private:
 	Color   mBaseColor;

@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Component\Animator.h" />
     <ClInclude Include="Core\Component\Camera.h" />
     <ClInclude Include="Core\Component\Component.h" />
     <ClInclude Include="Core\Component\Light.h" />
     <ClInclude Include="Core\Component\MeshRenderer.h" />
+    <ClInclude Include="Core\Component\SkinnedMeshRenderer.h" />
     <ClInclude Include="Core\Component\Transform.h" />
     <ClInclude Include="Core\GameObject.h" />
     <ClInclude Include="Core\Scene.h" />
@@ -34,6 +36,7 @@
     <ClInclude Include="D3D11\RenderTarget.h" />
     <ClInclude Include="D3D11\Shader.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Resource\Animation.h" />
     <ClInclude Include="Resource\Material.h" />
     <ClInclude Include="Resource\Mesh.h" />
     <ClInclude Include="Resource\Resource.h" />
@@ -54,12 +57,13 @@
     <ClInclude Include="Utility\FileStream.h" />
     <ClInclude Include="Utility\Geometry.h" />
     <ClInclude Include="Utility\Handle.h" />
-    <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Component\Animator.cpp" />
     <ClCompile Include="Core\Component\Camera.cpp" />
     <ClCompile Include="Core\Component\Light.cpp" />
     <ClCompile Include="Core\Component\MeshRenderer.cpp" />
+    <ClCompile Include="Core\Component\SkinnedMeshRenderer.cpp" />
     <ClCompile Include="Core\Component\Transform.cpp" />
     <ClCompile Include="Core\GameObject.cpp" />
     <ClCompile Include="Core\Scene.cpp" />
@@ -70,6 +74,7 @@
     <ClCompile Include="D3D11\RenderTarget.cpp" />
     <ClCompile Include="D3D11\Shader.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Resource\Animation.cpp" />
     <ClCompile Include="Resource\Material.cpp" />
     <ClCompile Include="Resource\Mesh.cpp" />
     <ClCompile Include="Resource\Texture.cpp" />
@@ -85,7 +90,6 @@
     <ClCompile Include="System\Time.cpp" />
     <ClCompile Include="System\Window.cpp" />
     <ClCompile Include="Utility\Geometry.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

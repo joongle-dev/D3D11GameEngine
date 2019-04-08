@@ -14,7 +14,7 @@ class Importer final
 		std::vector<Vector3> normals;
 		std::vector<Vector3> tangents;
 		std::vector<Vector3> binormals;
-		std::vector<Vector2> uvs;
+		std::vector<Vector2> texcoords;
 		std::vector<Vector4> blendIndices;
 		std::vector<Vector4> blendWeights;
 	};
@@ -31,6 +31,7 @@ public:
 	~Importer() = default;
 
 	void ImportModel(const std::string& filepath);
+	void TestFunc(class Scene* scene, const std::string& filepath);
 
 private:
 	void ExportMaterial();

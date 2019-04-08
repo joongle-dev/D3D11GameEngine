@@ -56,6 +56,7 @@
 #include "./Resource/Texture.h"
 #include "./Resource/Material.h"
 #include "./Resource/Mesh.h"
+#include "./Resource/Animation.h"
 
 //System
 #include "./System/Time.h"
@@ -75,4 +76,6 @@
 #include "./Core/Component/Transform.h"
 #include "./Core/Component/Camera.h"
 #include "./Core/Component/MeshRenderer.h"
+#include "./Core/Component/SkinnedMeshRenderer.h"
 #include "./Core/Component/Light.h"
+#include "./Core/Component/Animator.h"

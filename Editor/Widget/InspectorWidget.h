@@ -12,4 +12,5 @@ public:
 private:
 	void ShowTransform();
 	void ShowCamera();
+	void ShowMeshRender();
 };

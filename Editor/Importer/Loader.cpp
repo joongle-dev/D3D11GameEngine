@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/version.h>
 
 #define FBXSDK_NEW_API
 #define FBXSDK_SHARED 
@@ -19,13 +20,35 @@ Importer::Importer(Context * context)
 void Importer::ImportModel(const std::string & filepath)
 {
 	Assimp::Importer importer;
+	importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
+	importer.SetPropertyFloat(AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 80.0f);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SLM_TRIANGLE_LIMIT, 1'000'000);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SLM_VERTEX_LIMIT, 1'000'000);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_CAMERAS | aiComponent_LIGHTS);
+	importer.SetPropertyBool(AI_CONFIG_GLOB_MEASURE_TIME, true);
 
-	unsigned int flags = 
-		aiProcess_Triangulate | 
-		aiProcess_GenSmoothNormals | 
-		aiProcess_FlipUVs | 
-		aiProcess_JoinIdenticalVertices | 
-		aiProcess_CalcTangentSpace;
+	//Get Version
+	const int major    = aiGetVersionMajor();
+	const int minor    = aiGetVersionMinor();
+	const int revision = aiGetVersionRevision();
+
+	unsigned int flags =
+		aiProcess_CalcTangentSpace |
+		aiProcess_GenSmoothNormals |
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_OptimizeMeshes |
+		aiProcess_ImproveCacheLocality |
+		aiProcess_LimitBoneWeights |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_Triangulate |
+		aiProcess_GenUVCoords |
+		aiProcess_SortByPType |
+		aiProcess_FindDegenerates |
+		aiProcess_FindInvalidData |
+		aiProcess_FindInstances |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ConvertToLeftHanded;
 
 	const aiScene* scene = importer.ReadFile(filepath, flags);
 	
@@ -40,6 +63,72 @@ void Importer::ImportModel(const std::string & filepath)
 
 	ExportMaterial();
 	ExportMesh();
+
+	scene->mRootNode;
+
+}
+
+void Importer::TestFunc(Scene * scene, const std::string & filepath)
+{
+	Assimp::Importer importer;
+	importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
+	importer.SetPropertyFloat(AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 80.0f);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SLM_TRIANGLE_LIMIT, 1'000'000);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SLM_VERTEX_LIMIT, 1'000'000);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_CAMERAS | aiComponent_LIGHTS);
+	importer.SetPropertyBool(AI_CONFIG_GLOB_MEASURE_TIME, true);
+
+	//Get Version
+	const int major = aiGetVersionMajor();
+	const int minor = aiGetVersionMinor();
+	const int revision = aiGetVersionRevision();
+
+	unsigned int flags =
+		aiProcess_CalcTangentSpace |
+		aiProcess_GenSmoothNormals |
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_OptimizeMeshes |
+		aiProcess_ImproveCacheLocality |
+		aiProcess_LimitBoneWeights |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_Triangulate |
+		aiProcess_GenUVCoords |
+		aiProcess_SortByPType |
+		aiProcess_FindDegenerates |
+		aiProcess_FindInvalidData |
+		aiProcess_FindInstances |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ConvertToLeftHanded;
+
+	const aiScene* modelscene = importer.ReadFile(filepath, flags);
+
+	int test = 0;
+	if (modelscene->mNumAnimations)
+	{
+		for (unsigned int i = 0; i < modelscene->mAnimations[0]->mNumChannels; i++)
+			printf("%s\n", modelscene->mAnimations[0]->mChannels[i]->mNodeName.C_Str());
+	}
+	printf("\n");
+	auto RecursiveFunc = [modelscene, scene, &test](Transform* parent, aiNode* node, const auto& lambda)->void
+	{
+		test++;
+		GameObject* object = scene->Instantiate();
+		object->SetName(node->mName.C_Str());
+		if (node->mNumMeshes)
+		{
+			MeshRenderer* meshrender = object->AddComponent<MeshRenderer>();
+			aiMesh* mesh = modelscene->mMeshes[node->mMeshes[0]];
+			for (unsigned int i = 0; i < mesh->mNumBones; i++)
+				printf("%s\n", mesh->mBones[i]->mName.C_Str());
+		}
+		Transform* transform = object->GetComponent<Transform>();
+		transform->SetParent(parent);
+		for (unsigned int i = 0; i < node->mNumChildren; i++)
+			lambda(transform, node->mChildren[i], lambda);
+	};
+	RecursiveFunc(scene->GetRoot(), modelscene->mRootNode, RecursiveFunc);
+	printf("%d\n", test);
 }
 
 void Importer::ExportMaterial()
@@ -90,7 +179,7 @@ void Importer::ExportMesh()
 		file.Write(mesh.normals.data(), mesh.numVertices * sizeof(Vector3));
 		file.Write(mesh.tangents.data(), mesh.numVertices * sizeof(Vector3));
 		file.Write(mesh.binormals.data(), mesh.numVertices * sizeof(Vector3));
-		file.Write(mesh.uvs.data(), mesh.numVertices * sizeof(Vector2));
+		file.Write(mesh.texcoords.data(), mesh.numVertices * sizeof(Vector2));
 	}
 }
 void Importer::ProcessFbxMaterial(const aiScene * scene, const std::string & filepath)
@@ -169,14 +258,14 @@ void Importer::ProcessMesh(const aiScene * scene)
 		}
 		if (mesh->HasNormals())
 		{
-			meshData.attribute |= VertexAttribute::NORMAL;
+			meshData.attribute |= Mesh::NORMAL;
 			meshData.normals.assign(
 				reinterpret_cast<Vector3*>(mesh->mNormals),
 				reinterpret_cast<Vector3*>(mesh->mNormals) + mesh->mNumVertices);
 		}
 		if (mesh->HasTangentsAndBitangents())
 		{
-			meshData.attribute |= VertexAttribute::TANGENT;
+			meshData.attribute |= Mesh::TANGENT;
 			meshData.tangents.assign(
 				reinterpret_cast<Vector3*>(mesh->mTangents),
 				reinterpret_cast<Vector3*>(mesh->mTangents) + mesh->mNumVertices);
@@ -186,12 +275,16 @@ void Importer::ProcessMesh(const aiScene * scene)
 		}
 		if (mesh->HasTextureCoords(0))
 		{
-			meshData.attribute |= VertexAttribute::UV;
-			meshData.uvs.resize(mesh->mNumVertices);
+			meshData.attribute |= Mesh::TEXCOORD;
+			meshData.texcoords.resize(mesh->mNumVertices);
 			for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
-				meshData.uvs[j].x = mesh->mTextureCoords[0][j].x;
-				meshData.uvs[j].y = mesh->mTextureCoords[0][j].y;
+				meshData.texcoords[j].x = mesh->mTextureCoords[0][j].x;
+				meshData.texcoords[j].y = mesh->mTextureCoords[0][j].y;
 			}
+		}
+		if (mesh->HasBones())
+		{
+			mesh->mBones;
 		}
 
 		meshData.indices.resize(mesh->mNumFaces * 3);

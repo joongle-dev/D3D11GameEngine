@@ -35,8 +35,10 @@
     <ClInclude Include="D3D11\RenderTarget.h" />
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Resource\Material.h" />
-    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Core\Component\Light.h" />
+    <ClInclude Include="Resource\Animation.h" />
+    <ClInclude Include="Core\Component\Animator.h" />
+    <ClInclude Include="Core\Component\SkinnedMeshRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -64,7 +66,9 @@
     <ClCompile Include="D3D11\RenderTarget.cpp" />
     <ClCompile Include="Resource\Material.cpp" />
     <ClCompile Include="Utility\Geometry.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Core\Component\Light.cpp" />
+    <ClCompile Include="Resource\Animation.cpp" />
+    <ClCompile Include="Core\Component\Animator.cpp" />
+    <ClCompile Include="Core\Component\SkinnedMeshRenderer.cpp" />
   </ItemGroup>
 </Project>
