@@ -39,6 +39,8 @@
     <ClInclude Include="Resource\Animation.h" />
     <ClInclude Include="Core\Component\Animator.h" />
     <ClInclude Include="Core\Component\SkinnedMeshRenderer.h" />
+    <ClInclude Include="Resource\Prefab.h" />
+    <ClInclude Include="Utility\Serializable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />
@@ -70,5 +72,6 @@
     <ClCompile Include="Resource\Animation.cpp" />
     <ClCompile Include="Core\Component\Animator.cpp" />
     <ClCompile Include="Core\Component\SkinnedMeshRenderer.cpp" />
+    <ClCompile Include="Resource\Prefab.cpp" />
   </ItemGroup>
 </Project>

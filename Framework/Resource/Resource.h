@@ -6,19 +6,20 @@ class IResource
 public:
 	IResource(class Context* context)
 	{
-		m_manager = context->GetSubsystem<class ResourceManager>();
+		mResourceManager = context->GetSubsystem<class ResourceManager>();
 	}
 	virtual ~IResource() = default;
 
 	virtual void LoadFromFile(const std::string& path) = 0;
 
-	const std::string& GetName() const { return m_name; }
+	const std::string& GetName() const { return mName; }
 
 protected:
-	class ResourceManager* m_manager;
+	class Context* mContext;
+	class ResourceManager* mResourceManager;
 
-	std::string m_name;
-	std::string m_filepath;
+	std::string mName;
+	std::string mPath;
 };
 
 template <class T>

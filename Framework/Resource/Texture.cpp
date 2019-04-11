@@ -14,10 +14,10 @@ Texture::Texture(Context * context) :
 void Texture::LoadFromFile(const std::string & filename)
 {
 	//Set name as the filename
-	size_t firstindex = m_name.find_last_of('/');
-	if (firstindex >= m_name.length()) firstindex = 0;
-	size_t lastindex = m_name.find_last_of('.');
-	m_name = m_name.substr(firstindex, lastindex);
+	size_t firstindex = mName.find_last_of('/');
+	if (firstindex >= mName.length()) firstindex = 0;
+	size_t lastindex = mName.find_last_of('.');
+	mName = mName.substr(firstindex, lastindex);
 
 	//Load raw image data from file
 	auto image = LoadRGBAImage(std::wstring(filename.begin(), filename.end()));

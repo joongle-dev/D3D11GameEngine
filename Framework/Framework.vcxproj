@@ -39,6 +39,7 @@
     <ClInclude Include="Resource\Animation.h" />
     <ClInclude Include="Resource\Material.h" />
     <ClInclude Include="Resource\Mesh.h" />
+    <ClInclude Include="Resource\Prefab.h" />
     <ClInclude Include="Resource\Resource.h" />
     <ClInclude Include="Resource\Texture.h" />
     <ClInclude Include="Framework.h" />
@@ -57,6 +58,7 @@
     <ClInclude Include="Utility\FileStream.h" />
     <ClInclude Include="Utility\Geometry.h" />
     <ClInclude Include="Utility\Handle.h" />
+    <ClInclude Include="Utility\Serializable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Animator.cpp" />
@@ -77,6 +79,7 @@
     <ClCompile Include="Resource\Animation.cpp" />
     <ClCompile Include="Resource\Material.cpp" />
     <ClCompile Include="Resource\Mesh.cpp" />
+    <ClCompile Include="Resource\Prefab.cpp" />
     <ClCompile Include="Resource\Texture.cpp" />
     <ClCompile Include="Framework.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

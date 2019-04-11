@@ -9,14 +9,15 @@ class Importer final
 		uint32_t numVertices;
 		uint32_t numIndices;
 		uint32_t attribute;
-		std::vector<uint32_t> indices;
-		std::vector<Vector3> positions;
-		std::vector<Vector3> normals;
-		std::vector<Vector3> tangents;
-		std::vector<Vector3> binormals;
-		std::vector<Vector2> texcoords;
-		std::vector<Vector4> blendIndices;
-		std::vector<Vector4> blendWeights;
+		std::vector<uint32_t> mIndices;
+		std::vector<Vector3> mPositions;
+		std::vector<Vector3> mNormals;
+		std::vector<Vector3> mTangents;
+		std::vector<Vector3> mBinormals;
+		std::vector<Vector2> mTexcoords;
+		std::vector<Vector4> mBlendIndices;
+		std::vector<Vector4> mBlendWeights;
+		std::vector<Matrix> mBindposeInverses;
 	};
 	struct MaterialData
 	{
@@ -37,13 +38,16 @@ private:
 	void ExportMaterial();
 	void ExportMesh();
 
+	void ProcessNodes(const struct aiScene* scene);
+
 	void ProcessFbxMaterial(const struct aiScene* scene, const std::string& filepath);
 	void ProcessMaterial(const struct aiScene* scene);
 	void ProcessMesh(const struct aiScene* scene);
 
 private:
+	class Context* mContext;
 	class ResourceManager* m_resources;
 
-	std::vector<MeshData> m_meshes;
+	std::vector<MeshData> mMeshes;
 	std::vector<MaterialData> m_materials;
 };

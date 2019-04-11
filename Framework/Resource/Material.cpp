@@ -18,19 +18,19 @@ void Material::LoadFromFile(const std::string & path)
 	std::string stringbuf;
 
 	file.Read(stringbuf);
-	m_name = stringbuf;
+	mName = stringbuf;
 
 	file.Read(stringbuf);
 	if (!stringbuf.empty())
-		mTextures[Albedo] = m_manager->Load<Texture>(stringbuf);
+		mTextures[Albedo] = mResourceManager->Load<Texture>(stringbuf);
 
 	file.Read(stringbuf);
 	if (!stringbuf.empty())
-		mTextures[Roughness] = m_manager->Load<Texture>(stringbuf);
+		mTextures[Roughness] = mResourceManager->Load<Texture>(stringbuf);
 
 	file.Read(stringbuf);
 	if (!stringbuf.empty())
-		mTextures[Normal] = m_manager->Load<Texture>(stringbuf);
+		mTextures[Normal] = mResourceManager->Load<Texture>(stringbuf);
 }
 
 unsigned int Material::GetShaderFlags() const

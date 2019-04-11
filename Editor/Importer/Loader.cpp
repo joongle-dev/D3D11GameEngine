@@ -12,7 +12,10 @@
 #include <fbxsdk.h>
 #pragma comment(lib, "libfbxsdk.lib")
 
-Importer::Importer(Context * context)
+
+
+Importer::Importer(Context * context) :
+	mContext(context)
 {
 	m_resources = context->GetSubsystem<ResourceManager>();
 }
@@ -79,7 +82,6 @@ void Importer::TestFunc(Scene * scene, const std::string & filepath)
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_CAMERAS | aiComponent_LIGHTS);
 	importer.SetPropertyBool(AI_CONFIG_GLOB_MEASURE_TIME, true);
 
-	//Get Version
 	const int major = aiGetVersionMajor();
 	const int minor = aiGetVersionMinor();
 	const int revision = aiGetVersionRevision();
@@ -101,34 +103,9 @@ void Importer::TestFunc(Scene * scene, const std::string & filepath)
 		aiProcess_ValidateDataStructure |
 		aiProcess_ConvertToLeftHanded;
 
-	const aiScene* modelscene = importer.ReadFile(filepath, flags);
+	const aiScene* pModelScene = importer.ReadFile(filepath, flags);
 
-	int test = 0;
-	if (modelscene->mNumAnimations)
-	{
-		for (unsigned int i = 0; i < modelscene->mAnimations[0]->mNumChannels; i++)
-			printf("%s\n", modelscene->mAnimations[0]->mChannels[i]->mNodeName.C_Str());
-	}
-	printf("\n");
-	auto RecursiveFunc = [modelscene, scene, &test](Transform* parent, aiNode* node, const auto& lambda)->void
-	{
-		test++;
-		GameObject* object = scene->Instantiate();
-		object->SetName(node->mName.C_Str());
-		if (node->mNumMeshes)
-		{
-			MeshRenderer* meshrender = object->AddComponent<MeshRenderer>();
-			aiMesh* mesh = modelscene->mMeshes[node->mMeshes[0]];
-			for (unsigned int i = 0; i < mesh->mNumBones; i++)
-				printf("%s\n", mesh->mBones[i]->mName.C_Str());
-		}
-		Transform* transform = object->GetComponent<Transform>();
-		transform->SetParent(parent);
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-			lambda(transform, node->mChildren[i], lambda);
-	};
-	RecursiveFunc(scene->GetRoot(), modelscene->mRootNode, RecursiveFunc);
-	printf("%d\n", test);
+	ProcessNodes(pModelScene);
 }
 
 void Importer::ExportMaterial()
@@ -165,7 +142,7 @@ void Importer::ExportMesh()
 {
 	std::string directory = m_resources->GetDirectory<Mesh>();
 
-	for (auto mesh : m_meshes)
+	for (auto mesh : mMeshes)
 	{
 		FileStreamWrite file;
 		file.Open(directory + mesh.name + ".mesh");
@@ -174,15 +151,52 @@ void Importer::ExportMesh()
 		file.Write(mesh.numVertices);
 		file.Write(mesh.numIndices);
 		file.Write(mesh.attribute);
-		file.Write(mesh.indices.data(), mesh.numIndices * sizeof(uint32_t));
-		file.Write(mesh.positions.data(), mesh.numVertices * sizeof(Vector3));
-		file.Write(mesh.normals.data(), mesh.numVertices * sizeof(Vector3));
-		file.Write(mesh.tangents.data(), mesh.numVertices * sizeof(Vector3));
-		file.Write(mesh.binormals.data(), mesh.numVertices * sizeof(Vector3));
-		file.Write(mesh.texcoords.data(), mesh.numVertices * sizeof(Vector2));
+		file.Write(mesh.mIndices.data(), mesh.numIndices * sizeof(uint32_t));
+		file.Write(mesh.mPositions.data(), mesh.numVertices * sizeof(Vector3));
+		file.Write(mesh.mNormals.data(), mesh.numVertices * sizeof(Vector3));
+		file.Write(mesh.mTangents.data(), mesh.numVertices * sizeof(Vector3));
+		file.Write(mesh.mBinormals.data(), mesh.numVertices * sizeof(Vector3));
+		file.Write(mesh.mTexcoords.data(), mesh.numVertices * sizeof(Vector2));
 	}
 }
-void Importer::ProcessFbxMaterial(const aiScene * scene, const std::string & filepath)
+
+void Importer::ProcessNodes(const aiScene * pAiScene)
+{
+	printf("%d\n", pAiScene->mAnimations[0]->mNumChannels);
+	for (unsigned int i = 0; i < pAiScene->mNumAnimations; i++)
+	{
+		aiAnimation* anim = pAiScene->mAnimations[i];
+		for (unsigned int j = 0; j < anim->mNumChannels; j++)
+			printf("%s\n", anim->mChannels[j]->mNodeName.C_Str());
+	}
+	printf("\n");
+
+	Scene* pGameScene = mContext->GetSubsystem<SceneManager>()->GetCurrentScene();
+
+	auto RecursiveFunc = [pGameScene, pAiScene](Transform* pParentTransform, aiNode* pAiNode, const auto& lambda)->void
+	{
+		GameObject* pNodeObject = pGameScene->Instantiate();
+		pNodeObject->SetName(pAiNode->mName.C_Str());
+
+		if (pAiNode->mNumMeshes)
+		{
+			MeshRenderer* pMeshRenderer = pNodeObject->AddComponent<MeshRenderer>();
+			aiMesh* pModelMesh = pAiScene->mMeshes[pAiNode->mMeshes[0]];
+			printf("%d\n", pModelMesh->mNumBones);
+			for (unsigned int i = 0; i < pModelMesh->mNumBones; i++)
+				printf("%s\n", pModelMesh->mBones[i]->mName.C_Str());
+			printf("\n");
+		}
+
+		Transform* transform = pNodeObject->GetComponent<Transform>();
+		transform->SetParent(pParentTransform);
+		for (unsigned int i = 0; i < pAiNode->mNumChildren; i++)
+			lambda(transform, pAiNode->mChildren[i], lambda);
+	};
+	RecursiveFunc(pGameScene->GetRoot(), pAiScene->mRootNode, RecursiveFunc);
+}
+
+void Importer::ProcessFbxMaterial(const aiScene * pAiScene, const std::string & filepath)
 {
 	using namespace fbxsdk;
 
@@ -194,7 +208,7 @@ void Importer::ProcessFbxMaterial(const aiScene * scene, const std::string & fil
 	fbxImporter->Initialize(filepath.c_str(), -1, fbxIos);
 	fbxImporter->Import(fbxScene);
 
-	for (unsigned int i = 0; i < scene->mNumMaterials; i++)
+	for (unsigned int i = 0; i < pAiScene->mNumMaterials; i++)
 	{
 		FbxSurfaceMaterial* fbxMaterial = fbxScene->GetMaterial(i);
 		FbxProperty property;
@@ -236,64 +250,83 @@ void Importer::ProcessMaterial(const aiScene * scene)
 	}
 }
 
-void Importer::ProcessMesh(const aiScene * scene)
+void Importer::ProcessMesh(const aiScene * pAiScene)
 {
-	m_meshes.resize(scene->mNumMeshes);
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
-	{
-		const aiMesh* mesh = scene->mMeshes[i];
-		MeshData& meshData = m_meshes[i];
+	mMeshes.resize(pAiScene->mNumMeshes);
 
-		meshData.name = mesh->mName.C_Str();
-		meshData.materialIndex = mesh->mMaterialIndex;
-		meshData.numVertices = mesh->mNumVertices;
-		meshData.numIndices = mesh->mNumFaces * 3;
+	for (unsigned int i = 0; i < pAiScene->mNumMeshes; i++)
+	{
+		const aiMesh* pAiMesh = pAiScene->mMeshes[i];
+		MeshData& meshData = mMeshes[i];
+
+		meshData.name = pAiMesh->mName.C_Str();
+		meshData.materialIndex = pAiMesh->mMaterialIndex;
+		meshData.numVertices = pAiMesh->mNumVertices;
+		meshData.numIndices = pAiMesh->mNumFaces * 3;
 		meshData.attribute = 0;
 
-		if (mesh->HasPositions())
+		if (pAiMesh->HasPositions())
 		{
-			meshData.positions.assign(
-				reinterpret_cast<Vector3*>(mesh->mVertices),
-				reinterpret_cast<Vector3*>(mesh->mVertices) + mesh->mNumVertices);
+			meshData.mPositions.assign(
+				reinterpret_cast<Vector3*>(pAiMesh->mVertices),
+				reinterpret_cast<Vector3*>(pAiMesh->mVertices) + pAiMesh->mNumVertices);
 		}
-		if (mesh->HasNormals())
+		if (pAiMesh->HasNormals())
 		{
 			meshData.attribute |= Mesh::NORMAL;
-			meshData.normals.assign(
-				reinterpret_cast<Vector3*>(mesh->mNormals),
-				reinterpret_cast<Vector3*>(mesh->mNormals) + mesh->mNumVertices);
+			meshData.mNormals.assign(
+				reinterpret_cast<Vector3*>(pAiMesh->mNormals),
+				reinterpret_cast<Vector3*>(pAiMesh->mNormals) + pAiMesh->mNumVertices);
 		}
-		if (mesh->HasTangentsAndBitangents())
+		if (pAiMesh->HasTangentsAndBitangents())
 		{
 			meshData.attribute |= Mesh::TANGENT;
-			meshData.tangents.assign(
-				reinterpret_cast<Vector3*>(mesh->mTangents),
-				reinterpret_cast<Vector3*>(mesh->mTangents) + mesh->mNumVertices);
-			meshData.binormals.assign(
-				reinterpret_cast<Vector3*>(mesh->mBitangents),
-				reinterpret_cast<Vector3*>(mesh->mBitangents) + mesh->mNumVertices);
+			meshData.mTangents.assign(
+				reinterpret_cast<Vector3*>(pAiMesh->mTangents),
+				reinterpret_cast<Vector3*>(pAiMesh->mTangents) + pAiMesh->mNumVertices);
+			meshData.mBinormals.assign(
+				reinterpret_cast<Vector3*>(pAiMesh->mBitangents),
+				reinterpret_cast<Vector3*>(pAiMesh->mBitangents) + pAiMesh->mNumVertices);
 		}
-		if (mesh->HasTextureCoords(0))
+		if (pAiMesh->HasTextureCoords(0))
 		{
 			meshData.attribute |= Mesh::TEXCOORD;
-			meshData.texcoords.resize(mesh->mNumVertices);
-			for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
-				meshData.texcoords[j].x = mesh->mTextureCoords[0][j].x;
-				meshData.texcoords[j].y = mesh->mTextureCoords[0][j].y;
+			meshData.mTexcoords.resize(pAiMesh->mNumVertices);
+			for (unsigned int j = 0; j < pAiMesh->mNumVertices; j++) {
+				meshData.mTexcoords[j].x = pAiMesh->mTextureCoords[0][j].x;
+				meshData.mTexcoords[j].y = pAiMesh->mTextureCoords[0][j].y;
 			}
 		}
-		if (mesh->HasBones())
+		if (pAiMesh->HasBones())
 		{
-			mesh->mBones;
+			meshData.attribute != Mesh::SKIN;
+			meshData.mBlendIndices.resize(pAiMesh->mNumVertices, Vector4());
+			meshData.mBlendWeights.resize(pAiMesh->mNumVertices, Vector4());
+			for (unsigned int j = 0; j < pAiMesh->mNumBones; j++) {
+				aiBone* pMeshBone = pAiMesh->mBones[j];
+				for (unsigned int k = 0; k < pMeshBone->mNumWeights; k++) {
+					aiVertexWeight& Weight = pMeshBone->mWeights[k];
+					for (unsigned int l = 0; l < 4; l++) {
+						float* pBlendIndex = reinterpret_cast<float*>(&meshData.mBlendIndices[Weight.mVertexId]) + l;
+						float* pBlendWeight = reinterpret_cast<float*>(&meshData.mBlendWeights[Weight.mVertexId]) + l;
+						if (*pBlendWeight == 0) {
+							*pBlendIndex = j;
+							*pBlendWeight = Weight.mWeight;
+							break;
+						}
+					}
+				}
+				//meshData.mBindposeInverses[j] = pMeshBone->mOffsetMatrix;
+			}
 		}
 
-		meshData.indices.resize(mesh->mNumFaces * 3);
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		meshData.mIndices.resize(pAiMesh->mNumFaces * 3);
+		for (unsigned int i = 0; i < pAiMesh->mNumFaces; i++)
 		{
-			assert(mesh->mFaces[i].mNumIndices == 3);
-			meshData.indices[i * 3 + 0] = mesh->mFaces[i].mIndices[0];
-			meshData.indices[i * 3 + 1] = mesh->mFaces[i].mIndices[1];
-			meshData.indices[i * 3 + 2] = mesh->mFaces[i].mIndices[2];
+			assert(pAiMesh->mFaces[i].mNumIndices == 3);
+			meshData.mIndices[i * 3 + 0] = pAiMesh->mFaces[i].mIndices[0];
+			meshData.mIndices[i * 3 + 1] = pAiMesh->mFaces[i].mIndices[1];
+			meshData.mIndices[i * 3 + 2] = pAiMesh->mFaces[i].mIndices[2];
 		}
 	}
 }

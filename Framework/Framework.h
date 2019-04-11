@@ -41,6 +41,7 @@
 #include "./Utility/FileStream.h"
 #include "./Utility/Geometry.h"
 #include "./Utility/ChunkAllocator.h"
+#include "./Utility/Serializable.h"
 
 //Graphics
 #include "D3D11/ConstantBuffer.h"

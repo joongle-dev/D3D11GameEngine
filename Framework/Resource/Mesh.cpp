@@ -12,7 +12,7 @@ Mesh::Mesh(Context * context) :
 
 void Mesh::Create(Geometry & geometry)
 {
-	m_name = "";
+	mName = "";
 	mNumVertices = geometry.positions.size();
 	mNumIndices  = geometry.indices.size();
 	mAttributes   = 0;
@@ -81,7 +81,7 @@ void Mesh::LoadFromFile(const std::string & path)
 	file.Open(path);
 
 	//Read mesh properties
-	file.Read(m_name);
+	file.Read(mName);
 	file.Read(mNumVertices);
 	file.Read(mNumIndices);
 	file.Read(mAttributes);
