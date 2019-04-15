@@ -82,11 +82,11 @@ void SceneWidget::ShowFrame()
 
 void SceneWidget::ShowGizmo()
 {
-	if (!EditorHelper::selected)
+	if (!EditorHelper::sSelected)
 		return;
 
 	auto camera = m_camera->GetComponent<Camera>();
-	auto transform = EditorHelper::selected->GetComponent<Transform>();
+	auto transform = EditorHelper::sSelected->GetComponent<Transform>();
 
 	static ImGuizmo::OPERATION operation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mode(ImGuizmo::WORLD);

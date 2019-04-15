@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "json.hpp"
 
 template <class Class>
@@ -7,6 +8,8 @@ class Serializable
 public:
 	using Json = nlohmann::json;
 
+	template <typename T>
+	using member_ptr = T Class::*;
 	template <typename T>
 	using const_ref_getter_ptr_t = const T& (Class::*)() const;
 	template <typename T>
@@ -33,8 +36,11 @@ public:
 		virtual void FromJson(Class& object, const Json& j) = 0;
 	};
 
+	template <typename ...PARAM>
+	class Field : public IField { };
+
 	template <typename GET, typename SET>
-	class Field : public IField
+	class Field<GET, SET>
 	{
 	private:
 		GET mGetter;
@@ -53,9 +59,33 @@ public:
 		}
 	};
 
+	template <typename T>
+	class Field<member_ptr<T>>
+	{
+	private:
+		member_ptr<T> mMember;
+
+	public:
+		Field(member_ptr<T> member) : mMember(member) {}
+
+		Json ToJson(Class& object) override
+		{
+			return Json(object.*mMember);
+		}
+		void FromJson(Class& object, const Json& j) override
+		{
+			object.*mMember = j;
+		}
+	};
+
 	using FieldPtr = std::pair<std::string, IField*>;
 
 public:
+	template <typename T>
+	static void SerializeField(const std::string& name, member_ptr<T> member)
+	{
+		sSerializeFields.emplace_back(name, new Field(member));
+	}
 	template <typename T>
 	static void SerializeField(const std::string& name, const_ref_getter_ptr_t<T> getter, const_ref_setter_ptr_t<T> setter)
 	{
@@ -76,6 +106,7 @@ public:
 	{
 		sSerializeFields.emplace_back(name, new Field(getter, setter));
 	}
+
 	static Json Serialize(Class& object)
 	{
 		Json serialized;

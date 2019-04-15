@@ -33,6 +33,10 @@ void Material::LoadFromFile(const std::string & path)
 		mTextures[Normal] = mResourceManager->Load<Texture>(stringbuf);
 }
 
+void Material::SaveToFile(const std::string & path)
+{
+}
+
 unsigned int Material::GetShaderFlags() const
 {
 	unsigned int flags = 0;

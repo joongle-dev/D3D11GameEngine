@@ -102,11 +102,11 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 
 		ID3D11Buffer* vbs[] =
 		{
-			pMesh->GetPositions(),
+			pMesh->GetPositionBuffer(),
 		};
 
 		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
-		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 		GetMatchingShader(DEPTH_PASS)->Bind();
 		mDepthPassBlend->Bind();
@@ -131,10 +131,10 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 		
 		ID3D11Buffer* vbs[] =
 		{
-			pMesh->GetPositions(),
-			pMesh->GetNormals(),
-			pMesh->GetTangents(),
-			pMesh->GetTexcoords(),
+			pMesh->GetPositionBuffer(),
+			pMesh->GetNormalBuffer(),
+			pMesh->GetTangentBuffer(),
+			pMesh->GetTexcoordBuffer(),
 		};
 		
 		ID3D11ShaderResourceView* srv[] =
@@ -148,7 +148,7 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 		
 		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
-		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
 		
 		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)

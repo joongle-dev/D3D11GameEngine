@@ -9,3 +9,7 @@ Prefab::Prefab(Context * context) :
 void Prefab::LoadFromFile(const std::string & path)
 {
 }
+
+void Prefab::SaveToFile(const std::string & path)
+{
+}

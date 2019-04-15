@@ -42,6 +42,10 @@ void Texture::LoadFromFile(const std::string & filename)
 	device->CreateShaderResourceView(tex.Get(), nullptr, m_shaderResourceView.ReleaseAndGetAddressOf());
 }
 
+void Texture::SaveToFile(const std::string & filename)
+{
+}
+
 std::vector<uint8_t> Texture::LoadRGBAImage(std::wstring filename)
 {
 	ComPtr<IWICImagingFactory> wicFactory;

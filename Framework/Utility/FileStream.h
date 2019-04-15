@@ -5,22 +5,35 @@
 class FileStreamRead final
 {
 public:
-	FileStreamRead() = default;
-	~FileStreamRead() = default;
+	FileStreamRead() : bOpen(false) {}
+	FileStreamRead(const std::string& path)
+	{
+		Open(path);
+	}
+	~FileStreamRead()
+	{
+		Close();
+	}
 
 	void Open(const std::string& path)
 	{
 		stream.open(path, std::ios::in | std::ios::binary);
 		assert((!stream.fail(), "Failed to open file"));
+		bOpen = true;
 	}
 	void Open(const std::wstring& path)
 	{
 		stream.open(path, std::ios::in | std::ios::binary);
 		assert((!stream.fail(), "Failed to open file"));
+		bOpen = true;
 	}
 	void Close()
 	{
-		stream.close();
+		if (bOpen)
+		{
+			stream.close();
+			bOpen = false;
+		}
 	}
 
 	void Read(void* ptr, size_t size)
@@ -49,55 +62,77 @@ public:
 	{
 		stream.read(reinterpret_cast<char*>(&value), sizeof(T));
 	}
+	template <typename T>
+	T Read()
+	{
+		T value;
+		Read(value);
+		return value;
+	}
 
 private:
 	std::ifstream stream;
+	bool bOpen;
 };
 
 class FileStreamWrite final
 {
 public:
-	FileStreamWrite() = default;
-	~FileStreamWrite() = default;
+	FileStreamWrite() : bOpen(false) {}
+	FileStreamWrite(const std::string& path)
+	{
+		Open(path);
+	}
+	~FileStreamWrite()
+	{
+		Close();
+	}
 
 	void Open(const std::string& path)
 	{
 		stream.open(path, std::ios::out | std::ios::binary);
 		assert((!stream.fail(), "Failed to create file"));
+		bOpen = true;
 	}
 	void Open(const std::wstring& path)
 	{
 		stream.open(path, std::ios::out | std::ios::binary);
 		assert((!stream.fail(), "Failed to create file"));
+		bOpen = true;
 	}
 	void Close()
 	{
-		stream.close();
+		if (bOpen)
+		{
+			stream.close();
+			bOpen = false;
+		}
 	}
 
 	void Write(void* ptr, size_t size)
 	{
 		stream.write(reinterpret_cast<const char*>(ptr), size);
 	}
-	void Write(std::string& value)
+	void Write(const std::string& value)
 	{
 		uint32_t length = value.length();
 		Write(length);
 		stream.write(value.data(), length);
 	}
 	template <typename T>
-	void Write(std::vector<T>& value)
+	void Write(const std::vector<T>& value)
 	{
 		uint32_t length = value.size();
 		Write(length);
 		stream.write(reinterpret_cast<const char*>(value.data()), sizeof(T) * length);
 	}
 	template <typename T>
-	void Write(T& value)
+	void Write(const T& value)
 	{
 		stream.write(reinterpret_cast<const char*>(&value), sizeof(T));
 	}
 
 private:
 	std::ofstream stream;
+	bool bOpen;
 };

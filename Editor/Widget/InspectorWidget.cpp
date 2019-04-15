@@ -10,14 +10,14 @@ InspectorWidget::InspectorWidget(Context * context) :
 
 void InspectorWidget::Render()
 {
-	if (!EditorHelper::selected || !m_visible)
+	if (!EditorHelper::sSelected || !m_visible)
 		return;
 
 	ImGui::Text("Name");
-	std::string str = EditorHelper::selected->GetName();
-	str.reserve(128);
-	ImGui::InputText("##Name", str.data(), 128);
-	EditorHelper::selected->SetName(str);
+	char str[128];
+	strcpy_s(str, 128, EditorHelper::sSelected->GetName().c_str());
+	ImGui::InputText("##Name", str, 128);
+	EditorHelper::sSelected->SetName(str);
 	ImGui::NewLine();
 	
 	ShowTransform();
@@ -27,7 +27,7 @@ void InspectorWidget::Render()
 
 void InspectorWidget::ShowTransform()
 {
-	Transform* transform = EditorHelper::selected->GetComponent<Transform>();
+	Transform* transform = EditorHelper::sSelected->GetComponent<Transform>();
 	if (!transform)	return;
 
 	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
@@ -53,7 +53,7 @@ void InspectorWidget::ShowTransform()
 
 void InspectorWidget::ShowCamera()
 {
-	Camera* camera = EditorHelper::selected->GetComponent<Camera>();
+	Camera* camera = EditorHelper::sSelected->GetComponent<Camera>();
 	if (!camera)	return;
 
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
@@ -79,11 +79,19 @@ void InspectorWidget::ShowCamera()
 
 void InspectorWidget::ShowMeshRender()
 {
-	MeshRenderer* renderer = EditorHelper::selected->GetComponent<MeshRenderer>();
-	if (!renderer)	return;
+	MeshRenderer* pMeshRenderer = EditorHelper::sSelected->GetComponent<MeshRenderer>();
+	if (!pMeshRenderer)	return;
 
 	if (ImGui::CollapsingHeader("MeshRenderer", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		char strbuf[128] = "";
+		if (Mesh* pMesh = pMeshRenderer->GetMesh())
+			strcpy_s(strbuf, 128, pMesh->GetName().c_str());
+		ImGui::InputText("##Mesh", strbuf, 128);
+		ImGui::NewLine();
+		if (Material* pMaterial = pMeshRenderer->GetMaterial())
+			strcpy_s(strbuf, 128, pMaterial->GetName().c_str());
+		ImGui::InputText("##Material", strbuf, 128);
 		ImGui::NewLine();
 	}
 }

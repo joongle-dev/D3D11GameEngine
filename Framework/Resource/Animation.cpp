@@ -9,3 +9,7 @@ Animation::Animation(Context * context) :
 void Animation::LoadFromFile(const std::string & path)
 {
 }
+
+void Animation::SaveToFile(const std::string & path)
+{
+}

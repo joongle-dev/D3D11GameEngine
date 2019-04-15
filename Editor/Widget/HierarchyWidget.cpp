@@ -10,7 +10,7 @@ HierarchyWidget::HierarchyWidget(Context * context) :
 void HierarchyWidget::Render()
 {
 	if (ImGui::IsWindowHovered(0) && ImGui::IsMouseClicked(0))
-		EditorHelper::selected = nullptr;
+		EditorHelper::sSelected = nullptr;
 
 	SceneNode(m_context->GetSubsystem<SceneManager>()->GetCurrentScene());
 }
@@ -38,7 +38,7 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	std::string label = object->GetName() + "##" + std::to_string(object->GetInstanceID());
 	
 	//Node flags
-	ImGuiTreeNodeFlags flags = (EditorHelper::selected == object ? 
+	ImGuiTreeNodeFlags flags = (EditorHelper::sSelected == object ? 
 		ImGuiTreeNodeFlags_Selected : 0) |
 		ImGuiTreeNodeFlags_DefaultOpen |
 		ImGuiTreeNodeFlags_OpenOnDoubleClick |
@@ -52,7 +52,7 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	DropTarget(transform);
 	ContextMenu(scene, transform);
 	if (ImGui::IsItemClicked(0))
-		EditorHelper::selected = object;
+		EditorHelper::sSelected = object;
 
 	//If node was open, display its child nodes (this transform's children)
 	if (open)
@@ -107,7 +107,7 @@ void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 		if (ImGui::MenuItem("Delete"))
 		{
 			scene->Destroy(transform->GetOwner());
-			EditorHelper::selected = nullptr;
+			EditorHelper::sSelected = nullptr;
 		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Create Empty"))

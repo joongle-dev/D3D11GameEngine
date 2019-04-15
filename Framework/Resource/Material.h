@@ -20,6 +20,7 @@ public:
 	~Material() = default;
 
 	void LoadFromFile(const std::string& path) override;
+	void SaveToFile(const std::string& path) override;
 
 	ID3D11ShaderResourceView* GetShaderResource(const TextureType type) { return mTextures[type] ? mTextures[type]->GetShaderResource() : nullptr; }
 	class Texture* GetTexture(const TextureType type) { return mTextures[type]; }

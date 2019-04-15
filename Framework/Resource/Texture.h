@@ -8,6 +8,7 @@ public:
 	~Texture() = default;
 
 	void LoadFromFile(const std::string& filename) override;
+	void SaveToFile(const std::string& filename) override;
 
 	ID3D11ShaderResourceView* GetShaderResource() const { return m_shaderResourceView.Get(); }
 

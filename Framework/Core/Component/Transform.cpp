@@ -6,76 +6,76 @@ using namespace DirectX;
 
 Transform::Transform(Context* context, GameObject* owner) :
 	Component<Transform>(context, owner),
-	m_localScale(1, 1, 1),
-	m_localRotation(0, 0, 0, 1),
-	m_localPosition(0, 0, 0),
-	m_parent(nullptr),
-	m_dirty(true) {}
+	mLocalScale(1, 1, 1),
+	mLocalRotation(0, 0, 0, 1),
+	mLocalPosition(0, 0, 0),
+	mParent(nullptr),
+	mIsChanged(true) {}
 
 Transform::~Transform()
 {
 	//Remove self from parent's children
-	if (m_parent)
-		m_parent->RemoveChild(this);
+	if (mParent)
+		mParent->RemoveChild(this);
 }
 
 Transform::Transform(const Transform & rhs) :
 	Component<Transform>(rhs.m_context, nullptr)
 {
-	m_localScale = rhs.m_localScale;
-	m_localRotation = rhs.m_localRotation;
-	m_localPosition = rhs.m_localPosition;
+	mLocalScale = rhs.mLocalScale;
+	mLocalRotation = rhs.mLocalRotation;
+	mLocalPosition = rhs.mLocalPosition;
 }
 
 void Transform::Update()
 {
 	//If update flag is true
-	if (m_dirty)
+	if (mIsChanged)
 	{
 		//Create new local transformation matrix
-		m_localMatrix = XMMatrixAffineTransformation(m_localScale, XMVectorSet(0, 0, 0, 1), m_localRotation, m_localPosition);
+		mLocalMatrix = XMMatrixAffineTransformation(mLocalScale, XMVectorSet(0, 0, 0, 1), mLocalRotation, mLocalPosition);
 
 		//Create new world transformation matrix
-		if (m_parent)
-			m_worldMatrix = XMMatrixMultiply(m_localMatrix, m_parent->GetWorldTransform());
+		if (mParent)
+			mWorldMatrix = XMMatrixMultiply(mLocalMatrix, mParent->GetWorldTransform());
 		else
-			m_worldMatrix = m_localMatrix;
+			mWorldMatrix = mLocalMatrix;
 
 		//Turn off update flag
-		m_dirty = false;
+		mIsChanged = false;
 	}
 }
 
 void Transform::SetScale(const Vector3 vec)
 {
-	if (m_parent) {
-		Vector3 parent = m_parent->GetScale();
-		m_localScale.x = vec.x / parent.x;
-		m_localScale.y = vec.y / parent.y;
-		m_localScale.z = vec.z / parent.z;
+	if (mParent) {
+		Vector3 parent = mParent->GetScale();
+		mLocalScale.x = vec.x / parent.x;
+		mLocalScale.y = vec.y / parent.y;
+		mLocalScale.z = vec.z / parent.z;
 	}
 	else
-		m_localScale = vec;
+		mLocalScale = vec;
 	
 	SetUpdateFlag();
 }
 
 void Transform::SetRotation(const Quaternion quat)
 {
-	if (m_parent)
-		m_localRotation = XMQuaternionMultiply(quat, XMQuaternionInverse(m_parent->GetRotation()));
+	if (mParent)
+		mLocalRotation = XMQuaternionMultiply(quat, XMQuaternionInverse(mParent->GetRotation()));
 	else
-		m_localRotation = quat;
+		mLocalRotation = quat;
 
 	SetUpdateFlag();
 }
 
 void Transform::SetPosition(const Vector3 vec)
 {
-	if (m_parent)
-		m_localPosition = XMVector3TransformCoord(vec, XMMatrixInverse(nullptr, m_parent->GetWorldTransform()));
+	if (mParent)
+		mLocalPosition = XMVector3TransformCoord(vec, XMMatrixInverse(nullptr, mParent->GetWorldTransform()));
 	else
-		m_localPosition = vec;
+		mLocalPosition = vec;
 
 	SetUpdateFlag();
 }
@@ -155,12 +155,12 @@ void Transform::Translate(Vector3 translation)
 void Transform::SetParent(Transform * parent)
 {
 	//Remove self from parent's children
-	if (m_parent)
-  		m_parent->RemoveChild(this);
+	if (mParent)
+  		mParent->RemoveChild(this);
 
 	//Change parent and add self to new parent's children
-	m_parent = parent;
-	parent->m_children.push_back(this);
+	mParent = parent;
+	parent->mChildren.push_back(this);
 
 	SetUpdateFlag();
 }
@@ -168,16 +168,16 @@ void Transform::SetParent(Transform * parent)
 void Transform::RemoveChild(Transform * child)
 {
 	//Search and remove child
-	for (auto iter = m_children.begin(); iter != m_children.end(); iter++)
+	for (auto iter = mChildren.begin(); iter != mChildren.end(); iter++)
 		if (*iter == child) {
-			m_children.erase(iter);
+			mChildren.erase(iter);
 			return;
 		}
 }
 
 void Transform::SetUpdateFlag()
 {
-	m_dirty = true;
-	for (auto child : m_children)
+	mIsChanged = true;
+	for (auto child : mChildren)
 		child->SetUpdateFlag();
 }

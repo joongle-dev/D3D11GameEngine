@@ -4,14 +4,20 @@
 class Mesh final : public Resource<Mesh>
 {
 public:
-	enum VertexAttribute : uint32_t
+	enum VertexAttribute : UINT
 	{
-		POSITION = 1 << 0,
-		TEXCOORD = 1 << 1,
-		NORMAL   = 1 << 2,
-		TANGENT  = 1 << 3,
-		SKIN     = 1 << 4,
-		COLOR    = 1 << 5,
+		Position = 1 << 0,
+		Texcoord = 1 << 1,
+		Normal   = 1 << 2,
+		Tangent  = 1 << 3,
+		Skin     = 1 << 4,
+		Color    = 1 << 5,
+	};
+
+	struct Bone
+	{
+		std::string BoneName;
+		Matrix InverseTransform;
 	};
 
 public:
@@ -21,16 +27,37 @@ public:
 	void Create(Geometry& geometry);
 
 	void LoadFromFile(const std::string& path) override;
+	void SaveToFile(const std::string& path) override;
 
-	const unsigned int GetIndexCount() const { return mNumIndices; }
-	const unsigned int GetVertexCount() const { return mNumVertices; }
+	void CreateBuffers();
 
-	ID3D11Buffer* GetIndices()   const { return mIndices.Get(); }
-	ID3D11Buffer* GetPositions() const { return mPositions.Get(); }
-	ID3D11Buffer* GetNormals()   const { return mNormals.Get(); }
-	ID3D11Buffer* GetTangents()  const { return mTangents.Get(); }
-	ID3D11Buffer* GetBinormals() const { return mBinormals.Get(); }
-	ID3D11Buffer* GetTexcoords() const { return mTexcoords.Get(); }
+	void SetIndexCount(UINT count);
+	void SetVertexCount(UINT count);
+	void SetAttributes(UINT attribute);
+
+	const UINT GetVertexCount() const { return mNumVertices; }
+	const UINT GetIndexCount()  const { return mNumIndices; }
+	const UINT GetAttributes()  const { return mAttributes; }
+
+	uint32_t* GetIndexData()       { return mIndices.data(); }
+	Vector3*  GetPositionData()    { return mPositions.data(); }
+	Vector3*  GetNormalData()      { return mNormals.data(); }
+	Vector3*  GetTangentData()     { return mTangents.data(); }
+	Vector3*  GetBinormalData()    { return mBinormals.data(); }
+	Vector2*  GetTexcoordData()    { return mTexcoords.data(); }
+	Vector4*  GetBlendIndexData()  { return mBlendIndices.data(); }
+	Vector4*  GetBlendWeightData() { return mBlendIndices.data(); }
+
+	Bone* GetBoneData() { return mInverseBone.data(); }
+	UINT GetBoneCount() { return mInverseBone.size(); }
+	void SetBoneCount(UINT count) { mInverseBone.resize(count); }
+
+	ID3D11Buffer* GetIndexBuffer()    const { return mIndexBuffer.Get(); }
+	ID3D11Buffer* GetPositionBuffer() const { return mPositionBuffer.Get(); }
+	ID3D11Buffer* GetNormalBuffer()   const { return mNormalBuffer.Get(); }
+	ID3D11Buffer* GetTangentBuffer()  const { return mTangentBuffer.Get(); }
+	ID3D11Buffer* GetBinormalBuffer() const { return mBinormalBuffer.Get(); }
+	ID3D11Buffer* GetTexcoordBuffer() const { return mTexcoordBuffer.Get(); }
 
 private:
 	class Graphics* mGraphics;
@@ -39,13 +66,24 @@ private:
 	uint32_t mNumIndices;
 	uint32_t mAttributes;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mIndices;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mPositions;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mNormals;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mTangents;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mBinormals;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mTexcoords;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mColors;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mBlendIndices;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mBlendWeights;
+	std::vector<uint32_t> mIndices;
+	std::vector<Vector3> mPositions;
+	std::vector<Vector3> mNormals;
+	std::vector<Vector3> mTangents;
+	std::vector<Vector3> mBinormals;
+	std::vector<Vector2> mTexcoords;
+	std::vector<Vector4> mColors;
+	std::vector<Vector4> mBlendIndices;
+	std::vector<Vector4> mBlendWeights;
+	std::vector<Bone> mInverseBone;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mIndexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mPositionBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mNormalBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mTangentBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBinormalBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mTexcoordBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mColorBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBlendIndicesBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBlendWeightsBuffer;
 };

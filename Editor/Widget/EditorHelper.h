@@ -3,5 +3,5 @@
 class EditorHelper final
 {
 public:
-	static class GameObject* selected;
+	static class GameObject* sSelected;
 };

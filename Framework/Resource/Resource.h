@@ -11,8 +11,10 @@ public:
 	virtual ~IResource() = default;
 
 	virtual void LoadFromFile(const std::string& path) = 0;
+	virtual void SaveToFile(const std::string& path) = 0;
 
 	const std::string& GetName() const { return mName; }
+	void SetName(const std::string& name) { mName = name; }
 
 protected:
 	class Context* mContext;

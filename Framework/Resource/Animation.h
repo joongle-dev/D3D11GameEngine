@@ -10,20 +10,15 @@ class Animation final : public Resource<Animation>
 		Quaternion mRotation;
 		Vector3    mPosition;
 	};
-	struct BoneAnimation
-	{
-		std::string mBoneName;
-		std::vector<BoneAnimationKeyframe> mKeyframes;
-	};
+	using BoneAnimation = std::pair<std::string, std::vector<BoneAnimationKeyframe>>;
 
 public:
 	Animation(class Context* context);
 	~Animation() = default;
 
 	void LoadFromFile(const std::string& path) override;
-
-	const std::vector<BoneAnimation>& GetBoneAnimations() const { return mBoneAnims; }
+	void SaveToFile(const std::string& path) override;
 
 private:
-	std::vector<BoneAnimation> mBoneAnims;
+	std::map<std::string, std::vector<BoneAnimationKeyframe>> mBoneAnims;
 };

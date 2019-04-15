@@ -13,12 +13,12 @@ public:
 	void Update() override;
 
 	//Local transform mutator and accessors
-	void SetLocalScale(const Vector3 vec) { m_localScale = vec; SetUpdateFlag(); }
-	void SetLocalRotation(const Quaternion quat) { m_localRotation = quat; SetUpdateFlag(); }
-	void SetLocalPosition(const Vector3 vec) { m_localPosition = vec; SetUpdateFlag(); }
-	const Vector3& GetLocalScale() const { return m_localScale; }
-	const Quaternion& GetLocalRotation() const { return m_localRotation; }
-	const Vector3& GetLocalPosition() const { return m_localPosition; }
+	void SetLocalScale(const Vector3 vec) { mLocalScale = vec; SetUpdateFlag(); }
+	void SetLocalRotation(const Quaternion quat) { mLocalRotation = quat; SetUpdateFlag(); }
+	void SetLocalPosition(const Vector3 vec) { mLocalPosition = vec; SetUpdateFlag(); }
+	const Vector3& GetLocalScale() const { return mLocalScale; }
+	const Quaternion& GetLocalRotation() const { return mLocalRotation; }
+	const Vector3& GetLocalPosition() const { return mLocalPosition; }
 
 	//World transform mutators and accessors
 	void SetScale(const Vector3 vec);
@@ -29,8 +29,8 @@ public:
 	const Vector3 GetPosition();
 
 	//Matrix accessors
-	const Matrix& GetLocalTransform() { Update(); return m_localMatrix; }
-	const Matrix& GetWorldTransform() { Update(); return m_worldMatrix; }
+	const Matrix& GetWorldTransform() { Update(); return mWorldMatrix; }
+	const Matrix& GetLocalTransform() { Update(); return mLocalMatrix; }
 
 	//Transform accessors and mutators
 	void RotateAxis(Vector3 axis, float angle);
@@ -45,13 +45,13 @@ public:
 	const Vector3 GetUp() { return Vector3::Transform(Vector3(0, 1, 0), GetRotation()); }
 	
 	//Hierarchy accessors and mutators
-	const bool HasParent() const { return m_parent ? true : false; }
-	const bool HasChild() const { return !m_children.empty(); }
+	const bool HasParent() const { return mParent ? true : false; }
+	const bool HasChild() const { return !mChildren.empty(); }
 	void SetParent(Transform* parent);
-	Transform* GetParent() const { return m_parent; }
-	const size_t GetChildCount() const { return m_children.size(); }
+	Transform* GetParent() const { return mParent; }
+	const size_t GetChildCount() const { return mChildren.size(); }
 	void AddChild(Transform* child) { child->SetParent(this); }
-	Transform* GetChild(size_t index) const { return index < m_children.size() ? m_children[index] : nullptr;}
+	Transform* GetChild(size_t index) const { return index < mChildren.size() ? mChildren[index] : nullptr;}
 
 	const int GetTest() { return 0; }
 	void SetTest(const int a) { return; }
@@ -61,13 +61,13 @@ private:
 	void SetUpdateFlag();
 
 private:
-	Vector3		m_localScale;
-	Quaternion	m_localRotation;
-	Vector3		m_localPosition;
-	Matrix		m_localMatrix;
-	Matrix		m_worldMatrix;
+	Vector3		mLocalScale;
+	Quaternion	mLocalRotation;
+	Vector3		mLocalPosition;
+	Matrix		mLocalMatrix;
+	Matrix		mWorldMatrix;
 	
-	bool		m_dirty;
-	Transform*	m_parent;
-	std::vector<Transform*>	m_children;
+	bool		mIsChanged;
+	Transform*	mParent;
+	std::vector<Transform*>	mChildren;
 };
