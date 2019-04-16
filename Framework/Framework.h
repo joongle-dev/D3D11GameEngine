@@ -9,7 +9,6 @@
 #include <Windows.h>
 
 #include <assert.h>
-#include <wincodec.h>
 #include <wrl.h>
 
 //STL

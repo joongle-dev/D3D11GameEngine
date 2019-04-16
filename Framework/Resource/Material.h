@@ -6,7 +6,7 @@ class Material final : public Resource<Material>
 public:
 	enum TextureType : unsigned int
 	{
-		Albedo,
+		Albedo = 0,
 		Roughness,
 		Metallic,
 		Emissive,

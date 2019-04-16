@@ -38,21 +38,21 @@ int APIENTRY WinMain(
 	//meshrender->SetMesh(resources->Load<Mesh>("Paladin_J_Nordstrom.mesh"));
 	//meshrender->SetMaterial(resources->Load<Material>("Paladin_MAT.mat"));
 	
-	Material* material = new Material(context);
-	material->SetTexture(Material::Albedo, resources->Load<Texture>("green-ceramic-tiles_basecolor.png"));
-	material->SetTexture(Material::Normal, resources->Load<Texture>("green-ceramic-tiles_normal-dx.png"));
-	//material->SetTexture(Material::Normal, resources->Load<Texture>("Untitled.png"));
-	material->SetTexture(Material::Height, resources->Load<Texture>("green-ceramic-tiles_Height.png"));
-	//material->SetTexture(Material::Height, resources->Load<Texture>("Untitled1.png"));
-	material->SetTexture(Material::Roughness, resources->Load<Texture>("green-ceramic-tiles_roughness.png"));
-	material->SetTexture(Material::Metallic, resources->Load<Texture>("green-ceramic-tiles_metallic.png"));
-	
-	GameObject* object0 = scene->Instantiate();
-	object0->SetName("Tile");
-	//object0->GetComponent<Transform>()->SetScale(Vector3(10, 10, 10));
-	MeshRenderer* meshrender0 = object0->AddComponent<MeshRenderer>();
-	meshrender0->SetMesh(sphere);
-	meshrender0->SetMaterial(material);
+	//Material* material = new Material(context);
+	//material->SetTexture(Material::Albedo, resources->Load<Texture>("green-ceramic-tiles_basecolor.png"));
+	//material->SetTexture(Material::Normal, resources->Load<Texture>("green-ceramic-tiles_normal-dx.png"));
+	////material->SetTexture(Material::Normal, resources->Load<Texture>("Untitled.png"));
+	//material->SetTexture(Material::Height, resources->Load<Texture>("green-ceramic-tiles_Height.png"));
+	////material->SetTexture(Material::Height, resources->Load<Texture>("Untitled1.png"));
+	//material->SetTexture(Material::Roughness, resources->Load<Texture>("green-ceramic-tiles_roughness.png"));
+	//material->SetTexture(Material::Metallic, resources->Load<Texture>("green-ceramic-tiles_metallic.png"));
+	//
+	//GameObject* object0 = scene->Instantiate();
+	//object0->SetName("Tile");
+	////object0->GetComponent<Transform>()->SetScale(Vector3(10, 10, 10));
+	//MeshRenderer* meshrender0 = object0->AddComponent<MeshRenderer>();
+	//meshrender0->SetMesh(sphere);
+	//meshrender0->SetMaterial(material);
 	
 	//material = new Material(context);
 	//material->SetTexture(Material::Albedo, resources->Load<Texture>("bark1-albedo.png"));

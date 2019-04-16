@@ -102,11 +102,12 @@ public:
 	}
 	void Close()
 	{
-		if (bOpen)
-		{
-			stream.close();
-			bOpen = false;
-		}
+		stream.close();
+		//if (bOpen)
+		//{
+		//	stream.close();
+		//	bOpen = false;
+		//}
 	}
 
 	void Write(void* ptr, size_t size)

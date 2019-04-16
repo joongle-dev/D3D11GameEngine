@@ -11,7 +11,6 @@ public:
 private:
 	void ProcessNodes(const struct aiScene* scene);
 
-	void ProcessFbxMaterial(const struct aiScene* scene, const std::string& filepath);
 	void ProcessAnimation(const struct aiScene* scene);
 	void ProcessMaterial(const struct aiScene* scene);
 	void ProcessMesh(const struct aiScene* scene);

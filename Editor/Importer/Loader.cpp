@@ -6,11 +6,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#define FBXSDK_NEW_API
-#define FBXSDK_SHARED 
-#include <fbxsdk.h>
-#pragma comment(lib, "libfbxsdk.lib")
-
 Vector2 AiToVector2(const aiVector3D& aiVec)
 {
 	return Vector2(
@@ -118,40 +113,6 @@ void Importer::ProcessNodes(const aiScene * pAiScene)
 	RecursiveFunc(pGameScene->GetRoot(), pAiScene->mRootNode, RecursiveFunc);
 }
 
-void Importer::ProcessFbxMaterial(const aiScene * pAiScene, const std::string & filepath)
-{
-	//using namespace fbxsdk;
-	//
-	//FbxManager* fbxManager = FbxManager::Create();
-	//FbxImporter* fbxImporter = FbxImporter::Create(fbxManager, "");
-	//FbxIOSettings* fbxIos = FbxIOSettings::Create(fbxManager, IOSROOT);
-	//fbxIos->SetBoolProp(IMP_FBX_TEXTURE, true);
-	//FbxScene* fbxScene = FbxScene::Create(fbxManager, "");
-	//fbxImporter->Initialize(filepath.c_str(), -1, fbxIos);
-	//fbxImporter->Import(fbxScene);
-	//
-	//for (unsigned int i = 0; i < pAiScene->mNumMaterials; i++)
-	//{
-	//	FbxSurfaceMaterial* fbxMaterial = fbxScene->GetMaterial(i);
-	//	FbxProperty property;
-	//
-	//	property = fbxMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
-	//	if (property.IsValid() == true && property.GetSrcObjectCount() > 0)
-	//		if (FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>())
-	//			mMaterials[i].diffuseTex = std::string(texture->GetFileName());
-	//
-	//	property = fbxMaterial->FindProperty(FbxSurfaceMaterial::sSpecular);
-	//	if (property.IsValid() == true && property.GetSrcObjectCount() > 0)
-	//		if (FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>())
-	//			mMaterials[i].specularTex = std::string(texture->GetFileName());
-	//
-	//	property = fbxMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
-	//	if (property.IsValid() == true && property.GetSrcObjectCount() > 0)
-	//		if (FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>())
-	//			mMaterials[i].normalTex = std::string(texture->GetFileName());
-	//}
-}
-
 void Importer::ProcessAnimation(const aiScene * pAiScene)
 {
 	for (unsigned int i = 0; i < pAiScene->mNumAnimations; i++)
@@ -175,14 +136,29 @@ void Importer::ProcessMaterial(const aiScene * pAiScene)
 		if (pAiMaterial->Get(AI_MATKEY_NAME, stringbuf) == AI_SUCCESS)
 			pMaterial->SetName(stringbuf.C_Str());
 
-		//if (material->Get(AI_MATKEY_NAME, stringbuf) == AI_SUCCESS)
-		//	materialData.name = stringbuf.C_Str();
-		//if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), stringbuf) == AI_SUCCESS)
-		//	materialData.diffuseTex = stringbuf.C_Str();
-		//if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), stringbuf) == AI_SUCCESS)
-		//	materialData.specularTex = stringbuf.C_Str();
-		//if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), stringbuf) == AI_SUCCESS)
-		//	materialData.normalTex = stringbuf.C_Str();
+		auto GetTexturePath = [pAiScene, pAiMaterial](aiTextureType eAiTexType, Material::TextureType TexType)->std::string
+		{
+			aiString aipath;
+			if (pAiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aipath) == AI_SUCCESS)
+			{
+				std::string texpath = aipath.C_Str();
+				texpath = "C:/Users/Stuffedbrain/source/repos/D3D11GameEngine/Assets/Texture" + texpath.substr(texpath.find_last_of("/\\"));
+				if (const aiTexture* pEmbeddedTexture = pAiScene->GetEmbeddedTexture(aipath.data))
+				{
+					FileStreamWrite w(texpath);
+
+					if (pEmbeddedTexture->mHeight)
+						w.Write(pEmbeddedTexture->pcData, pEmbeddedTexture->mWidth * pEmbeddedTexture->mHeight);
+					else
+						w.Write(pEmbeddedTexture->pcData, pEmbeddedTexture->mWidth);
+				}
+				return texpath;
+			}
+			return std::string();
+		};
+		std::string tempstring = GetTexturePath(aiTextureType_DIFFUSE, Material::Albedo);
+		Texture* temp = mContext->GetSubsystem<ResourceManager>()->Load<Texture>(tempstring);
+		pMaterial->SetTexture(Material::Albedo, temp);
 	}
 }
 

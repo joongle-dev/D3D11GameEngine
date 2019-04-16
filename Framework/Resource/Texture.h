@@ -13,9 +13,6 @@ public:
 	ID3D11ShaderResourceView* GetShaderResource() const { return m_shaderResourceView.Get(); }
 
 private:
-	std::vector<uint8_t> LoadRGBAImage(std::wstring filename);
-
-private:
 	unsigned int m_width;
 	unsigned int m_height;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;

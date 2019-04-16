@@ -40,7 +40,7 @@ inline T * ResourceManager::Load(std::string path)
 	auto iter = m_filenames[T::ResourceID].emplace(path, new T(m_context));
 	if (iter.second)
 	{
-		iter.first->second->LoadFromFile(m_directories[T::ResourceID] + path);
+		iter.first->second->LoadFromFile(path);
 		m_resources[T::ResourceID].emplace_back(iter.first->second);
 		m_names[T::ResourceID][iter.first->second->GetName()] = iter.first->second;
 	}
