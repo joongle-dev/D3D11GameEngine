@@ -144,7 +144,7 @@ void Importer::ProcessMaterial(const aiScene * pAiScene)
 			if (pAiMaterial->GetTexture(type, 0, &aipath) == AI_SUCCESS)
 			{
 				std::string texpath = aipath.C_Str();
-				texpath = "C:/Users/Stuffedbrain/source/repos/D3D11GameEngine/Assets/Texture" + texpath.substr(texpath.find_last_of("/\\"));
+				texpath = "../Assets/Texture" + texpath.substr(texpath.find_last_of("/\\"));
 				if (const aiTexture* pEmbeddedTexture = pAiScene->GetEmbeddedTexture(aipath.data))
 				{
 					FileStreamWrite w(texpath);

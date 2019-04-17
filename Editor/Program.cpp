@@ -2,7 +2,6 @@
 #include "Editor.h"
 #include "Importer/Loader.h"
 #include <filesystem>
-#include <iostream>
 
 int APIENTRY WinMain(
 	_In_ HINSTANCE hInstance,
@@ -23,7 +22,7 @@ int APIENTRY WinMain(
 	for (auto& p : std::filesystem::directory_iterator("..\\Assets\\Texture"))
 	{
 		resources->Load<Texture>(p.path().string());
-		std::cout << p.path() << "\n";
+		printf("%s\n", p.path().string().c_str());
 	}
 
 	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
