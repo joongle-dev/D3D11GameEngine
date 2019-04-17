@@ -7,12 +7,14 @@ public:
 	enum TextureType : unsigned int
 	{
 		Albedo = 0,
+		Specular,
 		Roughness,
 		Metallic,
 		Emissive,
+		Ambient,
 		Normal,
 		Height,
-		NUM_TEX_TYPE,
+		Unknown,
 	};
 
 public:
@@ -33,5 +35,5 @@ private:
 	Vector2 mUVOffset;
 	Vector2 mUVTiling;
 
-	class Texture* mTextures[NUM_TEX_TYPE];
+	class Texture* mTextures[Unknown];
 };

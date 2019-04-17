@@ -7,7 +7,7 @@ Material::Material(Context * context) :
 	mUVOffset(0, 0),
 	mUVTiling(1, 1)
 {
-	ZeroMemory(mTextures, sizeof(Texture*) * NUM_TEX_TYPE);
+	ZeroMemory(mTextures, sizeof(Texture*) * Unknown);
 }
 
 void Material::LoadFromFile(const std::string & path)

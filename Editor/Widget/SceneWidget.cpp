@@ -5,8 +5,8 @@
 SceneWidget::SceneWidget(Context * context) :
 	IWidget(context)
 {
-	m_name = "Scene";
-	m_flags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+	mName = "Scene";
+	mWindowFlags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 	m_rendertarget = std::make_unique<RenderTarget>(context);
 	m_rendertarget->Create(1280, 720);
@@ -17,7 +17,7 @@ SceneWidget::SceneWidget(Context * context) :
 
 void SceneWidget::Render()
 {
-	if (!m_visible)
+	if (!mIsVisible)
 		return;
 
 	CameraControl();
@@ -29,8 +29,8 @@ void SceneWidget::CameraControl()
 {
 	if (ImGui::IsWindowFocused()) 
 	{
-		float elapsed = m_context->GetSubsystem<Time>()->Elapsed();
-		Input* input = m_context->GetSubsystem<Input>();
+		float elapsed = mContext->GetSubsystem<Time>()->Elapsed();
+		Input* input = mContext->GetSubsystem<Input>();
 		Transform* transform = m_camera->GetComponent<Transform>();
 
 		//Keyboard

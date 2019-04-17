@@ -125,6 +125,8 @@ void Importer::ProcessAnimation(const aiScene * pAiScene)
 
 void Importer::ProcessMaterial(const aiScene * pAiScene)
 {
+	ResourceManager* pResourceManager = mContext->GetSubsystem<ResourceManager>();
+
 	mMaterials.resize(pAiScene->mNumMaterials);
 	for (unsigned int i = 0; i < pAiScene->mNumMaterials; i++)
 	{
@@ -136,10 +138,10 @@ void Importer::ProcessMaterial(const aiScene * pAiScene)
 		if (pAiMaterial->Get(AI_MATKEY_NAME, stringbuf) == AI_SUCCESS)
 			pMaterial->SetName(stringbuf.C_Str());
 
-		auto GetTexturePath = [pAiScene, pAiMaterial](aiTextureType eAiTexType, Material::TextureType TexType)->std::string
+		auto GetMaterialTexture = [pAiScene, pAiMaterial, pResourceManager](aiTextureType type)->Texture*
 		{
 			aiString aipath;
-			if (pAiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aipath) == AI_SUCCESS)
+			if (pAiMaterial->GetTexture(type, 0, &aipath) == AI_SUCCESS)
 			{
 				std::string texpath = aipath.C_Str();
 				texpath = "C:/Users/Stuffedbrain/source/repos/D3D11GameEngine/Assets/Texture" + texpath.substr(texpath.find_last_of("/\\"));
@@ -152,13 +154,18 @@ void Importer::ProcessMaterial(const aiScene * pAiScene)
 					else
 						w.Write(pEmbeddedTexture->pcData, pEmbeddedTexture->mWidth);
 				}
-				return texpath;
+				return pResourceManager->Load<Texture>(texpath);
 			}
-			return std::string();
+			return nullptr;
 		};
-		std::string tempstring = GetTexturePath(aiTextureType_DIFFUSE, Material::Albedo);
-		Texture* temp = mContext->GetSubsystem<ResourceManager>()->Load<Texture>(tempstring);
-		pMaterial->SetTexture(Material::Albedo, temp);
+
+		pMaterial->SetTexture(Material::Albedo,   GetMaterialTexture(aiTextureType_DIFFUSE));
+		pMaterial->SetTexture(Material::Specular, GetMaterialTexture(aiTextureType_SPECULAR));
+		pMaterial->SetTexture(Material::Normal,   GetMaterialTexture(aiTextureType_NORMALS));
+		pMaterial->SetTexture(Material::Height,   GetMaterialTexture(aiTextureType_HEIGHT));
+		pMaterial->SetTexture(Material::Roughness,GetMaterialTexture(aiTextureType_SHININESS));
+		pMaterial->SetTexture(Material::Emissive, GetMaterialTexture(aiTextureType_EMISSIVE));
+		pMaterial->SetTexture(Material::Ambient,  GetMaterialTexture(aiTextureType_AMBIENT));
 	}
 }
 

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Editor.h"
 #include "Importer/Loader.h"
+#include <filesystem>
+#include <iostream>
 
 int APIENTRY WinMain(
 	_In_ HINSTANCE hInstance,
@@ -17,9 +19,16 @@ int APIENTRY WinMain(
 	//context->GetSubsystem<Time>()->LockFramerate(300);
 
 	ResourceManager* resources = context->GetSubsystem<ResourceManager>();
-	
+
+	for (auto& p : std::filesystem::directory_iterator("..\\Assets\\Texture"))
+	{
+		resources->Load<Texture>(p.path().string());
+		std::cout << p.path() << "\n";
+	}
+
 	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
 	
+
 	Importer importer(context);
 	importer.ImportModel("../Assets/Slash.fbx");
 	

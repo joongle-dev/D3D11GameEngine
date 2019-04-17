@@ -1,16 +1,16 @@
 #include "stdafx.h"
 #include "InspectorWidget.h"
-#include "json.hpp"
+#include "nameof.hpp"
 
 InspectorWidget::InspectorWidget(Context * context) :
 	IWidget(context)
 {
-	m_name = "Inspector";
+	mName = "Inspector";
 }
 
 void InspectorWidget::Render()
 {
-	if (!EditorHelper::sSelected || !m_visible)
+	if (!EditorHelper::sSelected || !mIsVisible)
 		return;
 
 	ImGui::Text("Name");
@@ -84,16 +84,81 @@ void InspectorWidget::ShowMeshRender()
 
 	if (ImGui::CollapsingHeader("MeshRenderer", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		char strbuf[128] = "";
-		if (Mesh* pMesh = pMeshRenderer->GetMesh())
-			strcpy_s(strbuf, 128, pMesh->GetName().c_str());
-		ImGui::InputText("##Mesh", strbuf, 128);
-		ImGui::NewLine();
-		if (Material* pMaterial = pMeshRenderer->GetMaterial())
-			strcpy_s(strbuf, 128, pMaterial->GetName().c_str());
-		ImGui::InputText("##Material", strbuf, 128);
-		ImGui::NewLine();
+		if (ImGui::TreeNodeEx("Mesh", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ShowMesh(pMeshRenderer->GetMesh());
+			ImGui::TreePop();
+		}
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ShowMaterial(pMeshRenderer->GetMaterial());
+			ImGui::TreePop();
+		}
 	}
+}
+
+void InspectorWidget::ShowMaterial(Material * pMaterial)
+{
+	if (!pMaterial)
+		return;
+
+	char strbuf[128] = "";
+	strcpy_s(strbuf, 128, pMaterial->GetName().c_str());
+	ImGui::InputText("##MaterialName", strbuf, 128);
+	pMaterial->SetName(strbuf);
+
+	ResourceManager* pResourceManager = mContext->GetSubsystem<ResourceManager>();
+
+	auto TextureSelectPopup = [pResourceManager](const char* label)->Texture*
+	{
+		Texture* pTextureSelected = nullptr;
+
+		if (ImGui::BeginPopup(label))
+		{
+			for (Texture* texture : pResourceManager->GetResources<Texture>())
+			{
+				if (ImGui::ImageButton(texture->GetShaderResource(), ImVec2(100, 100)))
+				{
+					pTextureSelected = texture;
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndPopup();
+		}
+		
+		return pTextureSelected;
+	};
+
+	for (unsigned int i = 0; i < Material::Unknown; i++)
+	{
+		Material::TextureType type = static_cast<Material::TextureType>(i);
+
+		if (Texture* pTexture = pMaterial->GetTexture(type))
+		{
+			std::string label = "Textures##Popup" + std::to_string(i);
+
+			if (ImGui::ImageButton(pTexture->GetShaderResource(), ImVec2(100, 100)))
+				ImGui::OpenPopup(label.c_str());
+
+			if (Texture* pTextureSelected = TextureSelectPopup(label.c_str()))
+				pMaterial->SetTexture(type, pTextureSelected);
+
+			if (Texture* pTexturePaylod = ImGuiDropTarget<Texture*>("TexturePayload"))
+				pMaterial->SetTexture(type, pTexturePaylod);
+		}
+	}
+}
+
+void InspectorWidget::ShowMesh(Mesh * pMesh)
+{
+	if (!pMesh)
+		return;
+
+	char strbuf[128] = "";
+	strcpy_s(strbuf, 128, pMesh->GetName().c_str());
+	ImGui::InputText("##MeshName", strbuf, 128);
+	pMesh->SetName(strbuf);
+
+	ImGui::Text("Vertex count: %d", pMesh->GetVertexCount());
 }
 
 /*

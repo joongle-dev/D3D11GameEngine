@@ -8,4 +8,7 @@ public:
 	~AssetWidget() = delete;
 
 	void Render() override;
+
+private:
+	class ResourceManager* mResourceManager;
 };

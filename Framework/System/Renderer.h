@@ -27,7 +27,7 @@ struct GizmoVertex
 
 enum ShaderFlags : unsigned int
 {
-	DEPTH_PASS     = 1 << 0,
+	DEPTH_PASS        = 1 << 0,
 	DIRECTIONAL_LIGHT = 1 << 1,
 	POINT_LIGHT       = 1 << 2,
 	SPOT_LIGHT        = 1 << 3,
@@ -37,6 +37,7 @@ enum ShaderFlags : unsigned int
 	EMISSIVE_TEXTURE  = 1 << 7,
 	NORMAL_TEXTURE    = 1 << 8,
 	HEIGHT_TEXTURE    = 1 << 9,
+	SPECULAR_TEXTURE  = 1 << 10,
 };
 
 class Renderer final : public Subsystem<Renderer>

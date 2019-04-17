@@ -4,7 +4,7 @@
 HierarchyWidget::HierarchyWidget(Context * context) :
 	IWidget(context)
 {
-	m_name = "Hierarchy";
+	mName = "Hierarchy";
 }
 
 void HierarchyWidget::Render()
@@ -12,7 +12,7 @@ void HierarchyWidget::Render()
 	if (ImGui::IsWindowHovered(0) && ImGui::IsMouseClicked(0))
 		EditorHelper::sSelected = nullptr;
 
-	SceneNode(m_context->GetSubsystem<SceneManager>()->GetCurrentScene());
+	SceneNode(mContext->GetSubsystem<SceneManager>()->GetCurrentScene());
 }
 
 void HierarchyWidget::SceneNode(Scene * scene)
@@ -65,38 +65,30 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 
 void HierarchyWidget::DragSource(Transform * src)
 {
-	if (ImGui::BeginDragDropSource(0))
-	{
-		//Set drag drop payload
-		ImGui::SetDragDropPayload("HierarchyPayload", &src, sizeof(Transform*));
-		ImGui::EndDragDropSource();
-	}
+	ImGuiDragSource<Transform*>("HierarchyPayload", src);
 }
 
 void HierarchyWidget::DropTarget(Transform * dst)
 {
-	if (ImGui::BeginDragDropTarget())
+	//This lambda function checks if the first parameter is an ancestor of second parameter
+	auto AncestorCheck = [](Transform* ancestor, Transform* descendant, const auto& lambda)->bool
 	{
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HierarchyPayload", 0))
-		{
-			//Drag source transform
-			Transform* src = *static_cast<Transform**>(payload->Data);
-			//This lambda function checks if the first parameter is an ancestor of second parameter
-			auto AncestorCheck = [](Transform* ancestor, Transform* descendant, const auto& lambda)->bool
-			{
-				if (descendant->GetParent() == ancestor)
-					return true;
-				if (descendant->GetParent() == nullptr)
-					return false;
-				return lambda(ancestor, descendant->GetParent(), lambda);
-			};
-			//If drag source is ancestor of drop target, set source's parent as target's parent
-			if (AncestorCheck(src, dst, AncestorCheck))
-				dst->SetParent(src->GetParent());
-			//Set drop target as drag source's parent
-			src->SetParent(dst);
-		}
-		ImGui::EndDragDropTarget();
+		if (descendant->GetParent() == ancestor)
+			return true;
+		if (descendant->GetParent() == nullptr)
+			return false;
+		return lambda(ancestor, descendant->GetParent(), lambda);
+	};
+
+	//Receive drag drop payload
+	if (Transform* src = ImGuiDropTarget<Transform*>("HierarchyPayload"))
+	{
+		//If drag source is ancestor of drop target, set source's parent as target's parent
+		if (AncestorCheck(src, dst, AncestorCheck))
+			dst->SetParent(src->GetParent());
+
+		//Set drop target as drag source's parent
+		src->SetParent(dst);
 	}
 }
 
@@ -126,11 +118,11 @@ void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 
 				Geometry geometry;
 				Geometry::CreateCube(geometry);
-				Mesh* mesh = new Mesh(m_context);
+				Mesh* mesh = new Mesh(mContext);
 				mesh->Create(geometry);
 				MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
 				renderer->SetMesh(mesh);
-				renderer->SetMaterial(new Material(m_context));
+				renderer->SetMaterial(new Material(mContext));
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
@@ -140,11 +132,11 @@ void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 
 				Geometry geometry;
 				Geometry::CreateSphere(geometry);
-				Mesh* mesh = new Mesh(m_context);
+				Mesh* mesh = new Mesh(mContext);
 				mesh->Create(geometry);
 				MeshRenderer* renderer = object->AddComponent<MeshRenderer>();
 				renderer->SetMesh(mesh);
-				renderer->SetMaterial(new Material(m_context));
+				renderer->SetMaterial(new Material(mContext));
 			}
 			ImGui::EndMenu();
 		}

@@ -4,15 +4,15 @@
 GameWidget::GameWidget(Context * context) :
 	IWidget(context)
 {
-	m_name = "Game";
-	m_flags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+	mName = "Game";
+	mWindowFlags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 	m_rendertarget = context->GetSubsystem<Renderer>()->GetMainTarget();
 }
 
 void GameWidget::Render()
 {
-	if (!m_visible)
+	if (!mIsVisible)
 		return;
 
 	//Adjust image size, cursor position and draw scene

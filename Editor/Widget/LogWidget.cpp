@@ -4,7 +4,7 @@
 LogWidget::LogWidget(Context * context) :
 	IWidget(context)
 {
-	m_name = "Log";
+	mName = "Log";
 }
 
 void LogWidget::Render()
