@@ -10,7 +10,7 @@ class Animation final : public Resource<Animation>
 		Quaternion mRotation;
 		Vector3    mPosition;
 	};
-	using BoneAnimation = std::pair<std::string, std::vector<BoneAnimationKeyframe>>;
+	using BoneAnimation = std::vector<BoneAnimationKeyframe>;
 
 public:
 	Animation(class Context* context);
@@ -19,6 +19,11 @@ public:
 	void LoadFromFile(const std::string& path) override;
 	void SaveToFile(const std::string& path) override;
 
+	BoneAnimation* AddChannel(const std::string& name);
+	BoneAnimation* GetChannel(const std::string& name);
+
+
 private:
-	std::map<std::string, std::vector<BoneAnimationKeyframe>> mBoneAnims;
+	float mFramerate;
+	std::map<std::string, BoneAnimation> mChannels;
 };

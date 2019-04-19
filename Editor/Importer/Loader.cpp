@@ -75,12 +75,6 @@ void Importer::ImportModel(const std::string & filepath)
 		ProcessMaterial(pAiScene);
 		ProcessAnimation(pAiScene);
 		ProcessNodes(pAiScene);
-
-		double temp;
-		if (pAiScene->mMetaData->Get("UnitScaleFactor", temp))
-			printf("%f", temp);
-		else
-			printf("Failed to retrieve unit scale factor");
 	}
 	else
 	{
@@ -115,9 +109,21 @@ void Importer::ProcessNodes(const aiScene * pAiScene)
 
 void Importer::ProcessAnimation(const aiScene * pAiScene)
 {
+	mAnimations.resize(pAiScene->mNumAnimations);
 	for (unsigned int i = 0; i < pAiScene->mNumAnimations; i++)
 	{
-		aiAnimation* pAiAnimation = pAiScene->mAnimations[i];
+		const aiAnimation* pAiAnimation = pAiScene->mAnimations[i];
+		pAiAnimation->mTicksPerSecond;
+		pAiAnimation->mDuration;
+		Animation* pAnimation = mAnimations[i] = new Animation(mContext);
+
+		for (unsigned int j = 0; j < pAiAnimation->mNumChannels; j++)
+		{
+			const aiNodeAnim* pAiBoneAnim = pAiAnimation->mChannels[j];
+			auto* pBoneAnim = pAnimation->AddChannel(pAiBoneAnim->mNodeName.C_Str());
+			
+
+		}
 		printf("%s", pAiAnimation->mName.C_Str());
 	}
 	

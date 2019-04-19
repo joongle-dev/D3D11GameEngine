@@ -12,8 +12,7 @@ Material::Material(Context * context) :
 
 void Material::LoadFromFile(const std::string & path)
 {
-	FileStreamRead file;
-	file.Open(path);
+	FileStreamRead file(path);
 
 	std::string stringbuf;
 

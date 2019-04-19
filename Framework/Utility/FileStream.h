@@ -8,32 +8,20 @@ public:
 	FileStreamRead() : bOpen(false) {}
 	FileStreamRead(const std::string& path)
 	{
-		Open(path);
+		stream.open(path, std::ios::in | std::ios::binary);
+		if (!stream.fail())
+			bOpen = true;
+	}
+	FileStreamRead(const std::wstring& path)
+	{
+		stream.open(path, std::ios::in | std::ios::binary);
+		if (!stream.fail())
+			bOpen = true;
 	}
 	~FileStreamRead()
 	{
-		Close();
-	}
-
-	void Open(const std::string& path)
-	{
-		stream.open(path, std::ios::in | std::ios::binary);
-		assert((!stream.fail(), "Failed to open file"));
-		bOpen = true;
-	}
-	void Open(const std::wstring& path)
-	{
-		stream.open(path, std::ios::in | std::ios::binary);
-		assert((!stream.fail(), "Failed to open file"));
-		bOpen = true;
-	}
-	void Close()
-	{
 		if (bOpen)
-		{
 			stream.close();
-			bOpen = false;
-		}
 	}
 
 	void Read(void* ptr, size_t size)
@@ -81,33 +69,20 @@ public:
 	FileStreamWrite() : bOpen(false) {}
 	FileStreamWrite(const std::string& path)
 	{
-		Open(path);
+		stream.open(path, std::ios::out | std::ios::binary);
+		if (!stream.fail())
+			bOpen = true;
+	}
+	FileStreamWrite(const std::wstring& path)
+	{
+		stream.open(path, std::ios::out | std::ios::binary);
+		if (!stream.fail())
+			bOpen = true;
 	}
 	~FileStreamWrite()
 	{
-		Close();
-	}
-
-	void Open(const std::string& path)
-	{
-		stream.open(path, std::ios::out | std::ios::binary);
-		assert((!stream.fail(), "Failed to create file"));
-		bOpen = true;
-	}
-	void Open(const std::wstring& path)
-	{
-		stream.open(path, std::ios::out | std::ios::binary);
-		assert((!stream.fail(), "Failed to create file"));
-		bOpen = true;
-	}
-	void Close()
-	{
-		stream.close();
-		//if (bOpen)
-		//{
-		//	stream.close();
-		//	bOpen = false;
-		//}
+		if (bOpen)
+			stream.close();
 	}
 
 	void Write(void* ptr, size_t size)
