@@ -15,13 +15,12 @@ public:
 	void SetMaterial(class Material* material) { mMaterial = material; }
 	class Material* GetMaterial() const { return mMaterial; }
 
-	class Transform* GetTransform() const { return mTransform; }
-
 	void SetRootTransform(class Transform* transform) { mRootTransform = transform; }
+	class Transform* GetRootTransform() const { return mRootTransform; }
 
 private:
 	class Transform* mRootTransform;
-	class Transform* mTransform;
+
 	class Material*  mMaterial;
 	class Mesh*      mMesh;
 };

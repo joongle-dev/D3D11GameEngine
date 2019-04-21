@@ -52,12 +52,14 @@ public:
 	UINT GetBoneCount() { return mInverseBone.size(); }
 	void SetBoneCount(UINT count) { mInverseBone.resize(count); }
 
-	ID3D11Buffer* GetIndexBuffer()    const { return mIndexBuffer.Get(); }
-	ID3D11Buffer* GetPositionBuffer() const { return mPositionBuffer.Get(); }
-	ID3D11Buffer* GetNormalBuffer()   const { return mNormalBuffer.Get(); }
-	ID3D11Buffer* GetTangentBuffer()  const { return mTangentBuffer.Get(); }
-	ID3D11Buffer* GetBinormalBuffer() const { return mBinormalBuffer.Get(); }
-	ID3D11Buffer* GetTexcoordBuffer() const { return mTexcoordBuffer.Get(); }
+	ID3D11Buffer* GetIndexBuffer()        const { return mIndexBuffer.Get(); }
+	ID3D11Buffer* GetPositionBuffer()     const { return mPositionBuffer.Get(); }
+	ID3D11Buffer* GetNormalBuffer()       const { return mNormalBuffer.Get(); }
+	ID3D11Buffer* GetTangentBuffer()      const { return mTangentBuffer.Get(); }
+	ID3D11Buffer* GetBinormalBuffer()     const { return mBinormalBuffer.Get(); }
+	ID3D11Buffer* GetTexcoordBuffer()     const { return mTexcoordBuffer.Get(); }
+	ID3D11Buffer* GetBlendIndicesBuffer() const { return mBlendIndicesBuffer.Get(); }
+	ID3D11Buffer* GetBlendWeightsBuffer() const { return mBlendWeightsBuffer.Get(); }
 
 private:
 	class Graphics* mGraphics;

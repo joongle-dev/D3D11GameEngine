@@ -23,6 +23,16 @@ Vector3 AiToVector3(const aiVector3D& aiVec)
 	);
 }
 
+Quaternion AiToQuaternion(const aiQuaternion& aiQuat)
+{
+	return Quaternion(
+		static_cast<float>(aiQuat.x),
+		static_cast<float>(aiQuat.y),
+		static_cast<float>(aiQuat.z),
+		static_cast<float>(aiQuat.w)
+	);
+}
+
 Matrix AiToMatrix(const aiMatrix4x4& aiMat)
 {
 	return Matrix(
@@ -86,21 +96,40 @@ void Importer::ImportModel(const std::string & filepath)
 void Importer::ProcessNodes(const aiScene * pAiScene)
 {
 	Scene* pGameScene = mContext->GetSubsystem<SceneManager>()->GetCurrentScene();
-
-	auto RecursiveFunc = [pGameScene, pAiScene, this](Transform* pParentTransform, aiNode* pAiNode, const auto& lambda)->void
+	Transform* temp = nullptr;
+	auto RecursiveFunc = [pGameScene, pAiScene, this, &temp](Transform* pParentTransform, aiNode* pAiNode, const auto& lambda)->void
 	{
 		GameObject* pNodeObject = pGameScene->Instantiate();
 		pNodeObject->SetName(pAiNode->mName.C_Str());
 
+		if (pAiNode == pAiScene->mRootNode)
+		{
+			Animator* pAnimator = pNodeObject->AddComponent<Animator>();
+			pAnimator->SetAnimation(mAnimations[0]);
+		}
+
 		if (pAiNode->mNumMeshes)
 		{
-			MeshRenderer* pMeshRenderer = pNodeObject->AddComponent<MeshRenderer>();
+			//MeshRenderer* pMeshRenderer = pNodeObject->AddComponent<MeshRenderer>();
+			SkinnedMeshRenderer* pMeshRenderer = pNodeObject->AddComponent<SkinnedMeshRenderer>();
+			pMeshRenderer->SetRootTransform(temp);
 			pMeshRenderer->SetMesh(mMeshes[pAiNode->mMeshes[0]]);
 			pMeshRenderer->SetMaterial(mMaterials[pAiScene->mMeshes[pAiNode->mMeshes[0]]->mMaterialIndex]);
 		}
 
+		Vector3 scale;
+		Quaternion rotation;
+		Vector3 position;
+		Matrix nodeTransform = AiToMatrix(pAiNode->mTransformation);
+		nodeTransform.Decompose(scale, rotation, position);
+
 		Transform* transform = pNodeObject->GetComponent<Transform>();
 		transform->SetParent(pParentTransform);
+		transform->SetLocalScale(scale);
+		transform->SetLocalRotation(rotation);
+		transform->SetLocalPosition(scale);
+		if (pAiNode == pAiScene->mRootNode)
+			temp = transform;
 		for (unsigned int i = 0; i < pAiNode->mNumChildren; i++)
 			lambda(transform, pAiNode->mChildren[i], lambda);
 	};
@@ -110,19 +139,55 @@ void Importer::ProcessNodes(const aiScene * pAiScene)
 void Importer::ProcessAnimation(const aiScene * pAiScene)
 {
 	mAnimations.resize(pAiScene->mNumAnimations);
-	for (unsigned int i = 0; i < pAiScene->mNumAnimations; i++)
+	for (unsigned int idxAnim = 0; idxAnim < pAiScene->mNumAnimations; idxAnim++)
 	{
-		const aiAnimation* pAiAnimation = pAiScene->mAnimations[i];
-		pAiAnimation->mTicksPerSecond;
-		pAiAnimation->mDuration;
-		Animation* pAnimation = mAnimations[i] = new Animation(mContext);
-
-		for (unsigned int j = 0; j < pAiAnimation->mNumChannels; j++)
+		const aiAnimation* pAiAnimation = pAiScene->mAnimations[idxAnim];
+		Animation* pAnimation = mAnimations[idxAnim] = new Animation(mContext);
+		pAnimation->SetFramerate(static_cast<float>(pAiAnimation->mTicksPerSecond));
+		pAnimation->SetDuration(static_cast<float>(pAiAnimation->mDuration));
+		for (unsigned int idxChannel = 0; idxChannel < pAiAnimation->mNumChannels; idxChannel++)
 		{
-			const aiNodeAnim* pAiBoneAnim = pAiAnimation->mChannels[j];
-			auto* pBoneAnim = pAnimation->AddChannel(pAiBoneAnim->mNodeName.C_Str());
+			const aiNodeAnim* pAiBoneAnim = pAiAnimation->mChannels[idxChannel];
+			Animation::BoneAnimation& pBoneAnim = pAnimation->AddChannel(pAiBoneAnim->mNodeName.C_Str());
 			
+			unsigned int idxPositionKey = 0;
+			unsigned int idxRotationKey = 0;
+			unsigned int idxScaleKey    = 0;
+			const aiVectorKey* pPositionKeys = pAiBoneAnim->mPositionKeys;
+			const aiQuatKey*   pRotationKeys = pAiBoneAnim->mRotationKeys;
+			const aiVectorKey* pScaleKeys    = pAiBoneAnim->mScalingKeys;
+			for (double currTime = 0.0f; currTime < pAiAnimation->mDuration; currTime += pAiAnimation->mTicksPerSecond)
+			{
+				Animation::BoneKeyframe& keyframe = pBoneAnim.emplace_back(Animation::BoneKeyframe());
+				keyframe.mTime = static_cast<float>(currTime);
 
+				while (idxPositionKey + 1 < pAiBoneAnim->mNumPositionKeys && currTime > pPositionKeys[idxPositionKey + 1].mTime)
+					idxPositionKey++;
+				Vector3 vKeyPosition0 = AiToVector3(pPositionKeys[idxPositionKey].mValue);
+				Vector3 vKeyPosition1 = AiToVector3(pPositionKeys[idxPositionKey + 1].mValue);
+				double fKeyTime0 = pPositionKeys[idxPositionKey].mTime;
+				double fKeyTime1 = pPositionKeys[idxPositionKey + 1].mTime;
+				double fBlend = std::max((currTime - fKeyTime0) / (fKeyTime1 - fKeyTime0), 0.0);
+				keyframe.mPosition = Vector3::Lerp(vKeyPosition0, vKeyPosition1, static_cast<float>(fBlend));
+				
+				while (idxRotationKey + 1 < pAiBoneAnim->mNumRotationKeys && currTime > pRotationKeys[idxRotationKey + 1].mTime)
+					idxRotationKey++;
+				Quaternion vKeyRotation0 = AiToQuaternion(pRotationKeys[idxRotationKey].mValue);
+				Quaternion vKeyRotation1 = AiToQuaternion(pRotationKeys[idxRotationKey + 1].mValue);
+				fKeyTime0 = pRotationKeys[idxRotationKey].mTime;
+				fKeyTime0 = pRotationKeys[idxRotationKey + 1].mTime;
+				fBlend = std::max((currTime - fKeyTime0) / (fKeyTime1 - fKeyTime0), 0.0);
+				keyframe.mRotation = Quaternion::Lerp(vKeyRotation0, vKeyRotation1, static_cast<float>(fBlend));
+
+				while (idxScaleKey + 1 < pAiBoneAnim->mNumScalingKeys && currTime > pScaleKeys[idxScaleKey + 1].mTime)
+					idxScaleKey++;
+				Vector3 vKeyScale0 = AiToVector3(pScaleKeys[idxPositionKey].mValue);
+				Vector3 vKeyScale1 = AiToVector3(pScaleKeys[idxPositionKey + 1].mValue);
+				fKeyTime0 = pScaleKeys[idxPositionKey].mTime;
+				fKeyTime1 = pScaleKeys[idxPositionKey + 1].mTime;
+				fBlend = std::max((currTime - fKeyTime0) / (fKeyTime1 - fKeyTime0), 0.0);
+				keyframe.mScale = Vector3::Lerp(vKeyScale0, vKeyScale1, static_cast<float>(fBlend));
+			}
 		}
 		printf("%s", pAiAnimation->mName.C_Str());
 	}
@@ -198,9 +263,9 @@ void Importer::ProcessMesh(const aiScene * pAiScene)
 
 		if (attribute & Mesh::Position)
 		{
-			//memcpy(pMesh->mPositions.get(), pAiMesh->mVertices, pAiMesh->mNumVertices * sizeof(Vector3));
-			for (unsigned int j = 0; j < pAiMesh->mNumVertices; j++)
-				pMesh->GetPositionData()[j] = AiToVector3(pAiMesh->mVertices[j]) * 0.01f;
+			memcpy(pMesh->GetPositionData(), pAiMesh->mVertices, pAiMesh->mNumVertices * sizeof(Vector3));
+			//for (unsigned int j = 0; j < pAiMesh->mNumVertices; j++)
+			//	pMesh->GetPositionData()[j] = AiToVector3(pAiMesh->mVertices[j]) * 0.01f;
 		}
 		if (attribute & Mesh::Normal)
 		{

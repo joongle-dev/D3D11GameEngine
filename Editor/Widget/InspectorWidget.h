@@ -13,6 +13,8 @@ private:
 	void ShowTransform();
 	void ShowCamera();
 	void ShowMeshRender();
+	void ShowSkinnedMeshRender();
+	void ShowAnimator();
 
 	void ShowMaterial(class Material* pMaterial);
 	void ShowMesh(class Mesh* pMesh);

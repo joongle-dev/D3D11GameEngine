@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 
-class Animator final : Component<Animator>
+class Animator final : public Component<Animator>
 {
 	struct Bone
 	{

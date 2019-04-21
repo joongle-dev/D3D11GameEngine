@@ -1,5 +1,24 @@
 #include "Common.hlsl"
 
+cbuffer CameraBuffer : register(b0)
+{
+    float4x4 view;
+    float4x4 projection;
+    float3 campos;
+}
+
+#if SKINNED
+cbuffer BoneBuffer : register(b1)
+{
+    float4x4 bones[96];
+}
+#else
+cbuffer WorldBuffer : register(b1)
+{
+    float4x4 world;
+}
+#endif
+
 cbuffer Light : register(b2)
 {
     float3 lightpos;
@@ -13,6 +32,10 @@ struct VS_INPUT
     float3 normal   : NORMAL0;
     float3 tangent  : TANGENT0;
     float2 uv       : TEXCOORD0;
+    #if SKINNED
+    float4 blendIndices : BLENDINDICES0;
+    float4 blendWeights : BLENDWEIGHTS0;
+    #endif
 #endif
 };
 
@@ -35,7 +58,16 @@ PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output;
 
-    output.position = mul(input.position, world);
+    float4x4 transform = 0;
+#if SKINNED
+    for (int i = 0; i < 4; i++)
+        transform += bones[input.blendIndices[i]] * input.blendWeights[i];
+    output.position = mul(input.position, transform);
+#else
+    transform = world;
+    output.position = mul(input.position, transform);
+#endif
+
 #if !DEPTH_PASS
     output.toeye = normalize(campos - output.position.xyz);
     #if DIRECTIONAL_LIGHT
@@ -47,8 +79,8 @@ PS_INPUT VS(VS_INPUT input)
     output.tolight.xyz = normalize(output.tolight.xyz);
     output.lightdir = normalize(lightdir);
     
-    output.normal = normalize(mul(input.normal, (float3x3)world));
-    output.tangent = normalize(mul(input.tangent, (float3x3)world));
+    output.normal = normalize(mul(input.normal, (float3x3) transform));
+    output.tangent = normalize(mul(input.tangent, (float3x3) transform));
     output.binormal = normalize(cross(output.normal, output.tangent));
 
     output.uv = input.uv;

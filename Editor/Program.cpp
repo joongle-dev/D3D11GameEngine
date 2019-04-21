@@ -19,11 +19,11 @@ int APIENTRY WinMain(
 
 	ResourceManager* resources = context->GetSubsystem<ResourceManager>();
 
-	for (auto& p : std::filesystem::directory_iterator("..\\Assets\\Texture"))
-	{
-		resources->Load<Texture>(p.path().string());
-		printf("%s\n", p.path().string().c_str());
-	}
+	//for (auto& p : std::filesystem::directory_iterator("..\\Assets\\Texture"))
+	//{
+	//	resources->Load<Texture>(p.path().string());
+	//	printf("%s\n", p.path().string().c_str());
+	//}
 
 	Scene* scene = context->GetSubsystem<SceneManager>()->GetCurrentScene();
 	

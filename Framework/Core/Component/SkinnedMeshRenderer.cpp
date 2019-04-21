@@ -7,7 +7,6 @@ SkinnedMeshRenderer::SkinnedMeshRenderer(Context * context, GameObject * owner) 
 	mMaterial(nullptr),
 	mMesh(nullptr)
 {
-	mTransform = owner->GetComponent<Transform>();
 }
 
 void SkinnedMeshRenderer::Update()

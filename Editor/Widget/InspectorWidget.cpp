@@ -6,12 +6,15 @@ InspectorWidget::InspectorWidget(Context * context) :
 	IWidget(context)
 {
 	mName = "Inspector";
+	mWindowFlags |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
 }
 
 void InspectorWidget::Render()
 {
 	if (!EditorHelper::sSelected || !mIsVisible)
 		return;
+
+	ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
 
 	ImGui::Text("Name");
 	char str[128];
@@ -23,6 +26,9 @@ void InspectorWidget::Render()
 	ShowTransform();
 	ShowCamera();
 	ShowMeshRender();
+	ShowSkinnedMeshRender();
+
+	ImGui::PopItemWidth();
 }
 
 void InspectorWidget::ShowTransform()
@@ -82,7 +88,7 @@ void InspectorWidget::ShowMeshRender()
 	MeshRenderer* pMeshRenderer = EditorHelper::sSelected->GetComponent<MeshRenderer>();
 	if (!pMeshRenderer)	return;
 
-	if (ImGui::CollapsingHeader("MeshRenderer", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::CollapsingHeader("Mesh Renderer", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		if (ImGui::TreeNodeEx("Mesh", ImGuiTreeNodeFlags_DefaultOpen)) {
 			ShowMesh(pMeshRenderer->GetMesh());
@@ -94,6 +100,32 @@ void InspectorWidget::ShowMeshRender()
 			ImGui::TreePop();
 		}
 	}
+}
+
+void InspectorWidget::ShowSkinnedMeshRender()
+{
+	SkinnedMeshRenderer* pMeshRenderer = EditorHelper::sSelected->GetComponent<SkinnedMeshRenderer>();
+	if (!pMeshRenderer) return;
+
+	if (ImGui::CollapsingHeader("Skinned Mesh Renderer", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("Mesh");
+		ShowMesh(pMeshRenderer->GetMesh());
+		ImGui::Separator();
+		ImGui::Text("Material");
+		ShowMaterial(pMeshRenderer->GetMaterial());
+		ImGui::Separator();
+		ImGui::Text("Root Transform");
+		std::string strbuf;
+		GameObject* pObject = pMeshRenderer->GetRootTransform() ? pMeshRenderer->GetRootTransform()->GetOwner() : nullptr;
+		if (pObject)
+			strbuf = pObject->GetName();
+		ImGui::Text("%s", strbuf.c_str());
+	}
+}
+
+void InspectorWidget::ShowAnimator()
+{
 }
 
 void InspectorWidget::ShowMaterial(Material * pMaterial)

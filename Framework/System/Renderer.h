@@ -13,17 +13,17 @@ struct WorldBuffer
 	DirectX::XMMATRIX world;
 };
 
+struct BoneBuffer
+{
+	DirectX::XMMATRIX bones[96];
+};
+
 struct LightBuffer
 {
 	DirectX::XMVECTOR lightpos;
 	DirectX::XMVECTOR lightdir;
 };
 
-struct GizmoVertex
-{
-	Vector3 position;
-	Vector4 color;
-};
 
 enum ShaderFlags : unsigned int
 {
@@ -38,6 +38,7 @@ enum ShaderFlags : unsigned int
 	NORMAL_TEXTURE    = 1 << 8,
 	HEIGHT_TEXTURE    = 1 << 9,
 	SPECULAR_TEXTURE  = 1 << 10,
+	SKINNED			  = 1 << 11,
 };
 
 class Renderer final : public Subsystem<Renderer>
@@ -52,6 +53,8 @@ public:
 	void Update() override;
 
 	void RenderCamera(class Scene* scene, class Camera* camera);
+	void RenderMesh(class Scene* scene);
+	void RenderSkinnedMesh(class Scene* scene);
 
 	class Shader* GetMatchingShader(unsigned int flags);
 
@@ -64,6 +67,7 @@ private:
 
 	class ConstantBuffer<CameraBuffer>* mCameraBuffer;
 	class ConstantBuffer<WorldBuffer>* mWorldBuffer;
+	class ConstantBuffer<BoneBuffer>* mBoneBuffer;
 	class ConstantBuffer<LightBuffer>* mLightBuffer;
 	class InputLayout* mInputLayout;
 
