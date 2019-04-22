@@ -1,6 +1,10 @@
 #pragma once
 #include "Subsystem.h"
 
+#define NUM_DIRECTIONALLIGHTS 4
+#define NUM_POINTLIGHTS 32
+#define NUM_SPOTLIGHTS 32
+
 struct CameraBuffer
 {
 	DirectX::XMMATRIX view;
@@ -17,12 +21,6 @@ struct BoneBuffer
 {
 	DirectX::XMMATRIX bones[96];
 };
-
-//struct LightBuffer
-//{
-//	DirectX::XMVECTOR lightpos;
-//	DirectX::XMVECTOR lightdir;
-//};
 
 struct LightBuffer
 {
@@ -90,8 +88,6 @@ public:
 	void Update() override;
 
 	void RenderCamera(class Scene* scene, class Camera* camera);
-	void RenderMesh(class Scene* scene);
-	void RenderSkinnedMesh(class Scene* scene);
 
 	class Shader* GetMatchingShader(unsigned int flags);
 

@@ -160,6 +160,11 @@ float4 PS(PS_INPUT input) : SV_TARGET
     for (uint pl = 0; pl < numPointLight; pl++)
     {
         float3 tolight = normalize(pointLights[pl].position - input.worldpos.xyz);
+		float NdotL = max(dot(tolight, input.normal), 0.0f);
+		float NdotH = max(dot(normalize(input.toeye + tolight), input.normal), 0.0f);
+		float3 specular = directionalLights[dl].color;
+		specular *= GGX(roughness, NdotH) * (1.0f - roughness);
+		color += (specular + albedo) * NdotL;
     }
 
     [loop]

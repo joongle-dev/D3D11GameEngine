@@ -75,9 +75,16 @@ void Renderer::Update()
 				break;
 			}
 			case Light::Point:
+			{
+				auto& light = pLightData->pointLight[pLightData->numPointLight++];
+				light.color = itLight->GetColor();
+				light.position = pLightTransform->GetPosition();
 				break;
+			}
 			case Light::Spot:
+			{
 				break;
+			}
 		}
 	}
 	mLightBuffer->Unmap();
@@ -109,8 +116,8 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 
 	mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
-	UINT offset[] = { 0, 0, 0, 0 };
+	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2), sizeof(Vector4), sizeof(Vector4) };
+	UINT offset[] = { 0, 0, 0, 0, 0, 0 };
 
 	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
 	{
@@ -154,216 +161,52 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 
 		mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
 	}
-}
 
-//void Renderer::RenderMesh(Scene * scene)
-//{
-//	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
-//	UINT offset[] = { 0, 0, 0, 0 };
-//
-//	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
-//	{
-//		Transform* pRenderableTransform = itRenderable->GetTransform();
-//		auto pWorldData = mWorldBuffer->Map();
-//		{
-//			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
-//		}
-//		mWorldBuffer->Unmap();
-//		mWorldBuffer->Bind(ShaderType::VS, 1);
-//
-//		Mesh* pMesh = itRenderable->GetMesh();
-//		if (!pMesh) continue;
-//
-//		ID3D11Buffer* vbs[] =
-//		{
-//			pMesh->GetPositionBuffer(),
-//		};
-//
-//		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
-//		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-//
-//		GetMatchingShader(DEPTH_PASS)->Bind();
-//		mDepthPassBlend->Bind();
-//		mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-//	}
-//
-//	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
-//	{
-//		Transform* pRenderableTransform = itRenderable->GetTransform();
-//		auto pWorldData = mWorldBuffer->Map();
-//		{
-//			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
-//		}
-//		mWorldBuffer->Unmap();
-//		mWorldBuffer->Bind(ShaderType::VS, 1);
-//
-//		Mesh* pMesh = itRenderable->GetMesh();
-//		if (!pMesh) continue;
-//
-//		Material* pMaterial = itRenderable->GetMaterial();
-//		if (!pMaterial) continue;
-//
-//		ID3D11Buffer* vbs[] =
-//		{
-//			pMesh->GetPositionBuffer(),
-//			pMesh->GetNormalBuffer(),
-//			pMesh->GetTangentBuffer(),
-//			pMesh->GetTexcoordBuffer(),
-//		};
-//
-//		ID3D11ShaderResourceView* srv[] =
-//		{
-//			pMaterial->GetShaderResource(Material::Albedo),
-//			pMaterial->GetShaderResource(Material::Roughness),
-//			pMaterial->GetShaderResource(Material::Metallic),
-//			pMaterial->GetShaderResource(Material::Normal),
-//			pMaterial->GetShaderResource(Material::Height),
-//		};
-//
-//		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
-//		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-//		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
-//
-//		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
-//		{
-//			Transform* pLightTransform = itLight->GetTransform();
-//			auto pLightData = mLightBuffer->Map();
-//			{
-//				pLightData->lightpos = pLightTransform->GetPosition();
-//				pLightData->lightdir = pLightTransform->GetForward();
-//			}
-//			mLightBuffer->Unmap();
-//			mLightBuffer->Bind(ShaderType::VS, 2);
-//
-//			switch (itLight->GetLightType())
-//			{
-//				case Light::Directional:
-//					GetMatchingShader(pMaterial->GetShaderFlags() | DIRECTIONAL_LIGHT)->Bind();
-//					break;
-//				case Light::Point:
-//					GetMatchingShader(pMaterial->GetShaderFlags() | POINT_LIGHT)->Bind();
-//					break;
-//			}
-//			mLightPassBlend->Bind();
-//			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-//		}
-//	}
-//}
-//
-//void Renderer::RenderSkinnedMesh(Scene * scene)
-//{
-//	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2), sizeof(Vector4), sizeof(Vector4) };
-//	UINT offset[] = { 0, 0, 0, 0, 0, 0 };
-//
-//	//for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
-//	//{
-//	//	Transform* pRenderableTransform = itRenderable->GetTransform();
-//	//	auto pWorldData = mWorldBuffer->Map();
-//	//	{
-//	//		pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
-//	//	}
-//	//	mWorldBuffer->Unmap();
-//	//	mWorldBuffer->Bind(ShaderType::VS, 1);
-//	//
-//	//	Mesh* pMesh = itRenderable->GetMesh();
-//	//	if (!pMesh) continue;
-//	//
-//	//	ID3D11Buffer* vbs[] =
-//	//	{
-//	//		pMesh->GetPositionBuffer(),
-//	//	};
-//	//
-//	//	mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
-//	//	mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-//	//
-//	//	GetMatchingShader(DEPTH_PASS)->Bind();
-//	//	mDepthPassBlend->Bind();
-//	//	mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-//	//}
-//
-//	for (auto itRenderable = scene->ComponentBegin<SkinnedMeshRenderer>(); itRenderable != scene->ComponentEnd<SkinnedMeshRenderer>(); itRenderable++)
-//	{
-//		std::map<std::string, Transform*> pTransformLUT;
-//		Transform* pRootTransform = itRenderable->GetRootTransform();
-//		auto CollectTransforms = [&pTransformLUT](Transform* transform, const auto& lambda)->void
-//		{
-//			pTransformLUT[transform->GetOwner()->GetName()] = transform;
-//			for (size_t i = 0; i < transform->GetChildCount(); i++)
-//				lambda(transform->GetChild(i), lambda);
-//		};
-//		if (pRootTransform)
-//			CollectTransforms(pRootTransform, CollectTransforms);
-//
-//		Mesh* pMesh = itRenderable->GetMesh();
-//		if (!pMesh) continue;
-//
-//		auto pBoneData = mBoneBuffer->Map();
-//		auto pBones = pMesh->GetBoneData();
-//		for (unsigned int i = 0; i < pMesh->GetBoneCount(); i++)
-//		{
-//			auto iter = pTransformLUT.find(pBones[i].BoneName);
-//			if (iter != pTransformLUT.end())
-//				//pBoneData->bones[i] = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(iter->second->GetWorldTransform(), pBones[i].InverseTransform));
-//				pBoneData->bones[i] = DirectX::XMMatrixTranspose(iter->second->GetWorldTransform());
-//			else
-//				pBoneData->bones[i] = DirectX::XMMatrixIdentity();
-//		}
-//		mBoneBuffer->Unmap();
-//		mBoneBuffer->Bind(ShaderType::VS, 1);
-//
-//		Material* pMaterial = itRenderable->GetMaterial();
-//		if (!pMaterial) continue;
-//
-//		ID3D11Buffer* vbs[] =
-//		{
-//			pMesh->GetPositionBuffer(),
-//			pMesh->GetNormalBuffer(),
-//			pMesh->GetTangentBuffer(),
-//			pMesh->GetTexcoordBuffer(),
-//			pMesh->GetBlendIndicesBuffer(),
-//			pMesh->GetBlendWeightsBuffer(),
-//		};
-//
-//		ID3D11ShaderResourceView* srv[] =
-//		{
-//			pMaterial->GetShaderResource(Material::Albedo),
-//			pMaterial->GetShaderResource(Material::Roughness),
-//			pMaterial->GetShaderResource(Material::Metallic),
-//			pMaterial->GetShaderResource(Material::Normal),
-//			pMaterial->GetShaderResource(Material::Height),
-//		};
-//
-//		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 6, vbs, stride, offset);
-//		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-//		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
-//
-//		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
-//		{
-//			Transform* pLightTransform = itLight->GetTransform();
-//			auto pLightData = mLightBuffer->Map();
-//			{
-//				pLightData->lightpos = pLightTransform->GetPosition();
-//				pLightData->lightdir = pLightTransform->GetForward();
-//			}
-//			mLightBuffer->Unmap();
-//			mLightBuffer->Bind(ShaderType::VS, 2);
-//
-//			switch (itLight->GetLightType())
-//			{
-//				case Light::Directional:
-//					GetMatchingShader(pMaterial->GetShaderFlags() | DIRECTIONAL_LIGHT | SKINNED)->Bind();
-//					break;
-//				case Light::Point:
-//					GetMatchingShader(pMaterial->GetShaderFlags() | POINT_LIGHT | SKINNED)->Bind();
-//					break;
-//			}
-//			mLightPassBlend->Bind();
-//			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-//		}
-//	}
-//}
+	for (auto itRenderable = scene->ComponentBegin<SkinnedMeshRenderer>(); itRenderable != scene->ComponentEnd<SkinnedMeshRenderer>(); itRenderable++)
+	{
+		//Transform* pRenderableTransform = itRenderable->GetTransform();
+		auto pBoneData = mBoneBuffer->Map();
+		{
+
+		}
+		mBoneBuffer->Unmap();
+		mBoneBuffer->Bind(ShaderType::VS, 1);
+
+		Mesh* pMesh = itRenderable->GetMesh();
+		if (!pMesh) continue;
+
+		Material* pMaterial = itRenderable->GetMaterial();
+		if (!pMaterial) continue;
+
+		GetMatchingShader(pMaterial->GetShaderFlags() | ShaderFlags::SKINNED)->Bind();
+
+		ID3D11Buffer* vbs[] =
+		{
+			pMesh->GetPositionBuffer(),
+			pMesh->GetNormalBuffer(),
+			pMesh->GetTangentBuffer(),
+			pMesh->GetTexcoordBuffer(),
+			pMesh->GetBlendIndicesBuffer(),
+			pMesh->GetBlendWeightsBuffer(),
+		};
+
+		ID3D11ShaderResourceView* srv[] =
+		{
+			pMaterial->GetShaderResource(Material::Albedo),
+			pMaterial->GetShaderResource(Material::Roughness),
+			pMaterial->GetShaderResource(Material::Metallic),
+			pMaterial->GetShaderResource(Material::Normal),
+			pMaterial->GetShaderResource(Material::Height),
+		};
+
+		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 6, vbs, stride, offset);
+		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
+
+		mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+	}
+}
 
 Shader * Renderer::GetMatchingShader(unsigned int flags)
 {
@@ -376,9 +219,6 @@ Shader * Renderer::GetMatchingShader(unsigned int flags)
 			{ "METALLIC_TEXTURE",  flags & METALLIC_TEXTURE  ? "1" : "0" },
 			{ "NORMAL_TEXTURE",    flags & NORMAL_TEXTURE    ? "1" : "0" },
 			{ "HEIGHT_TEXTURE",    flags & HEIGHT_TEXTURE    ? "1" : "0" },
-			{ "DEPTH_PASS",        flags & DEPTH_PASS        ? "1" : "0" },
-			{ "DIRECTIONAL_LIGHT", flags & DIRECTIONAL_LIGHT ? "1" : "0" },
-			{ "POINT_LIGHT",       flags & POINT_LIGHT       ? "1" : "0" },
 			{ "SKINNED",           flags & SKINNED           ? "1" : "0" },
 			{ nullptr, nullptr }
 		};
