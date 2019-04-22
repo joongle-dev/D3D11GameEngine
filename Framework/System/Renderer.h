@@ -18,12 +18,49 @@ struct BoneBuffer
 	DirectX::XMMATRIX bones[96];
 };
 
+//struct LightBuffer
+//{
+//	DirectX::XMVECTOR lightpos;
+//	DirectX::XMVECTOR lightdir;
+//};
+
 struct LightBuffer
 {
-	DirectX::XMVECTOR lightpos;
-	DirectX::XMVECTOR lightdir;
-};
+	unsigned int numDirectionalLight;
+	unsigned int numPointLight;
+	unsigned int numSpotLight;
+	unsigned int padding[1];
 
+	struct
+	{
+		Vector3 color;
+		float  padding1[1];
+		Vector3 direction;
+		float  padding2[1];
+	} directionalLight[4];
+
+	struct
+	{
+		Vector3 color;
+		float  padding1[1];
+		Vector3 position;
+		float padding2[1];
+		float  range;
+		float padding3[3];
+	} pointLight[32];
+
+	struct
+	{
+		Vector3 color;
+		float  padding1[1];
+		Vector3 position;
+		float  padding2;
+		Vector3 direction;
+		float  padding3[1];
+		float  range;
+		float padding4[3];
+	} spotLight[32];
+};
 
 enum ShaderFlags : unsigned int
 {

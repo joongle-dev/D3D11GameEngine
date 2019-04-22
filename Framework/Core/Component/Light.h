@@ -20,8 +20,8 @@ public:
 	void SetLightType(const LightType type) { m_eLightType = type; }
 	const LightType GetLightType() const { return m_eLightType; }
 
-	void SetColor(const Color& color) { m_vLightColor = color; }
-	const Color& GetColor() const { return m_vLightColor; }
+	void SetColor(const Vector3& color) { m_vLightColor = color; }
+	const Vector3& GetColor() const { return m_vLightColor; }
 
 	void SetRange(const float range) { m_fLightRange = range; }
 	const float GetRange() const { return m_fLightRange; }
@@ -32,6 +32,6 @@ private:
 	class Transform* m_pTransform;
 
 	LightType m_eLightType;
-	Color m_vLightColor;
+	Vector3 m_vLightColor;
 	float m_fLightRange;
 };

@@ -37,17 +37,17 @@ Renderer::Renderer(Context * context) :
 	mDepthPassBlend = new BlendState(context);
 	mDepthPassBlend->Create();
 
-	mLightPassBlend = new BlendState(context);
-	D3D11_BLEND_DESC* blendstate = mLightPassBlend->Map();
-	blendstate->RenderTarget[0].BlendEnable = true;
-	blendstate->RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	blendstate->RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-	blendstate->RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendstate->RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blendstate->RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	blendstate->RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	mLightPassBlend->Create();
-	mLightPassBlend->Bind();
+	//mLightPassBlend = new BlendState(context);
+	//D3D11_BLEND_DESC* blendstate = mLightPassBlend->Map();
+	//blendstate->RenderTarget[0].BlendEnable = true;
+	//blendstate->RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	//blendstate->RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	//blendstate->RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	//blendstate->RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	//blendstate->RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	//blendstate->RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	//mLightPassBlend->Create();
+	//mLightPassBlend->Bind();
 
 	RasterizerState* raster = new RasterizerState(context);
 	raster->Create();
@@ -59,6 +59,29 @@ void Renderer::Update()
 	auto pCurrentScene = m_context->GetSubsystem<SceneManager>()->GetCurrentScene();
 
 	mInputLayout->Bind();
+
+	auto pLightData = mLightBuffer->Map();
+	ZeroMemory(pLightData, sizeof(LightBuffer));
+	for (auto itLight = pCurrentScene->ComponentBegin<Light>(); itLight != pCurrentScene->ComponentEnd<Light>(); itLight++)
+	{
+		Transform* pLightTransform = itLight->GetTransform();
+		switch (itLight->GetLightType())
+		{
+			case Light::Directional:
+			{
+				auto& light = pLightData->directionalLight[pLightData->numDirectionalLight++];
+				light.color = itLight->GetColor();
+				light.direction = pLightTransform->GetForward();
+				break;
+			}
+			case Light::Point:
+				break;
+			case Light::Spot:
+				break;
+		}
+	}
+	mLightBuffer->Unmap();
+	mLightBuffer->Bind(ShaderType::PS, 0);
 
 	for (auto itCamera = pCurrentScene->ComponentBegin<Camera>(); itCamera != pCurrentScene->ComponentEnd<Camera>(); itCamera++)
 		RenderCamera(pCurrentScene, itCamera);
@@ -84,15 +107,8 @@ void Renderer::RenderCamera(Scene* scene, Camera * camera)
 	mCameraBuffer->Unmap();
 	mCameraBuffer->Bind(ShaderType::VS, 0);
 
-	mInputLayout->Bind();
 	mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	RenderMesh(scene);
-	RenderSkinnedMesh(scene);
-}
-
-void Renderer::RenderMesh(Scene * scene)
-{
 	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
 	UINT offset[] = { 0, 0, 0, 0 };
 
@@ -105,38 +121,14 @@ void Renderer::RenderMesh(Scene * scene)
 		}
 		mWorldBuffer->Unmap();
 		mWorldBuffer->Bind(ShaderType::VS, 1);
-
+	
 		Mesh* pMesh = itRenderable->GetMesh();
 		if (!pMesh) continue;
-
-		ID3D11Buffer* vbs[] =
-		{
-			pMesh->GetPositionBuffer(),
-		};
-
-		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
-		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-		GetMatchingShader(DEPTH_PASS)->Bind();
-		mDepthPassBlend->Bind();
-		mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-	}
-
-	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
-	{
-		Transform* pRenderableTransform = itRenderable->GetTransform();
-		auto pWorldData = mWorldBuffer->Map();
-		{
-			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
-		}
-		mWorldBuffer->Unmap();
-		mWorldBuffer->Bind(ShaderType::VS, 1);
-
-		Mesh* pMesh = itRenderable->GetMesh();
-		if (!pMesh) continue;
-
+	
 		Material* pMaterial = itRenderable->GetMaterial();
 		if (!pMaterial) continue;
+	
+		GetMatchingShader(pMaterial->GetShaderFlags())->Bind();
 
 		ID3D11Buffer* vbs[] =
 		{
@@ -145,7 +137,7 @@ void Renderer::RenderMesh(Scene * scene)
 			pMesh->GetTangentBuffer(),
 			pMesh->GetTexcoordBuffer(),
 		};
-
+	
 		ID3D11ShaderResourceView* srv[] =
 		{
 			pMaterial->GetShaderResource(Material::Albedo),
@@ -154,151 +146,224 @@ void Renderer::RenderMesh(Scene * scene)
 			pMaterial->GetShaderResource(Material::Normal),
 			pMaterial->GetShaderResource(Material::Height),
 		};
-
+	
 		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
 		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
 
-		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
-		{
-			Transform* pLightTransform = itLight->GetTransform();
-			auto pLightData = mLightBuffer->Map();
-			{
-				pLightData->lightpos = pLightTransform->GetPosition();
-				pLightData->lightdir = pLightTransform->GetForward();
-			}
-			mLightBuffer->Unmap();
-			mLightBuffer->Bind(ShaderType::VS, 2);
-
-			switch (itLight->GetLightType())
-			{
-				case Light::Directional:
-					GetMatchingShader(pMaterial->GetShaderFlags() | DIRECTIONAL_LIGHT)->Bind();
-					break;
-				case Light::Point:
-					GetMatchingShader(pMaterial->GetShaderFlags() | POINT_LIGHT)->Bind();
-					break;
-			}
-			mLightPassBlend->Bind();
-			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-		}
+		mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
 	}
 }
 
-void Renderer::RenderSkinnedMesh(Scene * scene)
-{
-	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2), sizeof(Vector4), sizeof(Vector4) };
-	UINT offset[] = { 0, 0, 0, 0, 0, 0 };
-
-	//for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
-	//{
-	//	Transform* pRenderableTransform = itRenderable->GetTransform();
-	//	auto pWorldData = mWorldBuffer->Map();
-	//	{
-	//		pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
-	//	}
-	//	mWorldBuffer->Unmap();
-	//	mWorldBuffer->Bind(ShaderType::VS, 1);
-	//
-	//	Mesh* pMesh = itRenderable->GetMesh();
-	//	if (!pMesh) continue;
-	//
-	//	ID3D11Buffer* vbs[] =
-	//	{
-	//		pMesh->GetPositionBuffer(),
-	//	};
-	//
-	//	mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
-	//	mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-	//
-	//	GetMatchingShader(DEPTH_PASS)->Bind();
-	//	mDepthPassBlend->Bind();
-	//	mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-	//}
-
-	for (auto itRenderable = scene->ComponentBegin<SkinnedMeshRenderer>(); itRenderable != scene->ComponentEnd<SkinnedMeshRenderer>(); itRenderable++)
-	{
-		std::map<std::string, Transform*> pTransformLUT;
-		Transform* pRootTransform = itRenderable->GetRootTransform();
-		auto CollectTransforms = [&pTransformLUT](Transform* transform, const auto& lambda)->void
-		{
-			pTransformLUT[transform->GetOwner()->GetName()] = transform;
-			for (size_t i = 0; i < transform->GetChildCount(); i++)
-				lambda(transform->GetChild(i), lambda);
-		};
-		if (pRootTransform)
-			CollectTransforms(pRootTransform, CollectTransforms);
-
-		Mesh* pMesh = itRenderable->GetMesh();
-		if (!pMesh) continue;
-
-		auto pBoneData = mBoneBuffer->Map();
-		auto pBones = pMesh->GetBoneData();
-		for (unsigned int i = 0; i < pMesh->GetBoneCount(); i++)
-		{
-			auto iter = pTransformLUT.find(pBones[i].BoneName);
-			if (iter != pTransformLUT.end())
-				//pBoneData->bones[i] = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(iter->second->GetWorldTransform(), pBones[i].InverseTransform));
-				pBoneData->bones[i] = DirectX::XMMatrixTranspose(iter->second->GetWorldTransform());
-			else
-				pBoneData->bones[i] = DirectX::XMMatrixIdentity();
-		}
-		mBoneBuffer->Unmap();
-		mBoneBuffer->Bind(ShaderType::VS, 1);
-
-		Material* pMaterial = itRenderable->GetMaterial();
-		if (!pMaterial) continue;
-
-		ID3D11Buffer* vbs[] =
-		{
-			pMesh->GetPositionBuffer(),
-			pMesh->GetNormalBuffer(),
-			pMesh->GetTangentBuffer(),
-			pMesh->GetTexcoordBuffer(),
-			pMesh->GetBlendIndicesBuffer(),
-			pMesh->GetBlendWeightsBuffer(),
-		};
-
-		ID3D11ShaderResourceView* srv[] =
-		{
-			pMaterial->GetShaderResource(Material::Albedo),
-			pMaterial->GetShaderResource(Material::Roughness),
-			pMaterial->GetShaderResource(Material::Metallic),
-			pMaterial->GetShaderResource(Material::Normal),
-			pMaterial->GetShaderResource(Material::Height),
-		};
-
-		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 6, vbs, stride, offset);
-		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
-
-		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
-		{
-			Transform* pLightTransform = itLight->GetTransform();
-			auto pLightData = mLightBuffer->Map();
-			{
-				pLightData->lightpos = pLightTransform->GetPosition();
-				pLightData->lightdir = pLightTransform->GetForward();
-			}
-			mLightBuffer->Unmap();
-			mLightBuffer->Bind(ShaderType::VS, 2);
-
-			switch (itLight->GetLightType())
-			{
-				case Light::Directional:
-					GetMatchingShader(pMaterial->GetShaderFlags() | DIRECTIONAL_LIGHT | SKINNED)->Bind();
-					break;
-				case Light::Point:
-					GetMatchingShader(pMaterial->GetShaderFlags() | POINT_LIGHT | SKINNED)->Bind();
-					break;
-			}
-			mLightPassBlend->Bind();
-			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
-		}
-	}
-}
+//void Renderer::RenderMesh(Scene * scene)
+//{
+//	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2) };
+//	UINT offset[] = { 0, 0, 0, 0 };
+//
+//	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
+//	{
+//		Transform* pRenderableTransform = itRenderable->GetTransform();
+//		auto pWorldData = mWorldBuffer->Map();
+//		{
+//			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
+//		}
+//		mWorldBuffer->Unmap();
+//		mWorldBuffer->Bind(ShaderType::VS, 1);
+//
+//		Mesh* pMesh = itRenderable->GetMesh();
+//		if (!pMesh) continue;
+//
+//		ID3D11Buffer* vbs[] =
+//		{
+//			pMesh->GetPositionBuffer(),
+//		};
+//
+//		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
+//		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+//
+//		GetMatchingShader(DEPTH_PASS)->Bind();
+//		mDepthPassBlend->Bind();
+//		mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+//	}
+//
+//	for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
+//	{
+//		Transform* pRenderableTransform = itRenderable->GetTransform();
+//		auto pWorldData = mWorldBuffer->Map();
+//		{
+//			pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
+//		}
+//		mWorldBuffer->Unmap();
+//		mWorldBuffer->Bind(ShaderType::VS, 1);
+//
+//		Mesh* pMesh = itRenderable->GetMesh();
+//		if (!pMesh) continue;
+//
+//		Material* pMaterial = itRenderable->GetMaterial();
+//		if (!pMaterial) continue;
+//
+//		ID3D11Buffer* vbs[] =
+//		{
+//			pMesh->GetPositionBuffer(),
+//			pMesh->GetNormalBuffer(),
+//			pMesh->GetTangentBuffer(),
+//			pMesh->GetTexcoordBuffer(),
+//		};
+//
+//		ID3D11ShaderResourceView* srv[] =
+//		{
+//			pMaterial->GetShaderResource(Material::Albedo),
+//			pMaterial->GetShaderResource(Material::Roughness),
+//			pMaterial->GetShaderResource(Material::Metallic),
+//			pMaterial->GetShaderResource(Material::Normal),
+//			pMaterial->GetShaderResource(Material::Height),
+//		};
+//
+//		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 4, vbs, stride, offset);
+//		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+//		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
+//
+//		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
+//		{
+//			Transform* pLightTransform = itLight->GetTransform();
+//			auto pLightData = mLightBuffer->Map();
+//			{
+//				pLightData->lightpos = pLightTransform->GetPosition();
+//				pLightData->lightdir = pLightTransform->GetForward();
+//			}
+//			mLightBuffer->Unmap();
+//			mLightBuffer->Bind(ShaderType::VS, 2);
+//
+//			switch (itLight->GetLightType())
+//			{
+//				case Light::Directional:
+//					GetMatchingShader(pMaterial->GetShaderFlags() | DIRECTIONAL_LIGHT)->Bind();
+//					break;
+//				case Light::Point:
+//					GetMatchingShader(pMaterial->GetShaderFlags() | POINT_LIGHT)->Bind();
+//					break;
+//			}
+//			mLightPassBlend->Bind();
+//			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+//		}
+//	}
+//}
+//
+//void Renderer::RenderSkinnedMesh(Scene * scene)
+//{
+//	UINT stride[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector2), sizeof(Vector4), sizeof(Vector4) };
+//	UINT offset[] = { 0, 0, 0, 0, 0, 0 };
+//
+//	//for (auto itRenderable = scene->ComponentBegin<MeshRenderer>(); itRenderable != scene->ComponentEnd<MeshRenderer>(); itRenderable++)
+//	//{
+//	//	Transform* pRenderableTransform = itRenderable->GetTransform();
+//	//	auto pWorldData = mWorldBuffer->Map();
+//	//	{
+//	//		pWorldData->world = XMMatrixTranspose(pRenderableTransform->GetWorldTransform());
+//	//	}
+//	//	mWorldBuffer->Unmap();
+//	//	mWorldBuffer->Bind(ShaderType::VS, 1);
+//	//
+//	//	Mesh* pMesh = itRenderable->GetMesh();
+//	//	if (!pMesh) continue;
+//	//
+//	//	ID3D11Buffer* vbs[] =
+//	//	{
+//	//		pMesh->GetPositionBuffer(),
+//	//	};
+//	//
+//	//	mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 1, vbs, stride, offset);
+//	//	mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+//	//
+//	//	GetMatchingShader(DEPTH_PASS)->Bind();
+//	//	mDepthPassBlend->Bind();
+//	//	mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+//	//}
+//
+//	for (auto itRenderable = scene->ComponentBegin<SkinnedMeshRenderer>(); itRenderable != scene->ComponentEnd<SkinnedMeshRenderer>(); itRenderable++)
+//	{
+//		std::map<std::string, Transform*> pTransformLUT;
+//		Transform* pRootTransform = itRenderable->GetRootTransform();
+//		auto CollectTransforms = [&pTransformLUT](Transform* transform, const auto& lambda)->void
+//		{
+//			pTransformLUT[transform->GetOwner()->GetName()] = transform;
+//			for (size_t i = 0; i < transform->GetChildCount(); i++)
+//				lambda(transform->GetChild(i), lambda);
+//		};
+//		if (pRootTransform)
+//			CollectTransforms(pRootTransform, CollectTransforms);
+//
+//		Mesh* pMesh = itRenderable->GetMesh();
+//		if (!pMesh) continue;
+//
+//		auto pBoneData = mBoneBuffer->Map();
+//		auto pBones = pMesh->GetBoneData();
+//		for (unsigned int i = 0; i < pMesh->GetBoneCount(); i++)
+//		{
+//			auto iter = pTransformLUT.find(pBones[i].BoneName);
+//			if (iter != pTransformLUT.end())
+//				//pBoneData->bones[i] = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(iter->second->GetWorldTransform(), pBones[i].InverseTransform));
+//				pBoneData->bones[i] = DirectX::XMMatrixTranspose(iter->second->GetWorldTransform());
+//			else
+//				pBoneData->bones[i] = DirectX::XMMatrixIdentity();
+//		}
+//		mBoneBuffer->Unmap();
+//		mBoneBuffer->Bind(ShaderType::VS, 1);
+//
+//		Material* pMaterial = itRenderable->GetMaterial();
+//		if (!pMaterial) continue;
+//
+//		ID3D11Buffer* vbs[] =
+//		{
+//			pMesh->GetPositionBuffer(),
+//			pMesh->GetNormalBuffer(),
+//			pMesh->GetTangentBuffer(),
+//			pMesh->GetTexcoordBuffer(),
+//			pMesh->GetBlendIndicesBuffer(),
+//			pMesh->GetBlendWeightsBuffer(),
+//		};
+//
+//		ID3D11ShaderResourceView* srv[] =
+//		{
+//			pMaterial->GetShaderResource(Material::Albedo),
+//			pMaterial->GetShaderResource(Material::Roughness),
+//			pMaterial->GetShaderResource(Material::Metallic),
+//			pMaterial->GetShaderResource(Material::Normal),
+//			pMaterial->GetShaderResource(Material::Height),
+//		};
+//
+//		mGraphics->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//		mGraphics->GetDeviceContext()->IASetVertexBuffers(0, 6, vbs, stride, offset);
+//		mGraphics->GetDeviceContext()->IASetIndexBuffer(pMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+//		mGraphics->GetDeviceContext()->PSSetShaderResources(0, 5, srv);
+//
+//		for (auto itLight = scene->ComponentBegin<Light>(); itLight != scene->ComponentEnd<Light>(); itLight++)
+//		{
+//			Transform* pLightTransform = itLight->GetTransform();
+//			auto pLightData = mLightBuffer->Map();
+//			{
+//				pLightData->lightpos = pLightTransform->GetPosition();
+//				pLightData->lightdir = pLightTransform->GetForward();
+//			}
+//			mLightBuffer->Unmap();
+//			mLightBuffer->Bind(ShaderType::VS, 2);
+//
+//			switch (itLight->GetLightType())
+//			{
+//				case Light::Directional:
+//					GetMatchingShader(pMaterial->GetShaderFlags() | DIRECTIONAL_LIGHT | SKINNED)->Bind();
+//					break;
+//				case Light::Point:
+//					GetMatchingShader(pMaterial->GetShaderFlags() | POINT_LIGHT | SKINNED)->Bind();
+//					break;
+//			}
+//			mLightPassBlend->Bind();
+//			mGraphics->GetDeviceContext()->DrawIndexed(pMesh->GetIndexCount(), 0, 0);
+//		}
+//	}
+//}
 
 Shader * Renderer::GetMatchingShader(unsigned int flags)
 {
@@ -317,7 +382,7 @@ Shader * Renderer::GetMatchingShader(unsigned int flags)
 			{ "SKINNED",           flags & SKINNED           ? "1" : "0" },
 			{ nullptr, nullptr }
 		};
-		iter.first->second->Create("../Assets/Shader/Default.hlsl", "VS", "PS", macros);
+		iter.first->second->Create("../Assets/Shader/Default1.hlsl", "VS", "PS", macros);
 	}
 	return iter.first->second.get();
 }

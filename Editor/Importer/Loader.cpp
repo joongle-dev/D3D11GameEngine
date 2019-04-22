@@ -83,7 +83,7 @@ void Importer::ImportModel(const std::string & filepath)
 	{
 		ProcessMesh(pAiScene);
 		ProcessMaterial(pAiScene);
-		ProcessAnimation(pAiScene);
+		//ProcessAnimation(pAiScene);
 		ProcessNodes(pAiScene);
 	}
 	else
@@ -102,17 +102,17 @@ void Importer::ProcessNodes(const aiScene * pAiScene)
 		GameObject* pNodeObject = pGameScene->Instantiate();
 		pNodeObject->SetName(pAiNode->mName.C_Str());
 
-		if (pAiNode == pAiScene->mRootNode)
-		{
-			Animator* pAnimator = pNodeObject->AddComponent<Animator>();
-			pAnimator->SetAnimation(mAnimations[0]);
-		}
+		//if (pAiNode == pAiScene->mRootNode)
+		//{
+		//	Animator* pAnimator = pNodeObject->AddComponent<Animator>();
+		//	pAnimator->SetAnimation(mAnimations[0]);
+		//}
 
 		if (pAiNode->mNumMeshes)
 		{
-			//MeshRenderer* pMeshRenderer = pNodeObject->AddComponent<MeshRenderer>();
-			SkinnedMeshRenderer* pMeshRenderer = pNodeObject->AddComponent<SkinnedMeshRenderer>();
-			pMeshRenderer->SetRootTransform(temp);
+			MeshRenderer* pMeshRenderer = pNodeObject->AddComponent<MeshRenderer>();
+			//SkinnedMeshRenderer* pMeshRenderer = pNodeObject->AddComponent<SkinnedMeshRenderer>();
+			//pMeshRenderer->SetRootTransform(temp);
 			pMeshRenderer->SetMesh(mMeshes[pAiNode->mMeshes[0]]);
 			pMeshRenderer->SetMaterial(mMaterials[pAiScene->mMeshes[pAiNode->mMeshes[0]]->mMaterialIndex]);
 		}

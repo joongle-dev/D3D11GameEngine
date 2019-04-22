@@ -34,7 +34,7 @@ void SceneWidget::CameraControl()
 		Transform* transform = m_camera->GetComponent<Transform>();
 
 		//Keyboard
-		float speed = 2.0f * elapsed;
+		float speed = 32.0f * elapsed;
 		Vector3 forward = transform->GetForward();
 		Vector3 right = transform->GetRight();
 		Vector3 up = transform->GetUp();
