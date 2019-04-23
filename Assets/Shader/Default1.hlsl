@@ -82,17 +82,19 @@ cbuffer Light : register(b0)
     struct PointLight
     {
         float3 color;
-        float3 position;
         float  range;
+        float3 position;
+        float  intensity;
     } pointLights[32];
 
     struct SpotLight
     {
         float3 color;
-        float3 position;
-        float  padding2;
-        float3 direction;
         float  range;
+        float3 position;
+        float  intensity;
+        float3 direction;
+        float  spotangle;
     } spotLights[32];
 }
 
@@ -148,31 +150,44 @@ float4 PS(PS_INPUT input) : SV_TARGET
     [loop]
     for (uint dl = 0; dl < numDirectionalLight; dl++)
     {
-        float3 tolight = normalize(-directionalLights[dl].direction);
-        float NdotL = max(dot(tolight, input.normal), 0.0f);
-        float NdotH = max(dot(normalize(input.toeye + tolight), input.normal), 0.0f);
-        float3 specular = directionalLights[dl].color;
-        specular *= GGX(roughness, NdotH) * (1.0f - roughness);
-        color += (specular + albedo) * NdotL;
+        float3 incidence = normalize(-directionalLights[dl].direction);
+        float  NdotL = max(dot(incidence, input.normal), 0.0f);
+        float  NdotH = max(dot(normalize(input.toeye + incidence), input.normal), 0.0f);
+        float3 lightcol = directionalLights[dl].color;
+        float3 specular = GGX(roughness, NdotH) * (1.0f - roughness) * lightcol;
+        color += (specular + albedo * lightcol) * NdotL;
     }
     
     [loop]
     for (uint pl = 0; pl < numPointLight; pl++)
     {
-        float3 tolight = normalize(pointLights[pl].position - input.worldpos.xyz);
-		float NdotL = max(dot(tolight, input.normal), 0.0f);
-		float NdotH = max(dot(normalize(input.toeye + tolight), input.normal), 0.0f);
-		float3 specular = directionalLights[dl].color;
-		specular *= GGX(roughness, NdotH) * (1.0f - roughness);
-		color += (specular + albedo) * NdotL;
+        float3 tolight = pointLights[pl].position - input.worldpos.xyz;
+        float  distance = length(tolight);
+        float3 incidence = normalize(tolight);
+        float  NdotL = max(dot(incidence, input.normal), 0.0f);
+        float  NdotH = max(dot(normalize(input.toeye + incidence), input.normal), 0.0f);
+        float3 lightcol = pointLights[pl].color;
+        float3 specular = GGX(roughness, NdotH) * (1.0f - roughness) * lightcol;
+        float attenuation = 1.0f - smoothstep(pointLights[pl].range * pointLights[pl].intensity, pointLights[pl].range, distance);
+        color += (specular + albedo * lightcol) * NdotL * attenuation;
     }
 
     [loop]
     for (uint sl = 0; sl < numSpotLight; sl++)
     {
-        float3 tolight = normalize(spotLights[sl].position - input.worldpos.xyz);
+        float3 tolight = spotLights[sl].position - input.worldpos.xyz;
+        float  distance = length(tolight);
+        float3 incidence = normalize(tolight);
+        float NdotL = max(dot(incidence, input.normal), 0.0f);
+        float NdotH = max(dot(normalize(input.toeye + incidence), input.normal), 0.0f);
+        float3 lightcol = spotLights[sl].color;
+        float3 specular = GGX(roughness, NdotH) * (1.0f - roughness) * lightcol;
+        float attenuation = 1.0f - smoothstep(spotLights[sl].range * spotLights[sl].intensity, spotLights[sl].range, distance);
+        float mincos = cos(spotLights[sl].spotangle);
+        float maxcos = cos(spotLights[sl].spotangle * spotLights[sl].intensity);
+        float spotintensity = smoothstep(mincos, maxcos, dot(-incidence, spotLights[sl].direction));
+        color += (specular + albedo * lightcol) * NdotL * attenuation * spotintensity;
     }
     
-    //return float4(1.0f, 1.0f, 1.0f, 1.0f);
     return float4(color, 1.0f);
 }

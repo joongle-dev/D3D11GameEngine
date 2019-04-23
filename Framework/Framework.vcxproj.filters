@@ -41,6 +41,7 @@
     <ClInclude Include="Core\Component\SkinnedMeshRenderer.h" />
     <ClInclude Include="Resource\Prefab.h" />
     <ClInclude Include="Utility\Serializable.h" />
+    <ClInclude Include="System\Log.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Component\Camera.cpp" />

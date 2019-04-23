@@ -15,6 +15,7 @@ private:
 	void ShowMeshRender();
 	void ShowSkinnedMeshRender();
 	void ShowAnimator();
+	void ShowLight();
 
 	void ShowMaterial(class Material* pMaterial);
 	void ShowMesh(class Mesh* pMesh);

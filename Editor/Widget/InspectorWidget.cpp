@@ -27,6 +27,7 @@ void InspectorWidget::Render()
 	ShowCamera();
 	ShowMeshRender();
 	ShowSkinnedMeshRender();
+	ShowLight();
 
 	ImGui::PopItemWidth();
 }
@@ -126,6 +127,60 @@ void InspectorWidget::ShowSkinnedMeshRender()
 
 void InspectorWidget::ShowAnimator()
 {
+}
+
+void InspectorWidget::ShowLight()
+{
+	Light* pLight = EditorHelper::sSelected->GetComponent<Light>();
+	if (!pLight) return;
+
+	if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+
+		ImGui::Text("Lighting type:");
+		const char* types[] = { "Directional", "Point", "Spot" };
+		Light::LightType type = pLight->GetLightType();
+		if (ImGui::BeginCombo("##LightType", types[type], ImGuiComboFlags_None))
+		{
+			bool bSelected = false;
+			for (unsigned int i = 0; i < 3; i++)
+				if (ImGui::Selectable(types[i], &bSelected))
+					pLight->SetLightType(static_cast<Light::LightType>(i));
+			if (bSelected)
+				ImGui::SetItemDefaultFocus();
+			ImGui::EndCombo();
+		}
+
+		ImGui::Separator();
+		ImGui::Text("Color:");
+		Vector3 color = pLight->GetColor();
+		if (ImGui::ColorEdit3("##LightColor", &color.x))
+			pLight->SetColor(color);
+
+		if (type != Light::Directional)
+		{
+			ImGui::Separator();
+			ImGui::Text("Range:");
+			float range = pLight->GetRange();
+			if (ImGui::SliderFloat("##Range", &range, 0.1f, 1000.0f))
+				pLight->SetRange(range);
+
+			ImGui::Separator();
+			ImGui::Text("Intensity:");
+			float intensity = pLight->GetIntensity();
+			if (ImGui::SliderFloat("##Intensity", &intensity, 0.0f, 1.0f))
+				pLight->SetIntensity(intensity);
+				
+			if (type == Light::Spot)
+			{
+				ImGui::Separator();
+				ImGui::Text("Spot Angle:");
+				float angle = pLight->GetSpotAngle() * TO_DEG;
+				if (ImGui::SliderFloat("##SpotAngle", &angle, 1.0f, 90.0f))
+					pLight->SetSpotAngle(angle * TO_RAD);
+			}
+		}
+	}
 }
 
 void InspectorWidget::ShowMaterial(Material * pMaterial)

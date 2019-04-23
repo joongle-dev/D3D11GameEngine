@@ -8,4 +8,9 @@ public:
 	~LogWidget() = delete;
 
 	void Render() override;
+
+private:
+	bool mShowInfo;
+	bool mShowWarning;
+	bool mShowError;
 };

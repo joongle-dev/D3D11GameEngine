@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <algorithm>
+#include <mutex>
 
 //DirectX
 #pragma comment(lib, "dxgi.lib")

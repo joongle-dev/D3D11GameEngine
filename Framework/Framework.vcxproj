@@ -46,6 +46,7 @@
     <ClInclude Include="System\Context.h" />
     <ClInclude Include="System\Graphics.h" />
     <ClInclude Include="System\Input.h" />
+    <ClInclude Include="System\Log.h" />
     <ClInclude Include="System\Renderer.h" />
     <ClInclude Include="System\ResourceManager.h" />
     <ClInclude Include="System\SceneManager.h" />
