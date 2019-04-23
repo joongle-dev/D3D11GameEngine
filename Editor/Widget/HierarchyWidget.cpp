@@ -48,13 +48,11 @@ void HierarchyWidget::ObjectNode(Scene * scene, Transform * transform)
 	bool open = ImGui::TreeNodeEx(label.c_str(), flags);
 
 	//Node interaction
-	ImGui::PushID(label.c_str());
 	DragSource(transform);
 	DropTarget(transform);
 	ContextMenu(scene, transform);
 	if (ImGui::IsItemClicked(0))
 		EditorHelper::sSelected = object;
-	ImGui::PopID();
 
 	//If node was open, display its child nodes (this transform's children)
 	if (open)
@@ -86,7 +84,6 @@ void HierarchyWidget::DropTarget(Transform * dst)
 	if (Transform* src = ImGuiDropTarget<Transform*>("HierarchyPayload"))
 	{
 		//If drag source is ancestor of drop target, set source's parent as target's parent
-		//This swaps the source and destination transforms in hierarchy
 		if (AncestorCheck(src, dst, AncestorCheck))
 			dst->SetParent(src->GetParent());
 
@@ -99,16 +96,12 @@ void HierarchyWidget::ContextMenu(Scene * scene, Transform * transform)
 {
 	if (ImGui::BeginPopupContextItem("HierarchyMenu"))
 	{
-		if (transform->GetParent()) 
+		if (ImGui::MenuItem("Delete"))
 		{
-			if (ImGui::MenuItem("Delete"))
-			{
-				scene->Destroy(transform->GetOwner());
-				EditorHelper::sSelected = nullptr;
-
-			}
-			ImGui::Separator();
+			scene->Destroy(transform->GetOwner());
+			EditorHelper::sSelected = nullptr;
 		}
+		ImGui::Separator();
 		if (ImGui::MenuItem("Create Empty"))
 		{
 			auto object = scene->Instantiate();
