@@ -17,21 +17,29 @@ public:
 
 	void Update() override;
 
-	void SetLightType(const LightType type) { m_eLightType = type; }
-	const LightType GetLightType() const { return m_eLightType; }
+	void SetLightType(const LightType type) { mType = type; }
+	const LightType GetLightType() const { return mType; }
 
-	void SetColor(const Vector3& color) { m_vLightColor = color; }
-	const Vector3& GetColor() const { return m_vLightColor; }
+	void SetColor(const Vector3& color) { mColor = color; }
+	const Vector3& GetColor() const { return mColor; }
 
-	void SetRange(const float range) { m_fLightRange = range; }
-	const float GetRange() const { return m_fLightRange; }
+	void SetRange(const float range) { mRange = range; }
+	const float GetRange() const { return mRange; }
 
-	class Transform* GetTransform() const { return m_pTransform; }
+	void SetIntensity(const float intensity) { mIntensity = intensity; }
+	const float GetIntensity() const { return mIntensity; }
+
+	void SetSpotAngle(const float angle) { mSpotAngle = angle; }
+	const float GetSpotAngle() const { return mSpotAngle; }
+
+	class Transform* GetTransform() const { return mTransform; }
 
 private:
-	class Transform* m_pTransform;
+	class Transform* mTransform;
 
-	LightType m_eLightType;
-	Vector3 m_vLightColor;
-	float m_fLightRange;
+	LightType mType;
+	Vector3   mColor;
+	float     mRange;
+	float     mIntensity;
+	float     mSpotAngle;
 };

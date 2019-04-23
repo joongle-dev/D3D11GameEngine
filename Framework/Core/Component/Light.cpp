@@ -3,11 +3,13 @@
 
 Light::Light(Context * context, GameObject * owner) :
 	Component<Light>(context, owner),
-	m_eLightType(Directional),
-	m_vLightColor(1.0f, 1.0f, 1.0f),
-	m_fLightRange(1.0f)
+	mType(Directional),
+	mColor(1.0f, 1.0f, 1.0f),
+	mRange(1.0f),
+	mIntensity(0.75f),
+	mSpotAngle(PI_DIV_4)
 {
-	m_pTransform = m_pGameObject->GetComponent<Transform>();
+	mTransform = m_pGameObject->GetComponent<Transform>();
 }
 
 void Light::Update()

@@ -70,19 +70,31 @@ void Renderer::Update()
 			case Light::Directional:
 			{
 				auto& light = pLightData->directionalLight[pLightData->numDirectionalLight++];
-				light.color = itLight->GetColor();
+
+				light.color     = itLight->GetColor();
 				light.direction = pLightTransform->GetForward();
 				break;
 			}
 			case Light::Point:
 			{
 				auto& light = pLightData->pointLight[pLightData->numPointLight++];
-				light.color = itLight->GetColor();
-				light.position = pLightTransform->GetPosition();
+
+				light.color     = itLight->GetColor();
+				light.range     = itLight->GetRange();
+				light.intensity = itLight->GetIntensity();
+				light.position  = pLightTransform->GetPosition();
 				break;
 			}
 			case Light::Spot:
 			{
+				auto& light = pLightData->spotLight[pLightData->numSpotLight++];
+
+				light.color     = itLight->GetColor();
+				light.range     = itLight->GetRange();
+				light.intensity = itLight->GetIntensity();
+				light.spotangle = itLight->GetSpotAngle();
+				light.position  = pLightTransform->GetPosition();
+				light.direction = pLightTransform->GetForward();
 				break;
 			}
 		}

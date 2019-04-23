@@ -32,31 +32,27 @@ struct LightBuffer
 	struct
 	{
 		Vector3 color;
-		float  padding1[1];
+		float padding1;
 		Vector3 direction;
-		float  padding2[1];
+		float padding2;
 	} directionalLight[4];
 
 	struct
 	{
 		Vector3 color;
-		float  padding1[1];
+		float range;
 		Vector3 position;
-		float padding2[1];
-		float  range;
-		float padding3[3];
+		float intensity;
 	} pointLight[32];
 
 	struct
 	{
 		Vector3 color;
-		float  padding1[1];
+		float range;
 		Vector3 position;
-		float  padding2;
+		float intensity;
 		Vector3 direction;
-		float  padding3[1];
-		float  range;
-		float padding4[3];
+		float spotangle;
 	} spotLight[32];
 };
 
