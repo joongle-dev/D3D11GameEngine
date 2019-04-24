@@ -16,11 +16,13 @@ class ChunkAllocator : public IChunkAllocator
 	//Memory chunk=========================================================
 	struct Chunk
 	{
+		using store_t = std::aligned_storage_t<sizeof(T), alignof(T)>;
+
 	public:
 		Chunk() : numAllocated(0), memory{}
 		{
 			for (size_t i = 0; i < CHUNKSIZE; i++)
-				handles[i] = reinterpret_cast<T*>(memory) + i;
+				handles[i] = reinterpret_cast<T*>(&memory[i]);
 		}
 		~Chunk()
 		{
@@ -32,7 +34,7 @@ class ChunkAllocator : public IChunkAllocator
 	public:
 		size_t numAllocated;
 		T*     handles[CHUNKSIZE];
-		char   memory[CHUNKSIZE * sizeof(T)];
+		store_t memory[CHUNKSIZE];
 	};
 	using Chunks = std::vector<std::unique_ptr<Chunk>>;
 
