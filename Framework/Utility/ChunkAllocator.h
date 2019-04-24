@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 
 class IChunkAllocator
 {
@@ -10,6 +11,100 @@ public:
 	virtual void free(void* object) = 0;
 };
 
+template <class T, size_t CHUNKSIZE = 128>
+class ChunkAllocator : public IChunkAllocator
+{
+	using store_t = std::aligned_storage_t<sizeof(T), alignof(T)>;
+	using self_t = ChunkAllocator<T, CHUNKSIZE>;
+
+public:
+	ChunkAllocator() : mNumAllocated(0), mMemory{}
+	{
+		for (size_t i = 0; i < CHUNKSIZE; i++)
+			mHandles[i] = reinterpret_cast<T*>(&mMemory[i]);
+	}
+	~ChunkAllocator()
+	{
+		for (size_t i = 0; i < mNumAllocated; i++)
+			mHandles[i]->~T();
+	}
+
+	template <typename... Args>
+	T* allocate(Args&&... args)
+	{
+		if (mNumAllocated < CHUNKSIZE)
+			return new(mHandles[mNumAllocated++]) T(std::forward<Args>(args)...);
+
+		if (!mNextChunk)
+			mNextChunk = std::make_unique<self_t>();
+
+		return mNextChunk->allocate(std::forward<Args>(args)...);
+	}
+
+	void deallocate(T* object)
+	{
+		if (object >= reinterpret_cast<T*>(mMemory) && object <= reinterpret_cast<T*>(mMemory) + CHUNKSIZE)
+			for (size_t i = 0; i < mNumAllocated; i++)
+				if (mHandles[i] == object)
+				{
+					object->~T();
+					std::swap(mHandles[i], mHandles[--mNumAllocated]);
+					return;
+				}
+		if (mNextChunk)
+			mNextChunk->deallocate(object);
+	}
+
+	void free(void* object) override
+	{
+		deallocate(static_cast<T*>(object));
+	}
+
+private:
+	std::unique_ptr<self_t> mNextChunk;
+	size_t  mNumAllocated;
+	T*      mHandles[CHUNKSIZE];
+	store_t mMemory[CHUNKSIZE];
+
+public:
+	class iterator
+	{
+	public:
+		iterator() : mChunk(nullptr), mIndex(0) {}
+		iterator(self_t* chunk) : mChunk(chunk), mIndex(0)
+		{
+			if (mChunk->mNumAllocated <= 0 && !mChunk->mNextChunk)
+				mChunk = nullptr;
+		}
+		~iterator() = default;
+
+		inline iterator& operator++(int)
+		{
+			mIndex++;
+			if (mIndex >= mChunk->numAllocated) {
+				mIndex = 0;
+				if (mChunk->mNextChunk)
+					mChunk = mChunk->mNextChunk.get();
+				else
+					mChunk = nullptr;
+			}
+			return *this;
+		}
+		inline T& operator*() { return mChunk->mHandles[mIndex]; }
+		inline T* operator->() { return mChunk->mHandles[mIndex]; }
+		inline bool operator==(const iterator& other) { return (mIndex == other.mIndex) && (mChunk == other.mChunk); }
+		inline bool operator!=(const iterator& other) { return (mIndex != other.mIndex) || (mChunk != other.mChunk); }
+		operator T*() const { return mChunk->mHandles[mIndex]; }
+
+	private:
+		size_t mIndex;
+		self_t* mChunk;
+	};
+	iterator begin() { return iterator(this); }
+	iterator end() { return iterator(); }
+};
+
+/*
 template <class T, size_t CHUNKSIZE = 128>
 class ChunkAllocator : public IChunkAllocator
 {
@@ -123,3 +218,4 @@ public:
 private:
 	Chunks mChunks;
 };
+*/
