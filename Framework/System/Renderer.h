@@ -27,7 +27,7 @@ struct LightBuffer
 	unsigned int numDirectionalLight;
 	unsigned int numPointLight;
 	unsigned int numSpotLight;
-	unsigned int padding[1];
+	unsigned int padding;
 
 	struct
 	{
@@ -99,11 +99,6 @@ private:
 	class ConstantBuffer<BoneBuffer>* mBoneBuffer;
 	class ConstantBuffer<LightBuffer>* mLightBuffer;
 	class InputLayout* mInputLayout;
-
-
-	class DepthStencilState* mLightPassDepth;
-	class BlendState* mDepthPassBlend;
-	class BlendState* mLightPassBlend;
 
 	std::map<unsigned int, std::unique_ptr<class Shader>> mShaders;
 };

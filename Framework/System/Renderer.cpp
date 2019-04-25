@@ -29,26 +29,6 @@ Renderer::Renderer(Context * context) :
 	mInputLayout = new InputLayout(context);
 	mInputLayout->Create(GetMatchingShader(0)->GetBytecode(), Desc, sizeof(Desc) / sizeof(Desc[0]));
 
-	mLightPassDepth = new DepthStencilState(context);
-	mLightPassDepth->Map()->DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	mLightPassDepth->Create();
-	mLightPassDepth->Bind();
-
-	mDepthPassBlend = new BlendState(context);
-	mDepthPassBlend->Create();
-
-	//mLightPassBlend = new BlendState(context);
-	//D3D11_BLEND_DESC* blendstate = mLightPassBlend->Map();
-	//blendstate->RenderTarget[0].BlendEnable = true;
-	//blendstate->RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	//blendstate->RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-	//blendstate->RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	//blendstate->RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	//blendstate->RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	//blendstate->RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	//mLightPassBlend->Create();
-	//mLightPassBlend->Bind();
-
 	RasterizerState* raster = new RasterizerState(context);
 	raster->Create();
 	raster->Bind();
